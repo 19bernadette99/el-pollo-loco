@@ -1,10 +1,6 @@
 class World {
   character = new Character();
-  enemies = [
-    new Chicken(), 
-    new Chicken(), 
-    new Chicken()
-  ];
+  enemies = [new Chicken(), new Chicken(), new Chicken()];
   clouds = [new Cloud()];
   backgroundObjects = [
     new BackgroundObject("img/5_background/layers/air.png", 0),
@@ -26,7 +22,6 @@ class World {
 
   setWorld() {
     this.character.world = this;
-
   }
 
   draw() {
@@ -51,6 +46,18 @@ class World {
   }
 
   addToMap(mo) {
+    if (mo.otherDirection) {
+      this.ctx.save();
+
+      this.ctx.scale(-1, 1);
+      mo.x = -mo.x * -1;
+    }
+
     this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+
+    if (mo.otherDirection) {
+      mo.x = -mo.x * -1;
+      this.ctx.restore(); // Restore the context to its original state
+    }
   }
 }
