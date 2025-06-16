@@ -1,7 +1,8 @@
 class Character extends MoveableObject {
   height = 280;
   width = 140;
-  y = 155;
+  // y = 155;
+  y = 80;
   speed = 10; // Speed of the character
   IMAGES_WALKING = [
     "img/2_character_pepe/2_walk/W-21.png",
@@ -18,7 +19,7 @@ class Character extends MoveableObject {
     super();
     this.loadImage("img/2_character_pepe/2_walk/W-21.png");
     this.loadImages(this.IMAGES_WALKING);
-
+    this.applyGravity();
     this.animate();
 
     this.keyboard = keyboard; 
