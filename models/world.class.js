@@ -28,6 +28,7 @@ class World {
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
 
+
     this.ctx.translate(-this.camera_x, 0);
 
     let self = this;
@@ -43,6 +44,7 @@ class World {
   }
 
   addToMap(mo) {
+    // if (!mo.img || !mo.img.complete || mo.img.naturalWidth === 0) return; 
     if (mo.otherDirection) {
       this.ctx.save();
       this.ctx.translate(mo.x + mo.width, 0);
