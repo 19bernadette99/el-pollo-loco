@@ -28,7 +28,6 @@ class World {
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
 
-
     this.ctx.translate(-this.camera_x, 0);
 
     let self = this;
@@ -44,26 +43,30 @@ class World {
   }
 
   addToMap(mo) {
-    // if (!mo.img || !mo.img.complete || mo.img.naturalWidth === 0) return; 
+    // if (!mo.img || !mo.img.complete || mo.img.naturalWidth === 0) return;
     if (mo.otherDirection) {
-      this.ctx.save();
-      this.ctx.translate(mo.x + mo.width, 0);
-      this.ctx.scale(-1, 1);
-      this.ctx.drawImage(mo.img, 0, mo.y, mo.width, mo.height);
-      this.ctx.restore();
+      this.flipImage(mo);
     } else {
-      this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+      mo.draw(this.ctx);
     }
 
-    this.ctx.beginPath();
-    this.ctx.lineWidth = 5;
-    this.ctx.strokeStyle = 'blue';
-    this.ctx.rect(mo.x, mo.y, mo.width, mo.height);
-    this.ctx.stroke();
+    mo.drawFrame(this.ctx);
 
     if (mo.otherDirection) {
-      mo.x = -mo.x * -1;
-      this.ctx.restore();
+      this.flipImageBack(mo);
     }
+  }
+
+  flipImage(mo) {
+    this.ctx.save();
+    this.ctx.translate(mo.x + mo.width, 0);
+    this.ctx.scale(-1, 1);
+    this.ctx.drawImage(mo.img, 0, mo.y, mo.width, mo.height);
+    this.ctx.restore();
+  }
+
+  flipImageBack(mo) {
+    mo.x = -mo.x * -1;
+    this.ctx.restore();
   }
 }
