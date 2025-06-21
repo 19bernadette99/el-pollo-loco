@@ -1,21 +1,71 @@
-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    user-select: none;
-    background-color: black;
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* {
+    box-sizing: border-box;
 }
 
-canvas {
-    background-color: black;
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;    
+    overflow: hidden;
+    user-select: none;
+    background-image: url('img/5_background/complete_background.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: rgba(10, 10, 25, 0.8); 
+    background-blend-mode: overlay;
+    font-family: 'Press Start 2P', cursive;
+    color: #fff;
+
 }
 
 h1 {
-    color: white;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 24px;
-    margin: 20px 0;
+    margin-bottom: 40px;
+    font-size: 28px;
+    color: #ffffff;
+    background: none;
+    -webkit-text-fill-color: unset;
+    text-shadow:
+        0 0 5px #ffcc00,
+        0 0 10px #ffcc00,
+        0 0 20px #ffaa00;
+    letter-spacing: 1px;
+    animation: neonPulse 2s ease-in-out infinite alternate;
+}
+
+
+canvas {
+    background-color: black;
+    border: 4px solid #ffffffcc;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.2), 
+                0 0 60px rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease;
+  
+}
+
+canvas:hover {
+    transform: scale(1.02);
+}
+
+
+@keyframes neonPulse {
+    0% {
+        text-shadow: 
+            0 0 5px #ffcc00, 
+            0 0 10px #ffcc00,
+            0 0 20px #ffaa00;
+    }
+    100% {
+        text-shadow:
+            0 0 10px #ffff66, 
+            0 0 20px #ffcc00,
+            0 0 40px #ffaa00;
+    }
 }
