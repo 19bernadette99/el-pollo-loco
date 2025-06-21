@@ -10,7 +10,7 @@ class Character extends MoveableObject {
     "img/2_character_pepe/2_walk/W-23.png",
     "img/2_character_pepe/2_walk/W-24.png",
     "img/2_character_pepe/2_walk/W-25.png",
-    "img/2_character_pepe/2_walk/W-26.png"
+    "img/2_character_pepe/2_walk/W-26.png",
   ];
 
   IMAGES_JUMPING = [
@@ -22,7 +22,7 @@ class Character extends MoveableObject {
     "img/2_character_pepe/3_jump/J-36.png",
     "img/2_character_pepe/3_jump/J-37.png",
     "img/2_character_pepe/3_jump/J-38.png",
-    "img/2_character_pepe/3_jump/J-39.png"
+    "img/2_character_pepe/3_jump/J-39.png",
   ];
 
   IMAGES_DEAD = [
@@ -32,9 +32,17 @@ class Character extends MoveableObject {
     "img/2_character_pepe/5_dead/D-54.png",
     "img/2_character_pepe/5_dead/D-55.png",
     "img/2_character_pepe/5_dead/D-56.png",
-    "img/2_character_pepe/5_dead/D-57.png"
+    "img/2_character_pepe/5_dead/D-57.png",
   ];
 
+  IMAGES_HURT = [
+    "img/2_character_pepe/4_hurt/H-41.png", 
+    "img/2_character_pepe/4_hurt/H-42.png",
+    "img/2_character_pepe/4_hurt/H-43.png"
+  ]
+
+  isBeingHit = false;
+  hasDied = false;
   world;
   // walking_sound = new Audio("audio/walking.mp3");
 
@@ -44,6 +52,7 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
+        this.loadImages(this.IMAGES_HURT);
     this.applyGravity();
     this.animate();
 
@@ -66,21 +75,32 @@ class Character extends MoveableObject {
         this.jump();
       }
 
-      this.world.camera_x = -this.x + 100; // Camera follows character
+      this.world.camera_x = -this.x + 100;
     }, 1000 / 60);
 
-    setInterval(() => {
-      if (this.isDead()) {
-        this.playAnimation(this.IMAGES_DEAD); 
-      }
-      else if (this.isAboveGround()) {
-        this.playAnimation(this.IMAGES_JUMPING);
-      } else {
-        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-          this.playAnimation(this.IMAGES_WALKING);
-        }
-      }
-    }, 50);
+setInterval(() => {
+  if (this.isBeingHit) {
+    this.playAnimation(this.IMAGES_DEAD);
+    if (this.currentImage >= this.IMAGES_DEAD.length) {
+      this.isBeingHit = false;
+      this.currentImage = 0;
+    }
+
+  } else if (this.isHurt()) {
+    this.playAnimation(this.IMAGES_HURT);
+
+  } else if (this.hasDied) {
+  
+    this.img = this.imageCache[this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]];
+
+  } else if (this.isAboveGround()) {
+    this.playAnimation(this.IMAGES_JUMPING);
+
+  } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+    this.playAnimation(this.IMAGES_WALKING);
+  }
+}, 50);
+
   }
 
   jump() {
