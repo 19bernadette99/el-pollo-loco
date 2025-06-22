@@ -174,6 +174,31 @@ p {
   box-shadow: 0 0 8px #ffaa00;
   cursor: pointer;
   color: black;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.menu-btn {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.menu-btn:hover {
+  transform: scale(1.05);
+  animation: pulseNeon 1.5s infinite;
+}
+
+@keyframes pulseNeon {
+  0% {
+    box-shadow: 0 0 8px rgba(255, 170, 0, 0.4), 0 0 16px rgba(255, 204, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(255, 170, 0, 0.6), 0 0 24px rgba(255, 204, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 8px rgba(255, 170, 0, 0.4), 0 0 16px rgba(255, 204, 0, 0.3);
+  }
 }
 
 .story-text {
