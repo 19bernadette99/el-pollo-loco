@@ -25,11 +25,101 @@
   <body onload="init()">
     <h1>El pollo loco</h1>
 
-    <canvas id="canvas" width="720" height="480"> </canvas>
+    <div id="startScreenWrapper">
+      <div id="startScreen"></div>
 
-    <button id="openStoryBtn">Story</button>
+      <div class="start-buttons">
+        <button id="startGameBtn" class="menu-btn">Start Game</button>
+        <button id="openStoryBtn" class="menu-btn">Story</button>
+        <button id="openControlsBtn" class="menu-btn">Controls</button>
+        <button id="toggleSoundBtn" class="menu-btn">Sound: On / Off</button>
+
+        <button id="fullscreenBtn" class="menu-btn">Fullscreen</button>
+        <button id="openImpressumBtn" class="menu-btn">Impressum</button>
+      </div>
+    </div>
+
+    <div id="OverlayImpressum" class="hidden overlay">
+      <button id="closeImpressumBtn" class="close-btn">×</button>
+      <div class="story-text, overlay-scroll-content">
+        <p><strong>Impressum</strong></p>
+        <p>
+          Informationen und Offenlegung gemäß §5 (1) ECG, § 25 MedienG, § 63
+          GewO und § 14 UGB
+        </p>
+        <p>
+          <strong>Webseitenbetreiberin:</strong><br />
+          Bernadette Pöltl
+        </p>
+        <p>
+          <strong>Anschrift:</strong><br />
+          Seitelschlag 43/1<br />
+          4161 Ulrichsberg
+        </p>
+        <p>
+          <strong>UID-Nr:</strong>
+          <strong>Gewerbeaufsichtbehörde:</strong>
+          <strong>Mitgliedschaften:</strong>
+        </p>
+        <p>
+          <strong>Kontaktdaten:</strong><br />
+          Telefon: 0650/88 00 963<br />
+          E-Mail: bernadette.poeltl99@gmail.com
+        </p>
+        <p>
+          <strong>Anwendbare Rechtsvorschrift:</strong><br />
+          <a href="https://www.ris.bka.gv.at" target="_blank"
+            >www.ris.bka.gv.at</a
+          >
+        </p>
+        <p>
+          <strong>Online Streitbeilegung:</strong><br />
+          Die Europäische Kommission stellt eine Plattform zur
+          Online-Streitbeilegung bereit:<br />
+          <a href="https://ec.europa.eu/consumers/odr" target="_blank"
+            >https://ec.europa.eu/consumers/odr</a
+          >
+        </p>
+        <p>
+          <strong>Urheberrecht:</strong><br />
+          Die Inhalte dieser Webseite unterliegen dem Urheberrecht. Jede
+          Verwendung bedarf der schriftlichen Zustimmung.
+        </p>
+        <p>
+          <strong>Haftungsausschluss:</strong><br />
+          Trotz sorgfältiger Kontrolle übernimmt der Betreiber keine Haftung für
+          externe Links. Für deren Inhalt sind ausschließlich deren Betreiber
+          verantwortlich.
+        </p>
+        <p style="font-size: 10px">Quelle: Impressum Generator Österreich</p>
+      </div>
+    </div>
+
+    <div id="OverlayControls" class="hidden">
+      <button id="closeControlsBtn" class="close-btn">&times;</button>
+      <div class="story-text">
+        <p><strong>Controls</strong></p>
+        <p>Run left: Arrow Left</p>
+        <p>Run right: Arrow Right</p>
+        <p>Jump: Space</p>
+        <p>Throw bottle: D</p>
+      </div>
+    </div>
+
+    <div id="OverlaySound" class="hidden">
+      <button id="closeSoundBtn" class="close-btn">×</button>
+      <div class="story-text">
+        <p><strong>Sound:</strong> On / Off</p>
+        <p><strong>Music:</strong> On / Off</p>
+      </div>
+    </div>
+
+    <div id="canvasWrapper" class="hidden">
+      <canvas id="canvas" width="720" height="480"></canvas>
+    </div>
+
     <div id="OverlayStory" class="hidden">
-      <button id="closeStoryBtn" class="close-btn"> &times;</button>
+      <button id="closeStoryBtn" class="close-btn">&times;</button>
       <div class="story-text">
         <p>
           In the sun-scorched heart of the
