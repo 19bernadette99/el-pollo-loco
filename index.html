@@ -32,10 +32,44 @@
         <button id="startGameBtn" class="menu-btn">Start Game</button>
         <button id="openStoryBtn" class="menu-btn">Story</button>
         <button id="openControlsBtn" class="menu-btn">Controls</button>
-        <button id="toggleSoundBtn" class="menu-btn">Sound: On / Off</button>
+        <button id="toggleSoundBtn" class="menu-btn">Sound: On|Off</button>
 
         <button id="fullscreenBtn" class="menu-btn">Fullscreen</button>
         <button id="openImpressumBtn" class="menu-btn">Impressum</button>
+      </div>
+    </div>
+
+    <div id="OverlayStory" class="hidden overlay">
+      <button id="closeStoryBtn" class="close-btn">&times;</button>
+      <div class="overlay-scroll-content">
+        <p>
+          In the sun-scorched heart of the
+          <strong>Fiery Jalapeño Desert</strong>, a lone hero named
+          <strong>Pepe</strong> emerges from the sands with a mission hotter
+          than the blazing sun: defend the desert from the
+          <em>Great Chicken Uprising</em>.
+        </p>
+        <p>
+          Once peaceful, the desert has been overrun by a wild flock of
+          rebellious chickens — from sneaky desert chicks to furious giant
+          battle hens. These feathered foes have been corrupted by a mysterious
+          <em>enchilada energy</em> buried deep beneath the sands. Now, they
+          march under the command of the colossal chicken overlord,
+          <strong>General Cluckzila</strong>, threatening to turn the desert
+          into a pecked-apart wasteland.
+        </p>
+        <p>But they didn't count on <strong>Pepe</strong>.</p>
+        <p>
+          Armed with spicy <strong>Salsa Bottles</strong>, a fearless jump, and
+          swift desert reflexes, Pepe leaps and sprints across rocky canyons and
+          scorching dunes. Every thrown salsa bottle bursts like a fiesta bomb,
+          sending chicken feathers flying.
+        </p>
+        <p>
+          <strong>
+            Can Pepe out-dance, out-jump, and out-salsa the entire poultry army?
+          </strong>
+        </p>
       </div>
     </div>
 
@@ -97,7 +131,7 @@
 
     <div id="OverlayControls" class="hidden">
       <button id="closeControlsBtn" class="close-btn">&times;</button>
-      <div class="story-text">
+      <div class="overlay-text">
         <p><strong>Controls</strong></p>
         <p>Run left: Arrow Left</p>
         <p>Run right: Arrow Right</p>
@@ -108,7 +142,7 @@
 
     <div id="OverlaySound" class="hidden">
       <button id="closeSoundBtn" class="close-btn">×</button>
-      <div class="story-text">
+      <div class="overlay-text">
         <p><strong>Sound:</strong> On / Off</p>
         <p><strong>Music:</strong> On / Off</p>
       </div>
@@ -116,40 +150,6 @@
 
     <div id="canvasWrapper" class="hidden">
       <canvas id="canvas" width="720" height="480"></canvas>
-    </div>
-
-    <div id="OverlayStory" class="hidden">
-      <button id="closeStoryBtn" class="close-btn">&times;</button>
-      <div class="story-text">
-        <p>
-          In the sun-scorched heart of the
-          <strong>Fiery Jalapeño Desert</strong>, a lone hero named
-          <strong>Pepe</strong> emerges from the sands with a mission hotter
-          than the blazing sun: defend the desert from the
-          <em>Great Chicken Uprising</em>.
-        </p>
-        <p>
-          Once peaceful, the desert has been overrun by a wild flock of
-          rebellious chickens — from sneaky desert chicks to furious giant
-          battle hens. These feathered foes have been corrupted by a mysterious
-          <em>enchilada energy</em> buried deep beneath the sands. Now, they
-          march under the command of the colossal chicken overlord,
-          <strong>General Cluckzila</strong>, threatening to turn the desert
-          into a pecked-apart wasteland.
-        </p>
-        <p>But they didn't count on <strong>Pepe</strong>.</p>
-        <p>
-          Armed with spicy <strong>Salsa Bottles</strong>, a fearless jump, and
-          swift desert reflexes, Pepe leaps and sprints across rocky canyons and
-          scorching dunes. Every thrown salsa bottle bursts like a fiesta bomb,
-          sending chicken feathers flying.
-        </p>
-        <p>
-          <strong>
-            Can Pepe out-dance, out-jump, and out-salsa the entire poultry army?
-          </strong>
-        </p>
-      </div>
     </div>
 
     <script src="js/script.js"></script>
