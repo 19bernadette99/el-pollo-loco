@@ -3,11 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/x-icon" href="img/2_character_pepe/1_idle/idle/icon.png">
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="img/2_character_pepe/1_idle/idle/icon.png"
+    />
     <link rel="stylesheet" href="style.css" />
     <title>El pollo loco</title>
     <script src="models/moveable-object.class.js"></script>
-        <script src="models/world.class.js"></script>
+    <script src="models/world.class.js"></script>
     <script src="models/character.class.js"></script>
     <script src="models/chicken.class.js"></script>
     <script src="models/cloud.class.js"></script>
@@ -17,14 +21,47 @@
     <script src="models/level.class.js"></script>
     <script src="levels/level1.js"></script>
     <script src="js/game.js"></script>
-  
   </head>
   <body onload="init()">
     <h1>El pollo loco</h1>
 
     <canvas id="canvas" width="720" height="480"> </canvas>
 
+    <button id="openStoryBtn">Story</button>
+    <div id="OverlayStory" class="hidden">
+      <button id="closeStoryBtn" class="close-btn"> &times;</button>
+      <div class="story-text">
+        <p>
+          In the sun-scorched heart of the
+          <strong>Fiery Jalapeño Desert</strong>, a lone hero named
+          <strong>Pepe</strong> emerges from the sands with a mission hotter
+          than the blazing sun: defend the desert from the
+          <em>Great Chicken Uprising</em>.
+        </p>
+        <p>
+          Once peaceful, the desert has been overrun by a wild flock of
+          rebellious chickens — from sneaky desert chicks to furious giant
+          battle hens. These feathered foes have been corrupted by a mysterious
+          <em>enchilada energy</em> buried deep beneath the sands. Now, they
+          march under the command of the colossal chicken overlord,
+          <strong>General Cluckzila</strong>, threatening to turn the desert
+          into a pecked-apart wasteland.
+        </p>
+        <p>But they didn't count on <strong>Pepe</strong>.</p>
+        <p>
+          Armed with spicy <strong>Salsa Bottles</strong>, a fearless jump, and
+          swift desert reflexes, Pepe leaps and sprints across rocky canyons and
+          scorching dunes. Every thrown salsa bottle bursts like a fiesta bomb,
+          sending chicken feathers flying.
+        </p>
+        <p>
+          <strong>
+            Can Pepe out-dance, out-jump, and out-salsa the entire poultry army?
+          </strong>
+        </p>
+      </div>
+    </div>
 
-      <script src="js/script.js"></script>
+    <script src="js/script.js"></script>
   </body>
 </html>

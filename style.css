@@ -52,3 +52,62 @@ canvas {
     text-shadow: 0 0 10px #ffff66, 0 0 20px #ffcc00, 0 0 40px #ffaa00;
   }
 }
+
+#OverlayStory {
+  position: fixed;
+  top: 51.2%;
+  left: 50%;
+  width: 720px;
+  height: 480px;
+  background: linear-gradient(rgba(10, 10, 25, 0.95), rgba(20, 20, 50, 0.9));
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 60px 40px 20px 40px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(255, 204, 0, 0.4);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  color: #fff;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  z-index: 1100;
+}
+
+#openStoryBtn {
+  padding: 12px 24px;
+  font-family: "Press Start 2P", cursive;
+  font-size: 12px;
+  background-color: #ffcc00;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 0 8px #ffaa00;
+  cursor: pointer;
+  margin-top: 20px;
+  color: black;
+}
+
+.story-text {
+  font-family: "Press Start 2P", cursive;
+  font-size: 12px;
+  font-weight: 100;
+  line-height: 1.6;
+  color: #fff;
+  width: 100%;
+  text-align: center;
+  padding-bottom: 40px;
+}
