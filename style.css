@@ -32,9 +32,12 @@ body {
 }
 
 #startScreen {
-  width: 780px;
+  width: 720px;
   height: 480px;
-  background-image: url("img/9_intro_outro_screens/start/startscreen_1.png");
+  background-image: url("img/9_intro_outro_screens/start/startscreen_2_stretched.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 4px solid #ffffffcc;
   border-radius: 12px;
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.2),
@@ -79,9 +82,9 @@ canvas {
 #OverlayControls,
 #OverlayImpressum {
   position: fixed;
-  top: 50.7%;
+  top: 51.3%;
   left: 50%;
-  width: 780px;
+  width: 720px;
   height: 480px;
   background: linear-gradient(rgba(10, 10, 25, 0.95), rgba(20, 20, 50, 0.9));
   transform: translate(-50%, -50%);
@@ -216,3 +219,53 @@ a {
   color: #ffcc00;
   text-decoration: none;
 }
+
+#loadingScreen {
+  width: 720px;
+  height: 480px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid #ffffffcc;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.2),
+    0 0 60px rgba(255, 255, 255, 0.1)
+}
+
+#kaktus {
+  font-size: 64px;
+  margin-bottom: 30px;
+  animation: rotate 2s linear infinite;
+  transform-origin: center center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+}
+
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+.progress-bar {
+  width: 80%;
+  height: 20px;
+  background-color: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #4caf50;
+  transition: width 5s linear;
+}
+
+

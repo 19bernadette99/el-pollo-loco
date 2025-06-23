@@ -25,18 +25,30 @@
   <body onload="init()">
     <h1>El pollo loco</h1>
 
-    <div id="startScreenWrapper">
-      <div id="startScreen"></div>
-
-      <div class="start-buttons">
-        <button id="startGameBtn" class="menu-btn">Start Game</button>
-        <button id="openStoryBtn" class="menu-btn">Story</button>
-        <button id="openControlsBtn" class="menu-btn">Controls</button>
-        <button id="toggleSoundBtn" class="menu-btn">Sound: On|Off</button>
-
-        <button id="fullscreenBtn" class="menu-btn">Fullscreen</button>
-        <button id="openImpressumBtn" class="menu-btn">Impressum</button>
+    <div id="screenContainer">
+      <div id="startScreenWrapper">
+        <div id="startScreen"></div>
       </div>
+
+      <div id="loadingScreen" class="hidden">
+        <div id="kaktus">🌵</div>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+
+      <div id="canvasWrapper" class="hidden">
+        <canvas id="canvas" width="720" height="480"></canvas>
+      </div>
+    </div>
+
+    <div class="start-buttons">
+      <button id="startGameBtn" class="menu-btn">Start Game</button>
+      <button id="openStoryBtn" class="menu-btn">Story</button>
+      <button id="openControlsBtn" class="menu-btn">Controls</button>
+      <button id="toggleSoundBtn" class="menu-btn">Sound: On|Off</button>
+      <button id="fullscreenBtn" class="menu-btn">Fullscreen</button>
+      <button id="openImpressumBtn" class="menu-btn">Impressum</button>
     </div>
 
     <div id="OverlayStory" class="hidden overlay">
