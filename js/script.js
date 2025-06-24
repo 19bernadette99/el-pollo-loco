@@ -23,16 +23,6 @@ function initStartGame() {
 }
 
 /**
- * Starts game flow: hide screen, show loading, start after delay.
- */
-function startGameSequence() {
-  hide("startScreenWrapper");
-  show("loadingScreen");
-  fillProgressBar();
-  setTimeout(startGame, 5000);
-}
-
-/**
  * Starts the game and shows canvas.
  */
 function startGame() {
