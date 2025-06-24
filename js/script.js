@@ -1,107 +1,150 @@
 window.addEventListener("DOMContentLoaded", () => {
-  setupAllOverlays();
-  setupStartGame();
+  initOverlays();
+  initStartGame();
 });
 
-function setupAllOverlays() {
+/**
+ * Sets up all overlay toggle functionality.
+ */
+function initOverlays() {
   setupOverlay("openStoryBtn", "OverlayStory", "closeStoryBtn");
   setupOverlay("openControlsBtn", "OverlayControls", "closeControlsBtn");
   setupOverlay("toggleSoundBtn", "OverlaySound", "closeSoundBtn");
   setupOverlay("openImpressumBtn", "OverlayImpressum", "closeImpressumBtn");
 }
 
-function setupStartGame() {
-  const btn = document.getElementById("startGameBtn");
-  btn.addEventListener("click", () => {
-    toggleScreen("startScreenWrapper", false);
-    toggleScreen("canvasWrapper", true);
-    init();
-  });
+/**
+ * Prepares the start game button and listener.
+ */
+function initStartGame() {
+  document
+    .getElementById("startGameBtn")
+    .addEventListener("click", startGameSequence);
 }
 
-function setupOverlay(openBtnId, overlayId, closeBtnId) {
+/**
+ * Starts game flow: hide screen, show loading, start after delay.
+ */
+function startGameSequence() {
+  hide("startScreenWrapper");
+  show("loadingScreen");
+  fillProgressBar();
+  setTimeout(startGame, 5000);
+}
+
+/**
+ * Starts the game and shows canvas.
+ */
+function startGame() {
+  hide("loadingScreen");
+  show("canvasWrapper");
+  resetProgressBar();
+  init(); // your game init function
+}
+
+let gameStarted = false; // Flag to track game start
+
+/**
+ * Starts game flow: hide screen, show loading, start after delay.
+ */
+function startGameSequence() {
+  if (gameStarted) return;
+  gameStarted = true;
+
+  hide("startScreenWrapper");
+  show("loadingScreen");
+  fillProgressBar();
+  setTimeout(startGame, 5000);
+}
+
+/**
+ * Shows an overlay element.
+ * @param {string} id - The element ID to show.
+ */
+function show(id) {
+  document.getElementById(id).classList.remove("hidden");
+}
+
+/**
+ * Hides an overlay element.
+ * @param {string} id - The element ID to hide.
+ */
+function hide(id) {
+  document.getElementById(id).classList.add("hidden");
+}
+
+/**
+ * Animates the loading progress bar.
+ */
+function fillProgressBar() {
+  const bar = document.querySelector(".progress-fill");
+  void bar.offsetWidth; // force reflow
+  bar.style.width = "100%";
+}
+
+/**
+ * Resets progress bar width after loading.
+ */
+function resetProgressBar() {
+  document.querySelector(".progress-fill").style.width = "0%";
+}
+
+/**
+ * Attaches toggle logic for an overlay.
+ * @param {string} openId - Button that opens the overlay.
+ * @param {string} overlayId - Overlay element ID.
+ * @param {string} closeId - Button that closes the overlay.
+ */
+function setupOverlay(openId, overlayId, closeId) {
   const overlay = document.getElementById(overlayId);
-  const openBtn = document.getElementById(openBtnId);
-  const closeBtn = document.getElementById(closeBtnId);
+  const openBtn = document.getElementById(openId);
+  const closeBtn = document.getElementById(closeId);
 
   openBtn.addEventListener("click", () => showOverlay(overlay));
   closeBtn.addEventListener("click", () => hideOverlay(overlay));
-  handleOutsideClick(overlay, openBtn);
+  closeOnOutsideClick(overlay, openBtn);
 }
 
+/**
+ * Shows one overlay and hides others.
+ * @param {HTMLElement} overlay
+ */
 function showOverlay(overlay) {
   closeAllOverlays();
   overlay.classList.remove("hidden");
 }
 
+/**
+ * Hides the given overlay.
+ * @param {HTMLElement} overlay
+ */
 function hideOverlay(overlay) {
   overlay.classList.add("hidden");
 }
 
-function handleOutsideClick(overlay, trigger) {
+/**
+ * Closes overlay when clicking outside of it.
+ * @param {HTMLElement} overlay
+ * @param {HTMLElement} trigger
+ */
+function closeOnOutsideClick(overlay, trigger) {
   document.addEventListener("click", (e) => {
-    if (!overlay.classList.contains("hidden") &&
-        !overlay.contains(e.target) &&
-        e.target !== trigger) {
+    if (
+      !overlay.classList.contains("hidden") &&
+      !overlay.contains(e.target) &&
+      e.target !== trigger
+    ) {
       hideOverlay(overlay);
     }
   });
 }
 
+/**
+ * Hides all overlays.
+ */
 function closeAllOverlays() {
   const overlays = document.querySelectorAll(
     "#OverlayStory, #OverlayControls, #OverlaySound, #OverlayImpressum"
   );
-  overlays.forEach(el => el.classList.add("hidden"));
+  overlays.forEach((overlay) => overlay.classList.add("hidden"));
 }
-
-function toggleScreen(id, show) {
-  document.getElementById(id).classList.toggle("hidden", !show);
-}
-
-function closeAllOverlays() {
-  const overlays = document.querySelectorAll(
-    "#OverlayStory, #OverlayControls, #OverlaySound, #OverlayImpressum"
-  );
-  overlays.forEach((el) => el.classList.add("hidden"));
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  setupStartGame();
-});
-
-function setupStartGame() {
-  const startBtn = document.getElementById("startGameBtn");
-  startBtn.addEventListener("click", handleStartGame);
-}
-
-function handleStartGame() {
-  hideStartScreen();
-  showLoadingScreen();
-  animateProgressBar();
-  startGameAfterDelay(5000);
-}
-
-function hideStartScreen() {
-  document.getElementById("startScreenWrapper").classList.add("hidden");
-}
-
-function showLoadingScreen() {
-  document.getElementById("loadingScreen").classList.remove("hidden");
-}
-
-function animateProgressBar() {
-  const progressFill = document.querySelector(".progress-fill");
-  void progressFill.offsetWidth; 
-  progressFill.style.width = "100%";
-}
-
-function startGameAfterDelay(delay) {
-  setTimeout(() => {
-    document.getElementById("loadingScreen").classList.add("hidden");
-    document.getElementById("canvasWrapper").classList.remove("hidden");
-    document.querySelector(".progress-fill").style.width = "0%";
-    init();
-  }, delay);
-}
-
