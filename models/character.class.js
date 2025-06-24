@@ -47,7 +47,7 @@ class Character extends MoveableObject {
   world;
   // walking_sound = new Audio("audio/walking.mp3");
   //jumpSound = new Audio("audio/jump.mp3");
-  
+
   constructor(keyboard) {
     super();
     this.loadImage("img/2_character_pepe/2_walk/W-21.png");
@@ -57,7 +57,6 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_HURT);
     this.applyGravity();
     this.animate();
-
     this.keyboard = keyboard;
   }
 
