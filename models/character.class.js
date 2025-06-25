@@ -50,6 +50,7 @@ class Character extends MoveableObject {
 
   constructor(keyboard) {
     super();
+        this.keyboard = keyboard;
     this.loadImage("img/2_character_pepe/2_walk/W-21.png");
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
@@ -57,7 +58,7 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_HURT);
     this.applyGravity();
     this.animate();
-    this.keyboard = keyboard;
+
   }
 
   animate() {
@@ -73,6 +74,7 @@ class Character extends MoveableObject {
       if (this.world.keyboard.SPACE && !this.isAboveGround()) {
         this.jump();
       }
+      
 
       this.world.camera_x = -this.x + 100;
     }, 1000 / 60);

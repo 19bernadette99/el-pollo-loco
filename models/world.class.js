@@ -1,34 +1,60 @@
 class World {
-  character = new Character();
+  character;
   level = level1;
   canvas;
   ctx;
   keyboard;
   camera_x = 0;
   statusBar = new StatusBar();
+  throwableObjects;
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
+    this.throwableObjects = [];
     this.draw();
     this.setWorld();
-    this.checkCollisions();
+    this.run();
   }
 
   setWorld() {
+    this.character = new Character(this.keyboard);
     this.character.world = this;
   }
 
-  checkCollisions() {
+  run() {
     setInterval(() => {
-      this.level.enemies.forEach((enemy) => {
-        if (this.character.isColliding(enemy)) {
-          this.character.hit();
-          this.statusBar.setPercentage(this.character.energy);
-        }
-      });
+      this.checkCollisions();
+      this.checkThrowObjects();
     }, 200);
+  }
+
+  checkCollisions() {
+    this.level.enemies.forEach((enemy) => {
+      if (this.character.isColliding(enemy)) {
+        this.character.hit();
+        this.statusBar.setPercentage(this.character.energy);
+      }
+    });
+  }
+
+  checkThrowObjects() {
+    if (this.keyboard.D && !this.bottleThrown) {
+      this.bottleThrown = true;
+
+      let offsetX = this.character.otherDirection ? -30 : 60;
+      let bottle = new ThrowableObject(
+        this.character.x + offsetX,
+        this.character.y + 100,
+        this.character.otherDirection
+      );
+      this.throwableObjects.push(bottle);
+
+      setTimeout(() => {
+        this.bottleThrown = false;
+      }, 500);
+    }
   }
 
   draw() {
@@ -42,9 +68,12 @@ class World {
     this.addToMap(this.statusBar);
     this.ctx.translate(this.camera_x, 0);
 
+    this.checkThrowObjects();
+
     this.addObjectsToMap(this.level.clouds);
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
+    this.addObjectsToMap(this.throwableObjects);
 
     this.ctx.translate(-this.camera_x, 0);
 
@@ -56,12 +85,13 @@ class World {
 
   addObjectsToMap(objects) {
     objects.forEach((o) => {
-      this.addToMap(o);
+      if (o) this.addToMap(o);
     });
   }
 
   addToMap(mo) {
-    // if (!mo.img || !mo.img.complete || mo.img.naturalWidth === 0) return;
+    if (!mo) return;
+
     if (mo.otherDirection) {
       this.flipImage(mo);
     } else {
@@ -86,5 +116,22 @@ class World {
   flipImageBack(mo) {
     mo.x = -mo.x * -1;
     this.ctx.restore();
+  }
+
+  throwBottle() {
+    let offsetX = this.character.otherDirection ? -50 : 50;
+    let bottle = new ThrowableObject(
+      this.character.x + offsetX,
+      this.character.y + 100,
+      this.character.otherDirection
+    );
+    let gravityCheck = setInterval(() => {
+      if (this.y >= 350) {
+        clearInterval(this.throwInterval);
+        clearInterval(gravityCheck);
+      }
+    }, 50);
+
+    this.throwableObjects.push(bottle);
   }
 }
