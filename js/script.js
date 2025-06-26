@@ -26,9 +26,9 @@ function initStartGame() {
  * Starts the game and shows canvas.
  */
 function startGame() {
-  hide("loadingScreen");
+  // hide("loadingScreen"); // Loading screen is disabled
   show("canvasWrapper");
-  resetProgressBar();
+  // resetProgressBar(); // Loading screen is disabled
   init(); // your game init function
 }
 
@@ -42,9 +42,11 @@ function startGameSequence() {
   gameStarted = true;
 
   hide("startScreenWrapper");
-  show("loadingScreen");
-  fillProgressBar();
-  setTimeout(startGame, 5000);
+  // show("loadingScreen"); // Loading screen is disabled
+  // fillProgressBar(); // Loading screen is disabled
+
+  // setTimeout(startGame, 5000); // Delay disabled
+  startGame(); // Start game immediately
 }
 
 /**
@@ -66,18 +68,18 @@ function hide(id) {
 /**
  * Animates the loading progress bar.
  */
-function fillProgressBar() {
-  const bar = document.querySelector(".progress-fill");
-  void bar.offsetWidth; // force reflow
-  bar.style.width = "100%";
-}
+// function fillProgressBar() {
+//   const bar = document.querySelector(".progress-fill");
+//   void bar.offsetWidth; // force reflow
+//   bar.style.width = "100%";
+// }
 
 /**
  * Resets progress bar width after loading.
  */
-function resetProgressBar() {
-  document.querySelector(".progress-fill").style.width = "0%";
-}
+// function resetProgressBar() {
+//   document.querySelector(".progress-fill").style.width = "0%";
+// }
 
 /**
  * Attaches toggle logic for an overlay.
