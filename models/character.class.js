@@ -50,7 +50,7 @@ class Character extends MoveableObject {
 
   constructor(keyboard) {
     super();
-        this.keyboard = keyboard;
+    this.keyboard = keyboard;
     this.loadImage("img/2_character_pepe/2_walk/W-21.png");
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
@@ -58,7 +58,6 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_HURT);
     this.applyGravity();
     this.animate();
-
   }
 
   animate() {
@@ -74,7 +73,6 @@ class Character extends MoveableObject {
       if (this.world.keyboard.SPACE && !this.isAboveGround()) {
         this.jump();
       }
-      
 
       this.world.camera_x = -this.x + 100;
     }, 1000 / 60);
@@ -82,10 +80,6 @@ class Character extends MoveableObject {
     setInterval(() => {
       if (this.isBeingHit) {
         this.playAnimation(this.IMAGES_DEAD);
-        if (this.currentImage >= this.IMAGES_DEAD.length) {
-          this.isBeingHit = false;
-          this.currentImage = 0;
-        }
       } else if (this.isHurt()) {
         this.playAnimation(this.IMAGES_HURT);
       } else if (this.hasDied) {
@@ -95,6 +89,8 @@ class Character extends MoveableObject {
         this.animateJump();
       } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
         this.playAnimation(this.IMAGES_WALKING);
+      } else {
+        this.showStandingImage();
       }
     }, 50);
   }
@@ -104,6 +100,10 @@ class Character extends MoveableObject {
       this.speedY = 30;
       this.isJumping = true;
     }
+  }
+
+  showStandingImage() {
+    this.img = this.imageCache[this.IMAGES_WALKING[0]];
   }
 
   animateJump() {

@@ -163,7 +163,7 @@ p {
   gap: 12px;
   max-width: 300px;
   width: auto;
-  margin: 0 auto; /* zentriert den Block */
+  margin: 0 auto;
 }
 
 .control-line {
