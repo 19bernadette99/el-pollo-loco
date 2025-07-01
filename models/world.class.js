@@ -15,9 +15,10 @@ class World {
     this.canvas = canvas;
     this.keyboard = keyboard;
     this.throwableObjects = [];
-    this.draw();
+
     this.setWorld();
     this.run();
+    this.draw();
   }
 
   setWorld() {
@@ -27,18 +28,9 @@ class World {
 
   run() {
     setInterval(() => {
-      this.checkCollisions();
+      this.character.checkEnemyCollisions();
       this.checkThrowObjects();
     }, 200);
-  }
-
-  checkCollisions() {
-    this.level.enemies.forEach((enemy) => {
-      if (this.character.isColliding(enemy)) {
-        this.character.hit();
-        this.statusBar.setPercentage(this.character.energy);
-      }
-    });
   }
 
   checkThrowObjects() {
@@ -73,6 +65,8 @@ class World {
     this.ctx.translate(this.camera_x, 0);
 
     this.checkThrowObjects();
+
+    this.character.checkEnemyCollisions();
 
     this.addObjectsToMap(this.level.clouds);
     this.addToMap(this.character);

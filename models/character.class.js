@@ -203,4 +203,36 @@ class Character extends MoveableObject {
       this.isAboveGround()
     );
   }
+
+  checkEnemyCollisions() {
+    this.world.level.enemies.forEach((enemy) => {
+      if (this.isColliding(enemy) && !enemy.hasDied) {
+        if (this.isJumpingOn(enemy)) {
+          enemy.die();
+          this.bounce();
+        } else {
+          this.hit();
+          this.world.statusBar.setPercentage(this.energy);
+        }
+      }
+    });
+  }
+
+  isJumpingOn(enemy) {
+    const horizontallyOverlaps =
+      this.x + this.width > enemy.x + enemy.width * 0.2 &&
+      this.x < enemy.x + enemy.width * 0.8;
+
+    const verticallyOverlaps =
+      this.speedY < 0 &&
+      this.y + this.height > enemy.y &&
+      this.y < enemy.y &&
+      this.y + this.height - enemy.y < enemy.height / 2;
+
+    return horizontallyOverlaps && verticallyOverlaps;
+  }
+
+  bounce() {
+    this.speedY = 15;
+  }
 }
