@@ -204,19 +204,20 @@ class Character extends MoveableObject {
     );
   }
 
-  checkEnemyCollisions() {
+checkEnemyCollisions() {
     this.world.level.enemies.forEach((enemy) => {
-      if (this.isColliding(enemy) && !enemy.hasDied) {
-        if (this.isJumpingOn(enemy)) {
-          enemy.die();
-          this.bounce();
-        } else {
-          this.hit();
-          this.world.statusBar.setPercentage(this.energy);
+        if (this.isColliding(enemy) && !enemy.hasDied) {
+            if (this.isJumpingOn(enemy)) {
+                enemy.die();
+                this.bounce();
+            } else if (!this.isHurt()) {
+                this.hit();
+                this.world.statusBar.setPercentage(this.energy);
+            }
         }
-      }
     });
-  }
+}
+
 
   isJumpingOn(enemy) {
     const horizontallyOverlaps =
