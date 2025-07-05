@@ -44,7 +44,7 @@ class World {
         this.character.otherDirection
       );
       this.throwableObjects.push(bottle);
-
+      this.character.lastActionTime = Date.now();
       setTimeout(() => {
         this.bottleThrown = false;
       }, 500);
