@@ -40,9 +40,9 @@ class Chicken extends MoveableObject {
     this.loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
     this.currentWalkingImages = this.IMAGES_WALKING;
-    this.height = 80;
-    this.width = 80;
-    this.y = 350;
+    this.height = 65;
+    this.width = 65;
+    this.y = 365;
   }
 
   animate() {

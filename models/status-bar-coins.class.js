@@ -22,9 +22,9 @@ class StatusBarCoin extends DrawableObject {
     const percentage = this.getPercentage();
     const path = this.IMAGES[this.resolveImageIndex(percentage)];
     this.x = 40;
-    this.y = 100;
+    this.y = 80;
     this.width = 200;
-    this.height = 60;
+    this.height = 50;
     this.img = this.imageCache[path];
   }
 
