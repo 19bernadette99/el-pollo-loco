@@ -36,4 +36,16 @@ class DrawableObject {
       this.imageCache[path] = img;
     });
   }
+
+      /**
+     * Animates an object through given image paths.
+     *
+     * @param {Array} images Array of image paths
+     */
+    playAnimation(images) {
+        let i = this.currentImage % images.length;
+        let path = images[i];
+        this.img = this.imageCache[path];
+        this.currentImage++;
+    }
 }
