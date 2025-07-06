@@ -16,6 +16,7 @@ class World {
     this.keyboard = keyboard;
     this.throwableObjects = [];
 
+    this.spawnClouds();
     this.setWorld();
     this.run();
     this.draw();
@@ -57,6 +58,8 @@ class World {
     this.ctx.translate(this.camera_x, 0);
     this.addObjectsToMap(this.level.backgroundObjects);
 
+    this.addObjectsToMap(this.level.clouds);
+
     this.ctx.translate(-this.camera_x, 0);
     // -----Space for fixed objects-----
     this.addToMap(this.statusBar);
@@ -68,7 +71,6 @@ class World {
 
     this.character.checkEnemyCollisions();
 
-    this.addObjectsToMap(this.level.clouds);
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.throwableObjects);
@@ -131,5 +133,15 @@ class World {
     }, 50);
 
     this.throwableObjects.push(bottle);
+  }
+
+  spawnClouds() {
+    setInterval(() => {
+      const maxClouds = 2;
+      if (this.level.clouds.length < maxClouds) {
+        let newCloud = new Cloud(this.level.clouds);
+        this.level.clouds.push(newCloud);
+      }
+    }, 5000);
   }
 }
