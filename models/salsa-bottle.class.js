@@ -6,18 +6,19 @@ class SalsaBottle extends MoveableObject {
 
   constructor(x, y) {
     super();
-    this.loadImage(this.IMAGES[0]);
     this.loadImages(this.IMAGES);
     this.x = x;
     this.y = y;
     this.width = 40;
     this.height = 60;
-    this.animate();
+    this.setRandomImage();
   }
 
-  animate() {
-    setInterval(() => {
-      this.playAnimation(this.IMAGES);
-    }, 200);
+  /**
+   * Picks randomly one of the two bottle images
+   */
+  setRandomImage() {
+    let index = Math.floor(Math.random() * this.IMAGES.length);
+    this.loadImage(this.IMAGES[index]);
   }
 }
