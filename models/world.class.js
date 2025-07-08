@@ -31,37 +31,42 @@ class World {
     setInterval(() => {
       this.character.checkEnemyCollisions();
       this.checkThrowObjects();
-          this.checkCoinCollisions();   
+      this.checkCoinCollisions();
     }, 200);
   }
 
   checkThrowObjects() {
     if (this.keyboard.D && !this.bottleThrown) {
-      this.bottleThrown = true;
+      if (this.statusBarBottle.collected > 0) {
+        this.bottleThrown = true;
 
-      let offsetX = this.character.otherDirection ? -30 : 60;
-      let bottle = new ThrowableObject(
-        this.character.x + offsetX,
-        this.character.y + 100,
-        this.character.otherDirection
-      );
-      this.throwableObjects.push(bottle);
-      this.character.lastActionTime = Date.now();
-      setTimeout(() => {
-        this.bottleThrown = false;
-      }, 500);
+        let offsetX = this.character.otherDirection ? -30 : 60;
+        let bottle = new ThrowableObject(
+          this.character.x + offsetX,
+          this.character.y + 100,
+          this.character.otherDirection
+        );
+        this.throwableObjects.push(bottle);
+
+        this.character.collectedBottles -= 1;
+
+        this.statusBarBottle.setCollected(this.character.collectedBottles);
+        this.character.lastActionTime = Date.now();
+        setTimeout(() => {
+          this.bottleThrown = false;
+        }, 500);
+      }
     }
   }
 
   checkCoinCollisions() {
-  this.level.coins.forEach((coin, index) => {
-    if (this.character.isColliding(coin)) {
-      this.level.coins.splice(index, 1);
-      this.statusBarCoin.setCollected(this.statusBarCoin.collected + 1);
-    }
-  });
-}
-
+    this.level.coins.forEach((coin, index) => {
+      if (this.character.isColliding(coin)) {
+        this.level.coins.splice(index, 1);
+        this.statusBarCoin.setCollected(this.statusBarCoin.collected + 1);
+      }
+    });
+  }
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -81,8 +86,6 @@ class World {
     this.ctx.translate(this.camera_x, 0);
 
     this.checkThrowObjects();
-
-
 
     this.character.checkEnemyCollisions();
 
@@ -131,23 +134,6 @@ class World {
   flipImageBack(mo) {
     mo.x = -mo.x * -1;
     this.ctx.restore();
-  }
-
-  throwBottle() {
-    let offsetX = this.character.otherDirection ? -50 : 50;
-    let bottle = new ThrowableObject(
-      this.character.x + offsetX,
-      this.character.y + 100,
-      this.character.otherDirection
-    );
-    let gravityCheck = setInterval(() => {
-      if (this.y >= 350) {
-        clearInterval(this.throwInterval);
-        clearInterval(gravityCheck);
-      }
-    }, 50);
-
-    this.throwableObjects.push(bottle);
   }
 
   spawnClouds() {

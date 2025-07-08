@@ -79,6 +79,7 @@ class Character extends MoveableObject {
   lastSleepFrameTime = 0;
   currentIdleImage = 0;
   currentSleepImage = 0;
+  collectedBottles = 0;
 
   constructor(keyboard) {
     super();
@@ -221,19 +222,6 @@ class Character extends MoveableObject {
     });
   }
 
-  checkBottleCollisions() {
-    if (this.world?.level?.salsaBottles) {
-      this.world.level.salsaBottles.forEach((bottle, index) => {
-        if (this.isColliding(bottle)) {
-          this.world.statusBarBottle.setCollected(
-            this.world.statusBarBottle.collected + 1
-          );
-          this.world.level.salsaBottles.splice(index, 1);
-        }
-      });
-    }
-  }
-
   isJumpingOn(enemy) {
     const horizontallyOverlaps =
       this.x + this.width > enemy.x + enemy.width * 0.2 &&
@@ -246,6 +234,29 @@ class Character extends MoveableObject {
       this.y + this.height - enemy.y < enemy.height / 2;
 
     return horizontallyOverlaps && verticallyOverlaps;
+  }
+
+  checkBottleCollisions() {
+    if (this.world?.level?.salsaBottles) {
+      this.world.level.salsaBottles.forEach((bottle, index) => {
+        if (this.isColliding(bottle)) {
+          this.collectedBottles += 1;
+          this.world.statusBarBottle.setCollected(
+            this.world.statusBarBottle.collected + 1
+          );
+          this.world.level.salsaBottles.splice(index, 1);
+        }
+      });
+    }
+  }
+
+  throwBottle() {
+    const bottlesLeft = this.world.statusBarBottle.collected;
+    if (bottlesLeft > 0) {
+      let bottle = new ThrowableObject(this.x, this.y, this.otherDirection);
+      this.world.throwableObjects.push(bottle);
+      this.world.statusBarBottle.setCollected(bottlesLeft - 1);
+    }
   }
 
   bounce() {
