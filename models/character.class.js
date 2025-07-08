@@ -114,6 +114,9 @@ class Character extends MoveableObject {
       }
 
       this.world.camera_x = -this.x + 100;
+
+      this.checkEnemyCollisions();
+      this.checkBottleCollisions();
     }, 1000 / 60);
 
     setInterval(() => {
@@ -204,20 +207,32 @@ class Character extends MoveableObject {
     );
   }
 
-checkEnemyCollisions() {
+  checkEnemyCollisions() {
     this.world.level.enemies.forEach((enemy) => {
-        if (this.isColliding(enemy) && !enemy.hasDied) {
-            if (this.isJumpingOn(enemy)) {
-                enemy.die();
-                this.bounce();
-            } else if (!this.isHurt()) {
-                this.hit();
-                this.world.statusBar.setPercentage(this.energy);
-            }
+      if (this.isColliding(enemy) && !enemy.hasDied) {
+        if (this.isJumpingOn(enemy)) {
+          enemy.die();
+          this.bounce();
+        } else if (!this.isHurt()) {
+          this.hit();
+          this.world.statusBar.setPercentage(this.energy);
         }
+      }
     });
-}
+  }
 
+  checkBottleCollisions() {
+    if (this.world?.level?.salsaBottles) {
+      this.world.level.salsaBottles.forEach((bottle, index) => {
+        if (this.isColliding(bottle)) {
+          this.world.statusBarBottle.setCollected(
+            this.world.statusBarBottle.collected + 1
+          );
+          this.world.level.salsaBottles.splice(index, 1);
+        }
+      });
+    }
+  }
 
   isJumpingOn(enemy) {
     const horizontallyOverlaps =

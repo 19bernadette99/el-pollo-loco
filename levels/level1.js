@@ -9,7 +9,6 @@ function createRandomCoins(amount) {
 
   let sectors = [];
 
-  // Alle möglichen Sektoren berechnen
   for (let s = minX; s < maxX; s += sectorWidth) {
     sectors.push({
       start: s,
@@ -17,7 +16,6 @@ function createRandomCoins(amount) {
     });
   }
 
-  // Mische die Sektoren
   sectors = shuffle(sectors);
 
   for (let i = 0; i < amount && i < sectors.length; i++) {
@@ -30,9 +28,6 @@ function createRandomCoins(amount) {
   return coins;
 }
 
-/**
- * Mischt ein Array zufällig durch (Fisher-Yates).
- */
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1));
@@ -40,7 +35,6 @@ function shuffle(array) {
   }
   return array;
 }
-
 
 const level1 = new Level(
   [
@@ -78,7 +72,14 @@ const level1 = new Level(
     new BackgroundObject("img/5_background/layers/2_second_layer/2.png", 720 * 3),
     new BackgroundObject("img/5_background/layers/1_first_layer/2.png", 720 * 3)
   ],
-  createRandomCoins(10)
+  createRandomCoins(10),
+  [
+    new SalsaBottle(300, 360),
+    new SalsaBottle(600, 360),
+    new SalsaBottle(900, 360),
+    new SalsaBottle(1200, 360),
+    new SalsaBottle(1500, 360)
+  ]
 );
 
 

@@ -71,6 +71,7 @@ class World {
 
     this.addObjectsToMap(this.level.clouds);
     this.addObjectsToMap(this.level.coins);
+    this.addObjectsToMap(this.level.salsaBottles);
 
     this.ctx.translate(-this.camera_x, 0);
     // -----Space for fixed objects-----
