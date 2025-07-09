@@ -8,6 +8,8 @@ class World {
   statusBar = new StatusBar();
   statusBarBottle = new StatusBarBottle();
   statusBarCoin = new StatusBarCoin();
+  statusBarEndboss = new StatusBarEndboss();
+
   throwableObjects;
 
   constructor(canvas, keyboard) {
@@ -20,6 +22,7 @@ class World {
     this.setWorld();
     this.run();
     this.draw();
+    this.endbossIsVisible();
   }
 
   setWorld() {
@@ -83,6 +86,10 @@ class World {
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarBottle);
     this.addToMap(this.statusBarCoin);
+if (this.endbossIsVisible()) {
+  this.addToMap(this.statusBarEndboss);
+}
+
     this.ctx.translate(this.camera_x, 0);
 
     this.checkThrowObjects();
@@ -145,4 +152,11 @@ class World {
       }
     }, 5000);
   }
+
+endbossIsVisible() {
+  let endboss = this.level.enemies.find(e => e instanceof Endboss);
+  if (!endboss) return false;
+  return this.camera_x * -1 + this.canvas.width >= endboss.x;
+}
+
 }
