@@ -23,6 +23,9 @@ class World {
     this.run();
     this.draw();
     this.endbossIsVisible();
+    this.level.enemies.forEach((enemy) => {
+      enemy.world = this;
+    });
   }
 
   setWorld() {
@@ -86,9 +89,9 @@ class World {
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarBottle);
     this.addToMap(this.statusBarCoin);
-if (this.endbossIsVisible()) {
-  this.addToMap(this.statusBarEndboss);
-}
+    if (this.endbossIsVisible()) {
+      this.addToMap(this.statusBarEndboss);
+    }
 
     this.ctx.translate(this.camera_x, 0);
 
@@ -99,6 +102,7 @@ if (this.endbossIsVisible()) {
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.throwableObjects);
+    this.checkBottleHitsEndboss();
 
     this.ctx.translate(-this.camera_x, 0);
 
@@ -153,10 +157,38 @@ if (this.endbossIsVisible()) {
     }, 5000);
   }
 
-endbossIsVisible() {
-  let endboss = this.level.enemies.find(e => e instanceof Endboss);
-  if (!endboss) return false;
-  return this.camera_x * -1 + this.canvas.width >= endboss.x;
+  endbossIsVisible() {
+    let endboss = this.level.enemies.find((e) => e instanceof Endboss);
+    if (!endboss) return false;
+    return this.camera_x * -1 + this.canvas.width >= endboss.x;
+  }
+
+checkBottleHitsEndboss() {
+  let endboss = this.level.enemies.find((e) => e instanceof Endboss);
+  if (!endboss || endboss.isDead) return;
+
+  this.throwableObjects.forEach((bottle, index) => {
+    if (bottle.isColliding(endboss)) {
+      endboss.percentage -= 20;
+      if (endboss.percentage < 0) {
+        endboss.percentage = 0;
+      }
+
+      this.statusBarEndboss.setPercentage(endboss.percentage);
+
+      if (endboss.percentage > 0) {
+        endboss.isHurt = true;
+        setTimeout(() => {
+          endboss.isHurt = false;
+          endboss.hasStartedAttack = true;
+        }, 500);
+      } else {
+        endboss.die();
+      }
+
+      this.throwableObjects.splice(index, 1);
+    }
+  });
 }
 
 }
