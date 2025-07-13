@@ -1,8 +1,8 @@
 function createRandomCoins(amount) {
   let coins = [];
 
-  let minX = 500;
-  let maxX = 2500;
+  let minX = 700;
+  let maxX = 2000;
   let minY = 300;
   let maxY = 350;
   let sectorWidth = 200;
@@ -81,6 +81,8 @@ const level1 = new Level(
     new SalsaBottle(1500, 360)
   ]
 );
+
+level1.maxCoins = 10;
 
 
 

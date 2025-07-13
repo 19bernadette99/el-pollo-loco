@@ -9,6 +9,7 @@ class World {
   statusBarBottle = new StatusBarBottle();
   statusBarCoin = new StatusBarCoin();
   statusBarEndboss = new StatusBarEndboss();
+  collectedCoins = 0;
 
   throwableObjects;
 
@@ -17,6 +18,12 @@ class World {
     this.canvas = canvas;
     this.keyboard = keyboard;
     this.throwableObjects = [];
+    this.statusBarCoin.maxCoins = this.level.coins.length;
+
+    this.gameStarted = false;
+    setTimeout(() => {
+      this.gameStarted = true;
+    }, 500);
 
     this.spawnClouds();
     this.setWorld();
@@ -66,12 +73,15 @@ class World {
   }
 
   checkCoinCollisions() {
-    this.level.coins.forEach((coin, index) => {
+    for (let i = this.level.coins.length - 1; i >= 0; i--) {
+      let coin = this.level.coins[i];
       if (this.character.isColliding(coin)) {
-        this.level.coins.splice(index, 1);
-        this.statusBarCoin.setCollected(this.statusBarCoin.collected + 1);
+        console.log("Coin getroffen bei:", coin.x, coin.y);
+        this.level.coins.splice(i, 1);
+        this.collectedCoins++;
+        this.statusBarCoin.setCollected(this.collectedCoins);
       }
-    });
+    }
   }
 
   draw() {
@@ -163,32 +173,31 @@ class World {
     return this.camera_x * -1 + this.canvas.width >= endboss.x;
   }
 
-checkBottleHitsEndboss() {
-  let endboss = this.level.enemies.find((e) => e instanceof Endboss);
-  if (!endboss || endboss.isDead) return;
+  checkBottleHitsEndboss() {
+    let endboss = this.level.enemies.find((e) => e instanceof Endboss);
+    if (!endboss || endboss.isDead) return;
 
-  this.throwableObjects.forEach((bottle, index) => {
-    if (bottle.isColliding(endboss)) {
-      endboss.percentage -= 20;
-      if (endboss.percentage < 0) {
-        endboss.percentage = 0;
+    this.throwableObjects.forEach((bottle, index) => {
+      if (bottle.isColliding(endboss)) {
+        endboss.percentage -= 20;
+        if (endboss.percentage < 0) {
+          endboss.percentage = 0;
+        }
+
+        this.statusBarEndboss.setPercentage(endboss.percentage);
+
+        if (endboss.percentage > 0) {
+          endboss.isHurt = true;
+          setTimeout(() => {
+            endboss.isHurt = false;
+            endboss.hasStartedAttack = true;
+          }, 500);
+        } else {
+          endboss.die();
+        }
+
+        this.throwableObjects.splice(index, 1);
       }
-
-      this.statusBarEndboss.setPercentage(endboss.percentage);
-
-      if (endboss.percentage > 0) {
-        endboss.isHurt = true;
-        setTimeout(() => {
-          endboss.isHurt = false;
-          endboss.hasStartedAttack = true;
-        }, 500);
-      } else {
-        endboss.die();
-      }
-
-      this.throwableObjects.splice(index, 1);
-    }
-  });
-}
-
+    });
+  }
 }
