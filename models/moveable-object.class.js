@@ -33,17 +33,19 @@ class MoveableObject extends DrawableObject {
   }
 
   hit() {
-    this.energy -= 5;
+    this.energy -= 20;
 
-    if (this.energy <= 0) {
+    if (this.energy < 0) {
       this.energy = 0;
-      this.isBeingHit = true;
-      this.hasDied = true;
     }
 
-    this.lastHit = new Date().getTime();
+    this.world.statusBar.setPercentage(this.energy);
 
-    console.trace("Current energy:", this.energy);
+    this.isBeingHit = true;
+
+    setTimeout(() => {
+      this.isBeingHit = false;
+    }, 500);
   }
 
   isHurt() {

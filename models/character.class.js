@@ -80,6 +80,7 @@ class Character extends MoveableObject {
   currentIdleImage = 0;
   currentSleepImage = 0;
   collectedBottles = 0;
+  energy = 100;
 
   constructor(keyboard) {
     super();
@@ -123,13 +124,15 @@ class Character extends MoveableObject {
     setInterval(() => {
       const timeSinceLastAction = Date.now() - this.lastActionTime;
 
-      if (this.isBeingHit) {
-        this.playAnimation(this.IMAGES_DEAD);
-      } else if (this.isHurt()) {
-        this.playAnimation(this.IMAGES_HURT);
+      if (this.energy <= 0 && !this.hasDied) {
+        this.die();
       } else if (this.hasDied) {
         this.img =
           this.imageCache[this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]];
+      } else if (this.isBeingHit) {
+        this.playAnimation(this.IMAGES_DEAD);
+      } else if (this.isHurt()) {
+        this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround()) {
         this.animateJump();
       } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
@@ -214,9 +217,8 @@ class Character extends MoveableObject {
         if (this.isJumpingOn(enemy)) {
           enemy.die();
           this.bounce();
-        } else if (!this.isHurt()) {
+        } else if (!this.isBeingHit) {
           this.hit();
-          this.world.statusBar.setPercentage(this.energy);
         }
       }
     });
@@ -261,5 +263,15 @@ class Character extends MoveableObject {
 
   bounce() {
     this.speedY = 15;
+  }
+
+  die() {
+    this.hasDied = true;
+
+    this.playAnimation(this.IMAGES_DEAD);
+
+    setTimeout(() => {
+      this.y = 1000;
+    }, this.IMAGES_DEAD.length * 200);
   }
 }

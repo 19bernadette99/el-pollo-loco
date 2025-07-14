@@ -11,6 +11,7 @@ function initOverlays() {
   setupOverlay("openControlsBtn", "OverlayControls", "closeControlsBtn");
   setupOverlay("toggleSoundBtn", "OverlaySound", "closeSoundBtn");
   setupOverlay("openImpressumBtn", "OverlayImpressum", "closeImpressumBtn");
+  setupOverlay(null, "gameOverOverlay", "closeGameOverOverlayBtn");
 }
 
 /**
@@ -89,12 +90,25 @@ function hide(id) {
  */
 function setupOverlay(openId, overlayId, closeId) {
   const overlay = document.getElementById(overlayId);
-  const openBtn = document.getElementById(openId);
   const closeBtn = document.getElementById(closeId);
 
-  openBtn.addEventListener("click", () => showOverlay(overlay));
-  closeBtn.addEventListener("click", () => hideOverlay(overlay));
-  closeOnOutsideClick(overlay, openBtn);
+  if (openId) {
+    const openBtn = document.getElementById(openId);
+    openBtn.addEventListener("click", () => showOverlay(overlay));
+    closeOnOutsideClick(overlay, openBtn);
+  } else {
+    closeOnOutsideClick(overlay, null);
+  }
+
+  closeBtn.addEventListener("click", () => {
+    hideOverlay(overlay);
+
+    if (overlay.id === "gameOverOverlay") {
+      hide("canvasWrapper");
+      show("startScreenWrapper");
+      gameStarted = false;
+    }
+  });
 }
 
 /**
@@ -124,9 +138,15 @@ function closeOnOutsideClick(overlay, trigger) {
     if (
       !overlay.classList.contains("hidden") &&
       !overlay.contains(e.target) &&
-      e.target !== trigger
+      (trigger === null || e.target !== trigger)
     ) {
       hideOverlay(overlay);
+
+      if (overlay.id === "gameOverOverlay") {
+        hide("canvasWrapper");
+        show("startScreenWrapper");
+        gameStarted = false;
+      }
     }
   });
 }
