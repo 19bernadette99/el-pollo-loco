@@ -176,33 +176,19 @@ class World {
     return this.camera_x * -1 + this.canvas.width >= endboss.x;
   }
 
-  checkBottleHitsEndboss() {
-    let endboss = this.level.enemies.find((e) => e instanceof Endboss);
-    if (!endboss || endboss.isDead) return;
+checkBottleHitsEndboss() {
+  let endboss = this.level.enemies.find((e) => e instanceof Endboss);
+  if (!endboss || endboss.isDead) return;
 
-    this.throwableObjects.forEach((bottle, index) => {
-      if (bottle.isColliding(endboss)) {
-        endboss.percentage -= 20;
-        if (endboss.percentage < 0) {
-          endboss.percentage = 0;
-        }
+  this.throwableObjects.forEach((bottle, index) => {
+    if (bottle.isColliding(endboss)) {
+      endboss.hit(20);
+      this.statusBarEndboss.setPercentage(endboss.percentage);
+      this.throwableObjects.splice(index, 1);
+    }
+  });
+}
 
-        this.statusBarEndboss.setPercentage(endboss.percentage);
-
-        if (endboss.percentage > 0) {
-          endboss.isHurt = true;
-          setTimeout(() => {
-            endboss.isHurt = false;
-            endboss.hasStartedAttack = true;
-          }, 500);
-        } else {
-          endboss.die();
-        }
-
-        this.throwableObjects.splice(index, 1);
-      }
-    });
-  }
 
   loadGameOverImage() {
     this.gameOverImage = new Image();
