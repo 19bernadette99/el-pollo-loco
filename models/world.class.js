@@ -18,7 +18,8 @@ class World {
     this.canvas = canvas;
     this.keyboard = keyboard;
     this.throwableObjects = [];
-    this.statusBarCoin.maxCoins = this.level.coins.length;
+    this.statusBarCoin = new StatusBarCoin(this.level.maxCoins);
+    this.statusBarBottle = new StatusBarBottle(this.level.maxBottles);
 
     this.gameStarted = false;
     setTimeout(() => {
@@ -175,19 +176,18 @@ class World {
     return this.camera_x * -1 + this.canvas.width >= endboss.x;
   }
 
-checkBottleHitsEndboss() {
-  let endboss = this.level.enemies.find((e) => e instanceof Endboss);
-  if (!endboss || endboss.isDead) return;
+  checkBottleHitsEndboss() {
+    let endboss = this.level.enemies.find((e) => e instanceof Endboss);
+    if (!endboss || endboss.isDead) return;
 
-  this.throwableObjects.forEach((bottle, index) => {
-    if (bottle.isColliding(endboss)) {
-      endboss.hit(20);
-      this.statusBarEndboss.setPercentage(endboss.percentage);
-      this.throwableObjects.splice(index, 1);
-    }
-  });
-}
-
+    this.throwableObjects.forEach((bottle, index) => {
+      if (bottle.isColliding(endboss)) {
+        endboss.hit(20);
+        this.statusBarEndboss.setPercentage(endboss.percentage);
+        this.throwableObjects.splice(index, 1);
+      }
+    });
+  }
 
   loadGameOverImage() {
     this.gameOverImage = new Image();

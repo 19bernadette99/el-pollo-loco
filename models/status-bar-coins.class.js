@@ -11,8 +11,9 @@ class StatusBarCoin extends DrawableObject {
   collected = 0;
   maxCoins = 10;
 
-  constructor() {
+  constructor(maxCoins) {
     super();
+    this.maxCoins = maxCoins;
     this.loadImages(this.IMAGES);
     this.setCollected(0);
   }

@@ -4,23 +4,28 @@ class Level {
   backgroundObjects;
   coins;
   salsaBottles;
-  level_end_x;
+  level_end_x = 2200;
+  maxCoins;
+  maxBottles;
 
   constructor({
     enemies = [],
     clouds = [],
     backgroundObjects = [],
-    coinCount = 0,
-    bottleCount = 0,
+    coinCount = 10,
+    bottleCount = 5,
     level_end_x = 2200
   }) {
     this.enemies = enemies;
     this.clouds = clouds;
     this.backgroundObjects = backgroundObjects;
-    this.coins = this.createRandomCoins(coinCount);
-    this.salsaBottles = this.createSalsaBottles(bottleCount);
     this.level_end_x = level_end_x;
+
     this.maxCoins = coinCount;
+    this.maxBottles = bottleCount;
+
+    this.coins = this.createRandomCoins(coinCount);
+    this.salsaBottles = this.createRandomBottles(bottleCount);
   }
 
   createRandomCoins(amount) {
@@ -34,10 +39,7 @@ class Level {
 
     let sectors = [];
     for (let s = minX; s < maxX; s += sectorWidth) {
-      sectors.push({
-        start: s,
-        end: s + sectorWidth
-      });
+      sectors.push({ start: s, end: s + sectorWidth });
     }
 
     sectors = this.shuffle(sectors);
@@ -52,15 +54,12 @@ class Level {
     return coins;
   }
 
-  createSalsaBottles(amount, spacing = 300, startX = 300) {
+  createRandomBottles(amount) {
     let bottles = [];
-
     for (let i = 0; i < amount; i++) {
-      let x = startX + i * spacing;
-      let y = 360;
-      bottles.push(new SalsaBottle(x, y));
+      let x = Math.random() * (2000 - 300) + 300;
+      bottles.push(new SalsaBottle(x, 360));
     }
-
     return bottles;
   }
 
