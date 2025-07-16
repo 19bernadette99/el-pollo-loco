@@ -5,6 +5,7 @@ let keyboard = new Keyboard();
 function init() {
   canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard);
+  world.setLevel(levels[currentLevelIndex]);
 
   console.log("My Character is", world.character);
 }
@@ -32,7 +33,6 @@ document.addEventListener("keydown", (e) => {
 
   if (e.keyCode == 68) {
     keyboard.D = true;
-
   }
 });
 

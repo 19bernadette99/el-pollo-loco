@@ -6,8 +6,8 @@ class World {
   keyboard;
   camera_x = 0;
   statusBar = new StatusBar();
-  statusBarBottle = new StatusBarBottle();
-  statusBarCoin = new StatusBarCoin();
+  statusBarBottle;
+  statusBarCoin;
   statusBarEndboss = new StatusBarEndboss();
   collectedCoins = 0;
 
@@ -18,8 +18,6 @@ class World {
     this.canvas = canvas;
     this.keyboard = keyboard;
     this.throwableObjects = [];
-    this.statusBarCoin = new StatusBarCoin(this.level.maxCoins);
-    this.statusBarBottle = new StatusBarBottle(this.level.maxBottles);
 
     this.gameStarted = false;
     setTimeout(() => {
@@ -31,9 +29,6 @@ class World {
     this.run();
     this.draw();
     this.endbossIsVisible();
-    this.level.enemies.forEach((enemy) => {
-      enemy.world = this;
-    });
   }
 
   setWorld() {
@@ -67,6 +62,7 @@ class World {
 
         this.statusBarBottle.setCollected(this.character.collectedBottles);
         this.character.lastActionTime = Date.now();
+
         setTimeout(() => {
           this.bottleThrown = false;
         }, 500);
@@ -104,6 +100,7 @@ class World {
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarBottle);
     this.addToMap(this.statusBarCoin);
+
     if (this.endbossIsVisible()) {
       this.addToMap(this.statusBarEndboss);
     }
@@ -139,8 +136,6 @@ class World {
     } else {
       mo.draw(this.ctx);
     }
-
-    // mo.drawFrame(this.ctx);
 
     if (mo.otherDirection) {
       this.flipImageBack(mo);
@@ -207,30 +202,40 @@ class World {
 
   triggerLevelUp() {
     showLevelUpOverlay(() => {
-      this.loadNextLevel();
+      currentLevelIndex++;
+      if (currentLevelIndex < levels.length) {
+        this.loadNextLevel();
+      } else {
+        show("gameOverOverlay");
+      }
     });
   }
 
   loadNextLevel() {
     if (currentLevelIndex + 1 < levels.length) {
       currentLevelIndex++;
-      const nextLevel = levels[currentLevelIndex];
-      this.level = nextLevel;
-      this.level.enemies.forEach((enemy) => {
-        enemy.world = this;
-      });
+      this.setLevel(levels[currentLevelIndex]);
       this.levelUpTriggered = false;
-      this.resetStatusBars();
     } else {
       console.log("🎉 All levels completed!");
       show("gameOverOverlay");
     }
   }
 
-  resetStatusBars() {
-    this.collectedCoins = 0;
+  setLevel(level) {
+    this.level = level;
+
+    this.level.enemies.forEach((enemy) => {
+      enemy.world = this;
+    });
+
     this.statusBarCoin = new StatusBarCoin(this.level.maxCoins);
     this.statusBarBottle = new StatusBarBottle(this.level.maxBottles);
+    this.collectedCoins = 0;
     this.throwableObjects = [];
+
+    if (this.character) {
+      this.character.world = this;
+    }
   }
 }

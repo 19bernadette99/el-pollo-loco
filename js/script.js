@@ -15,7 +15,6 @@ function initOverlays() {
   setupOverlay(null, "levelUpOverlay", "nextLevelBtn");
 }
 
-
 /**
  * Prepares the start game button and listener.
  */
@@ -115,18 +114,11 @@ function setupOverlay(openId, overlayId, closeId) {
 
 let nextLevelCallback = null;
 
-/**
- * Shows the level up overlay and stores a callback to run when continuing.
- * @param {Function} callback
- */
 function showLevelUpOverlay(callback) {
   nextLevelCallback = callback;
   show("levelUpOverlay");
 }
 
-/**
- * Handles the continue button for level up overlay.
- */
 function continueToNextLevel() {
   hide("levelUpOverlay");
   if (typeof nextLevelCallback === "function") {
@@ -187,4 +179,9 @@ function closeAllOverlays() {
     "#OverlayStory, #OverlayControls, #OverlaySound, #OverlayImpressum"
   );
   overlays.forEach((overlay) => overlay.classList.add("hidden"));
+}
+
+function startLevel(levelIndex) {
+  const canvas = document.getElementById("canvas");
+  world = new World(canvas, keyboard, levels[levelIndex]);
 }
