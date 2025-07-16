@@ -1,5 +1,5 @@
-const level2 = new Level(
-  [
+const level2 = new Level({
+  enemies: [
     new Chicken(), 
     new Chicken(), 
     new Chicken(),
@@ -9,11 +9,11 @@ const level2 = new Level(
     new Endboss(), 
     new Endboss()
   ],
-  [
+  clouds: [
     new Cloud(),
     new Cloud()
   ],
-  [
+  backgroundObjects: [
     new BackgroundObject("img/5_background/layers/air.png", -720),
     new BackgroundObject("img/5_background/layers/3_third_layer/2.png", -720),
     new BackgroundObject("img/5_background/layers/2_second_layer/2.png", -720),
@@ -35,23 +35,7 @@ const level2 = new Level(
     new BackgroundObject("img/5_background/layers/2_second_layer/2.png", 720 * 3),
     new BackgroundObject("img/5_background/layers/1_first_layer/2.png", 720 * 3)
   ],
-  createRandomCoins(10),
-[
-  new SalsaBottle(200, 360),
-  new SalsaBottle(400, 360),
-  new SalsaBottle(800, 360),
-  new SalsaBottle(1000, 360),
-  new SalsaBottle(1400, 360),
-  new SalsaBottle(1600, 360),
-  new SalsaBottle(1800, 360),
-  new SalsaBottle(900, 360),
-  new SalsaBottle(1700, 360),
-  new SalsaBottle(600, 360),
-
-]
-);
-
-level1.maxCoins = 10;
-
-
-
+  coinCount: 10,
+  bottleCount: 10,
+  level_end_x: 2200
+});
