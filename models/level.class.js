@@ -14,7 +14,7 @@ class Level {
     backgroundObjects = [],
     coinCount = 10,
     bottleCount = 5,
-    level_end_x = 2200
+    level_end_x = 2200,
   }) {
     this.enemies = enemies;
     this.clouds = clouds;
@@ -28,9 +28,15 @@ class Level {
     this.salsaBottles = this.createRandomBottles(bottleCount);
   }
 
+  checkLevelCompletion() {
+    const endbossesAlive = this.enemies.filter(
+      (e) => e instanceof Endboss && !e.isDead
+    );
+    return endbossesAlive.length === 0;
+  }
+
   createRandomCoins(amount) {
     let coins = [];
-
     let minX = 700;
     let maxX = 2000;
     let minY = 300;

@@ -30,6 +30,7 @@
     <script src="models/level.class.js"></script>
     <script src="levels/level1.js"></script>
     <script src="levels/level2.js"></script>
+      <script src="js/level-up.js"></script>
     <script src="js/game.js"></script>
   </head>
   <body>
@@ -192,6 +193,15 @@
         <img src="img/2_character_pepe/4_hurt/H-41.png" alt="Game Over" />
         <h1>Game Over</h1>
         <p>Oooh nooo, you lost! Try it again.</p>
+      </div>
+    </div>
+
+    <div id="levelUpOverlay" class="hidden">
+      <div class="game-over-box">
+        <img class="level-up-img" src="img/You won, you lost/You Win A.png" alt="Level Up" />
+        <h1>Level Up!</h1>
+        <p>Congratulations! Get ready for the next adventure!</p>
+         <button id="nextLevelBtn">Continue</button>
       </div>
     </div>
 

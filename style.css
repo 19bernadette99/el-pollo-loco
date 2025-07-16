@@ -380,4 +380,65 @@ a {
   margin-bottom: 30px;
 }
 
+#levelUpOverlay {
+  position: fixed;
+  top: 51.25%;
+  left: 50%;
+  width: 720px;
+  height: 480px;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(rgba(50, 40, 10, 0.95), rgba(80, 60, 20, 0.9));
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(255, 204, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
 
+#levelUpOverlay.hidden {
+  display: none;
+}
+
+#nextLevelBtn {
+  padding: 12px 24px;
+  font-family: "Press Start 2P", cursive;
+  font-size: 12px;
+  background-color: #ffcc00;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 0 8px #ffaa00;
+  cursor: pointer;
+  color: black;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease, transform 0.2s ease;
+  animation: pulseNeon 1.5s infinite, wobble 1s infinite;
+}
+
+@keyframes pulseNeon {
+  0% {
+    box-shadow: 0 0 8px rgba(255, 170, 0, 0.4), 0 0 16px rgba(255, 204, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(255, 170, 0, 0.6), 0 0 24px rgba(255, 204, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 8px rgba(255, 170, 0, 0.4), 0 0 16px rgba(255, 204, 0, 0.3);
+  }
+}
+
+@keyframes wobble {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(2deg); }
+  50% { transform: rotate(-2deg); }
+  75% { transform: rotate(2deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.level-up-img {
+  height: 240px;
+  width: auto;
+  margin-bottom: 20px;
+}

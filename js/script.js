@@ -12,7 +12,9 @@ function initOverlays() {
   setupOverlay("toggleSoundBtn", "OverlaySound", "closeSoundBtn");
   setupOverlay("openImpressumBtn", "OverlayImpressum", "closeImpressumBtn");
   setupOverlay(null, "gameOverOverlay", "closeGameOverOverlayBtn");
+  setupOverlay(null, "levelUpOverlay", "nextLevelBtn");
 }
+
 
 /**
  * Prepares the start game button and listener.
@@ -110,6 +112,32 @@ function setupOverlay(openId, overlayId, closeId) {
     }
   });
 }
+
+let nextLevelCallback = null;
+
+/**
+ * Shows the level up overlay and stores a callback to run when continuing.
+ * @param {Function} callback
+ */
+function showLevelUpOverlay(callback) {
+  nextLevelCallback = callback;
+  show("levelUpOverlay");
+}
+
+/**
+ * Handles the continue button for level up overlay.
+ */
+function continueToNextLevel() {
+  hide("levelUpOverlay");
+  if (typeof nextLevelCallback === "function") {
+    nextLevelCallback();
+    nextLevelCallback = null;
+  }
+}
+
+document
+  .getElementById("nextLevelBtn")
+  ?.addEventListener("click", continueToNextLevel);
 
 /**
  * Shows one overlay and hides others.

@@ -34,7 +34,6 @@ class World {
     this.level.enemies.forEach((enemy) => {
       enemy.world = this;
     });
-    this.loadGameOverImage();
   }
 
   setWorld() {
@@ -47,6 +46,7 @@ class World {
       this.character.checkEnemyCollisions();
       this.checkThrowObjects();
       this.checkCoinCollisions();
+      this.checkLevelProgress();
     }, 200);
   }
 
@@ -189,13 +189,48 @@ class World {
     });
   }
 
-  loadGameOverImage() {
-    this.gameOverImage = new Image();
-    this.gameOverImage.src = "img/You won, you lost/Game Over.png";
-  }
-
   showGameOverScreen() {
     const overlay = document.getElementById("gameOverOverlay");
     overlay.classList.remove("hidden");
+  }
+
+  checkLevelProgress() {
+    const remainingEndbosses = this.level.enemies.filter(
+      (enemy) => enemy instanceof Endboss && !enemy.isDead
+    );
+
+    if (remainingEndbosses.length === 0 && !this.levelUpTriggered) {
+      this.levelUpTriggered = true;
+      this.triggerLevelUp();
+    }
+  }
+
+  triggerLevelUp() {
+    showLevelUpOverlay(() => {
+      this.loadNextLevel();
+    });
+  }
+
+  loadNextLevel() {
+    if (currentLevelIndex + 1 < levels.length) {
+      currentLevelIndex++;
+      const nextLevel = levels[currentLevelIndex];
+      this.level = nextLevel;
+      this.level.enemies.forEach((enemy) => {
+        enemy.world = this;
+      });
+      this.levelUpTriggered = false;
+      this.resetStatusBars();
+    } else {
+      console.log("🎉 All levels completed!");
+      show("gameOverOverlay");
+    }
+  }
+
+  resetStatusBars() {
+    this.collectedCoins = 0;
+    this.statusBarCoin = new StatusBarCoin(this.level.maxCoins);
+    this.statusBarBottle = new StatusBarBottle(this.level.maxBottles);
+    this.throwableObjects = [];
   }
 }
