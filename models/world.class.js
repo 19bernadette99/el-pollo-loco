@@ -77,7 +77,6 @@ class World {
     for (let i = this.level.coins.length - 1; i >= 0; i--) {
       let coin = this.level.coins[i];
       if (this.character.isColliding(coin)) {
-        console.log("Coin getroffen bei:", coin.x, coin.y);
         this.level.coins.splice(i, 1);
         this.collectedCoins++;
         this.statusBarCoin.setCollected(this.collectedCoins);
