@@ -1,13 +1,26 @@
-const level2 = new Level({
+const level11 = new Level({
   enemies: [
-    new Chicken(), 
-    new Chicken(), 
     new Chicken(),
     new Chicken(),
+    new Chicken(),
+    new Chicken(),
+    new Chicken(),
+    new Chicken(),
+    new Chicken(),
+    new Chicken(),
+    new Chicken(),
     new Chicken(true),
     new Chicken(true),
     new Chicken(true),
     new Chicken(true),
+    new Chicken(true),
+    new Chicken(true),
+    new Chicken(true),
+    new Chicken(true),
+    new Chicken(true),
+    new Endboss(),
+    new Endboss(),
+    new Endboss(),
     new Endboss()
   ],
   clouds: [
@@ -36,7 +49,7 @@ const level2 = new Level({
     new BackgroundObject("img/5_background/layers/2_second_layer/2.png", 720 * 3),
     new BackgroundObject("img/5_background/layers/1_first_layer/2.png", 720 * 3)
   ],
-  coinCount: 10,
-  bottleCount: 10,
+  coinCount: 28,
+  bottleCount: 28,
   level_end_x: 2200
 });
