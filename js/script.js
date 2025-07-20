@@ -4,6 +4,7 @@
 window.addEventListener("DOMContentLoaded", () => {
   initOverlays();
   initStartGame();
+  initMobileButtons();
 });
 
 /**
@@ -31,9 +32,10 @@ function initStartGame() {
  * Starts the game by showing the canvas and calling the main game initialization function.
  */
 function startGame() {
-  // hide("loadingScreen"); // Loading screen is disabled
-  show("canvasWrapper");
-  // resetProgressBar(); // Loading screen is disabled
+  // hide("loadingScreen"); 
+document.getElementById('canvas').classList.remove('hidden');
+
+  // resetProgressBar(); 
   init(); // your game init function
 }
 
@@ -54,10 +56,10 @@ function startGameSequence() {
   gameStarted = true;
 
   hide("startScreenWrapper");
-  // show("loadingScreen"); // Loading screen is disabled
-  // fillProgressBar(); // Loading screen is disabled
+  // show("loadingScreen"); 
+  // fillProgressBar();
 
-  // setTimeout(startGame, 5000); // Delay disabled
+  // setTimeout(startGame, 5000); 
   startGame(); // Start game immediately
 }
 
@@ -221,3 +223,24 @@ function startLevel(levelIndex) {
   world = new World(canvas, keyboard, levels[levelIndex]);
 }
 
+/**
+ * Adds event listeners for mobile action bar buttons to trigger the same logic as desktop buttons.
+ */
+function initMobileButtons() {
+  document.getElementById("mobileStartBtn")?.addEventListener("click", startGameSequence);
+  document.getElementById("mobileStoryBtn")?.addEventListener("click", () => {
+    showOverlay(document.getElementById("OverlayStory"));
+  });
+  document.getElementById("mobileControlsBtn")?.addEventListener("click", () => {
+    showOverlay(document.getElementById("OverlayControls"));
+  });
+  document.getElementById("mobileSoundBtn")?.addEventListener("click", () => {
+    showOverlay(document.getElementById("OverlaySound"));
+  });
+  document.getElementById("mobileImpressumBtn")?.addEventListener("click", () => {
+    showOverlay(document.getElementById("OverlayImpressum"));
+  });
+  document.getElementById("mobileFullscreenBtn")?.addEventListener("click", () => {
+    enterFullscreen();
+  });
+}

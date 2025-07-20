@@ -10,6 +10,7 @@
       href="img/2_character_pepe/1_idle/idle/icon.png"
     />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style-responsive.css" />
     <title>El pollo loco</title>
     <script src="models/drawable-object.class.js"></script>
     <script src="models/moveable-object.class.js"></script>
@@ -61,8 +62,16 @@
         </div>
       </div>
 
-      <div id="canvasWrapper" class="hidden">
-        <canvas id="canvas" width="720" height="480"></canvas>
+      <div id="canvasWrapper">
+        <canvas id="canvas" width="720" height="480" class="hidden"></canvas>
+        <div class="mobile-action-bar">
+          <button title="Play" id="mobileStartBtn">▶️</button>
+          <button title="Story" id="mobileStoryBtn">📖</button>
+          <button title="Controls" id="mobileControlsBtn">🎮</button>
+          <button title="Sound" id="mobileSoundBtn">🔊</button>
+          <button title="Fullscreen" id="mobileFullscreenBtn">🖥️</button>
+          <button title="Impressum" id="mobileImpressumBtn">ℹ️</button>
+        </div>
       </div>
     </div>
 
@@ -194,10 +203,6 @@
         <p><strong>Sound:</strong> On / Off</p>
         <p><strong>Music:</strong> On / Off</p>
       </div>
-    </div>
-
-    <div id="canvasWrapper" class="hidden">
-      <canvas id="canvas" width="720" height="480"></canvas>
     </div>
 
     <div id="gameOverOverlay" class="hidden">

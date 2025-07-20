@@ -1,0 +1,84 @@
+#canvasWrapper {
+  position: relative;
+  overflow: visible;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  max-width: 720px;
+  display: block;
+  min-height: 320px;
+  position: relative;
+  z-index: 0;
+}
+
+.mobile-action-bar {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  gap: 12px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+}
+
+.mobile-action-bar button {
+  font-size: 20px;
+  background: #ffcc00;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 6px;
+  box-shadow: 0 0 8px #ffaa00;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.mobile-action-bar button:hover {
+  transform: scale(1.1);
+}
+
+@media (min-width: 1200px) {
+  .start-buttons {
+    display: flex;
+  }
+  .mobile-action-bar {
+    display: none;
+  }
+}
+
+@media (max-width: 1060px) {
+  .start-buttons {
+    display: none;
+  }
+  .mobile-action-bar {
+    display: flex;
+  }
+}
+
+@media (max-width: 720px) {
+  canvas {
+    width: 100%;
+    height: 100vh;
+  }
+}
+
+@media (max-height: 640px) {
+  h1 {
+    display: none;
+  }
+}
+
+@media (max-height: 480px) {
+  canvas {
+    height: 100vh;
+  }
+}
