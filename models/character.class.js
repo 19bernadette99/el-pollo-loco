@@ -82,6 +82,9 @@ class Character extends MoveableObject {
   collectedBottles = 0;
   energy = 100;
 
+  /**
+   * Creates the character, loads images, applies gravity, and starts animation.
+   */
   constructor(keyboard) {
     super();
     this.keyboard = keyboard;
@@ -96,6 +99,9 @@ class Character extends MoveableObject {
     this.animate();
   }
 
+  /**
+   * Starts the main game and animation loop for movement and states.
+   */
   animate() {
     setInterval(() => {
       if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
@@ -147,6 +153,9 @@ class Character extends MoveableObject {
     }, 50);
   }
 
+  /**
+   * Plays the idle animation after short inactivity.
+   */
   animateIdle() {
     let now = Date.now();
     if (now - this.lastIdleFrameTime > this.idleFrameDelay) {
@@ -159,6 +168,9 @@ class Character extends MoveableObject {
     }
   }
 
+  /**
+   * Plays the sleeping animation after long inactivity.
+   */
   animateSleeping() {
     let now = Date.now();
     if (now - this.lastSleepFrameTime > this.sleepFrameDelay) {
@@ -171,6 +183,9 @@ class Character extends MoveableObject {
     }
   }
 
+  /**
+   * Makes the character jump if grounded.
+   */
   jump() {
     if (!this.isAboveGround()) {
       this.speedY = 30;
@@ -178,10 +193,16 @@ class Character extends MoveableObject {
     }
   }
 
+  /**
+   * Shows the first standing frame (not moving or jumping).
+   */
   showStandingImage() {
     this.img = this.imageCache[this.IMAGES_WALKING[0]];
   }
 
+  /**
+   * Handles jump animation based on vertical speed.
+   */
   animateJump() {
     if (!this.isJumping) {
       this.img = this.imageCache[this.IMAGES_JUMPING[2]];
@@ -202,6 +223,9 @@ class Character extends MoveableObject {
     }
   }
 
+  /**
+   * Checks if the character is at the top of their jump.
+   */
   isOnJumpPeak() {
     return (
       this.speedY < 0.5 &&
@@ -211,6 +235,9 @@ class Character extends MoveableObject {
     );
   }
 
+  /**
+   * Detects and reacts to collisions with enemies.
+   */
   checkEnemyCollisions() {
     this.world.level.enemies.forEach((enemy) => {
       if (this.isColliding(enemy) && !enemy.hasDied) {
@@ -224,6 +251,9 @@ class Character extends MoveableObject {
     });
   }
 
+  /**
+   * Checks if the character is jumping on top of an enemy.
+   */
   isJumpingOn(enemy) {
     const horizontallyOverlaps =
       this.x + this.width > enemy.x + enemy.width * 0.2 &&
@@ -238,6 +268,9 @@ class Character extends MoveableObject {
     return horizontallyOverlaps && verticallyOverlaps;
   }
 
+  /**
+   * Checks and handles bottle collection.
+   */
   checkBottleCollisions() {
     if (this.world?.level?.salsaBottles) {
       this.world.level.salsaBottles.forEach((bottle, index) => {
@@ -252,6 +285,9 @@ class Character extends MoveableObject {
     }
   }
 
+  /**
+   * Throws a collected bottle if available.
+   */
   throwBottle() {
     const bottlesLeft = this.world.statusBarBottle.collected;
     if (bottlesLeft > 0) {
@@ -261,10 +297,16 @@ class Character extends MoveableObject {
     }
   }
 
+  /**
+   * Bounces the character upwards (e.g. after jumping on enemy).
+   */
   bounce() {
     this.speedY = 15;
   }
 
+  /**
+   * Triggers death animation and disables character.
+   */
   die() {
     this.hasDied = true;
 

@@ -2,6 +2,10 @@ class Cloud extends MoveableObject {
   width = 500;
   height = 250;
 
+  /**
+   * Creates a new cloud with random X and Y position, then starts animation.
+   * @param {Array<Cloud>} existingClouds - Other clouds already placed on screen.
+   */
   constructor(existingClouds = []) {
     super().loadImage("img/5_background/layers/4_clouds/1.png");
 
@@ -13,6 +17,12 @@ class Cloud extends MoveableObject {
     this.animate();
   }
 
+  /**
+   * Chooses a Y position not already used by other clouds if possible.
+   * @param {Array<Cloud>} existingClouds
+   * @param {number[]} cloudHeights
+   * @returns {number} Chosen Y position
+   */
   calculateYPosition(existingClouds, cloudHeights) {
     let usedHeights = existingClouds.map((c) => c.y);
     let availableHeights = cloudHeights.filter((h) => !usedHeights.includes(h));
@@ -24,6 +34,11 @@ class Cloud extends MoveableObject {
     ];
   }
 
+  /**
+   * Chooses an X position that doesn't overlap too closely with existing clouds.
+   * @param {Array<Cloud>} existingClouds
+   * @returns {number} Chosen X position
+   */
   calculateXPosition(existingClouds) {
     let minX = 0;
     let maxX = 1500;
@@ -39,6 +54,9 @@ class Cloud extends MoveableObject {
     return x;
   }
 
+  /**
+   * Moves the cloud to the left, and resets its position once off screen.
+   */
   animate() {
     const cloudHeights = [10, 30, 50];
 

@@ -8,6 +8,10 @@ class Level {
   maxCoins;
   maxBottles;
 
+  /**
+   * Creates a new level with given objects and generates random coins and bottles.
+   * @param {Object} options - Level configuration.
+   */
   constructor({
     enemies = [],
     clouds = [],
@@ -28,6 +32,10 @@ class Level {
     this.salsaBottles = this.createRandomBottles(bottleCount);
   }
 
+  /**
+   * Checks if all endbosses in the level have been defeated.
+   * @returns {boolean} True if level is complete.
+   */
   checkLevelCompletion() {
     const endbossesAlive = this.enemies.filter(
       (e) => e instanceof Endboss && !e.isDead
@@ -35,6 +43,11 @@ class Level {
     return endbossesAlive.length === 0;
   }
 
+  /**
+   * Creates a set of coins at randomized positions within horizontal sectors.
+   * @param {number} amount - Number of coins to generate.
+   * @returns {Coin[]} Array of Coin objects.
+   */
   createRandomCoins(amount) {
     let coins = [];
     let minX = 700;
@@ -60,6 +73,11 @@ class Level {
     return coins;
   }
 
+  /**
+   * Creates a set of salsa bottles at random X positions.
+   * @param {number} amount - Number of bottles to generate.
+   * @returns {SalsaBottle[]} Array of SalsaBottle objects.
+   */
   createRandomBottles(amount) {
     let bottles = [];
     for (let i = 0; i < amount; i++) {
@@ -69,6 +87,11 @@ class Level {
     return bottles;
   }
 
+  /**
+   * Shuffles an array in-place using Fisher-Yates algorithm.
+   * @param {Array} array - The array to shuffle.
+   * @returns {Array} Shuffled array.
+   */
   shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
       let j = Math.floor(Math.random() * (i + 1));

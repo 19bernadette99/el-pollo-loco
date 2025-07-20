@@ -13,6 +13,11 @@ class World {
 
   throwableObjects;
 
+  /**
+   * Initializes the world with canvas, keyboard input, and game objects.
+   * @param {HTMLCanvasElement} canvas - The game canvas.
+   * @param {Keyboard} keyboard - Keyboard input handler.
+   */
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
@@ -31,11 +36,17 @@ class World {
     this.endbossIsVisible();
   }
 
+  /**
+   * Links the character to the current world instance.
+   */
   setWorld() {
     this.character = new Character(this.keyboard);
     this.character.world = this;
   }
 
+  /**
+   * Starts recurring checks (collision, input, progress).
+   */
   run() {
     setInterval(() => {
       this.character.checkEnemyCollisions();
@@ -45,6 +56,9 @@ class World {
     }, 200);
   }
 
+  /**
+   * Handles throwing bottles when 'D' key is pressed.
+   */
   checkThrowObjects() {
     if (this.keyboard.D && !this.bottleThrown) {
       if (this.statusBarBottle.collected > 0) {
@@ -70,6 +84,9 @@ class World {
     }
   }
 
+  /**
+   * Detects and processes coin pickups.
+   */
   checkCoinCollisions() {
     for (let i = this.level.coins.length - 1; i >= 0; i--) {
       let coin = this.level.coins[i];
@@ -81,6 +98,9 @@ class World {
     }
   }
 
+  /**
+   * Draws the game frame, UI, and characters continuously.
+   */
   draw() {
     if (this.character.hasDied) {
       this.showGameOverScreen();
@@ -122,12 +142,20 @@ class World {
     });
   }
 
+  /**
+   * Adds an array of objects to the canvas.
+   * @param {DrawableObject[]} objects
+   */
   addObjectsToMap(objects) {
     objects.forEach((o) => {
       if (o) this.addToMap(o);
     });
   }
 
+  /**
+   * Adds a single object to the canvas, handling flipping if needed.
+   * @param {DrawableObject} mo
+   */
   addToMap(mo) {
     if (!mo) return;
 
@@ -142,6 +170,10 @@ class World {
     }
   }
 
+  /**
+   * Mirrors the drawing context horizontally.
+   * @param {DrawableObject} mo
+   */
   flipImage(mo) {
     this.ctx.save();
     this.ctx.translate(mo.x + mo.width, 0);
@@ -150,11 +182,18 @@ class World {
     this.ctx.restore();
   }
 
+  /**
+   * Restores flipped image position after drawing.
+   * @param {DrawableObject} mo
+   */
   flipImageBack(mo) {
     mo.x = -mo.x * -1;
     this.ctx.restore();
   }
 
+  /**
+   * Spawns clouds periodically if fewer than the max allowed.
+   */
   spawnClouds() {
     setInterval(() => {
       const maxClouds = 2;
@@ -165,12 +204,19 @@ class World {
     }, 5000);
   }
 
+  /**
+   * Checks if the endboss is currently visible on screen.
+   * @returns {boolean}
+   */
   endbossIsVisible() {
     let endboss = this.level.enemies.find((e) => e instanceof Endboss);
     if (!endboss) return false;
     return this.camera_x * -1 + this.canvas.width >= endboss.x;
   }
 
+  /**
+   * Detects if a bottle hits the endboss and applies damage.
+   */
   checkBottleHitsEndboss() {
     let endboss = this.level.enemies.find((e) => e instanceof Endboss);
     if (!endboss || endboss.isDead) return;
@@ -184,11 +230,17 @@ class World {
     });
   }
 
+  /**
+   * Displays the game-over overlay.
+   */
   showGameOverScreen() {
     const overlay = document.getElementById("gameOverOverlay");
     overlay.classList.remove("hidden");
   }
 
+  /**
+   * Checks if the level is finished and triggers level-up.
+   */
   checkLevelProgress() {
     const remainingEndbosses = this.level.enemies.filter(
       (enemy) => enemy instanceof Endboss && !enemy.isDead
@@ -200,6 +252,9 @@ class World {
     }
   }
 
+  /**
+   * Opens the level-up screen and prepares the next level.
+   */
   triggerLevelUp() {
     showLevelUpOverlay(() => {
       currentLevelIndex++;
@@ -211,6 +266,9 @@ class World {
     });
   }
 
+  /**
+   * Loads the next level from the level list.
+   */
   loadNextLevel() {
     if (currentLevelIndex + 1 < levels.length) {
       currentLevelIndex++;
@@ -222,6 +280,10 @@ class World {
     }
   }
 
+  /**
+   * Sets the current level and updates all world references.
+   * @param {Level} level - The level to load.
+   */
   setLevel(level) {
     this.level = level;
 
@@ -239,3 +301,4 @@ class World {
     }
   }
 }
+

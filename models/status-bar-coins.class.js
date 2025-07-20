@@ -11,6 +11,10 @@ class StatusBarCoin extends DrawableObject {
   collected = 0;
   maxCoins = 10;
 
+  /**
+   * Initializes the coin status bar and sets max coins.
+   * @param {number} maxCoins - Total number of collectible coins in the level.
+   */
   constructor(maxCoins) {
     super();
     this.maxCoins = maxCoins;
@@ -18,6 +22,10 @@ class StatusBarCoin extends DrawableObject {
     this.setCollected(0);
   }
 
+  /**
+   * Updates the number of collected coins and the corresponding image.
+   * @param {number} amount - Number of coins collected.
+   */
   setCollected(amount) {
     this.collected = amount;
     const path = this.IMAGES[this.resolveImageIndex(this.collected)];
@@ -28,6 +36,11 @@ class StatusBarCoin extends DrawableObject {
     this.img = this.imageCache[path];
   }
 
+  /**
+   * Resolves which image to display based on collected coins.
+   * @param {number} collected - Coins collected.
+   * @returns {number} Index in the IMAGES array.
+   */
   resolveImageIndex(collected) {
     let maxImages = this.IMAGES.length - 1;
 

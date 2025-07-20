@@ -17,6 +17,12 @@ class ThrowableObject extends MoveableObject {
 
   hasSplashed = false;
 
+  /**
+   * Creates and throws a new salsa bottle in the given direction.
+   * @param {number} x - Starting X position.
+   * @param {number} y - Starting Y position.
+   * @param {boolean} otherDirection - Direction the bottle is thrown.
+   */
   constructor(x, y, otherDirection) {
     super();
     this.loadImage("img/6_salsa_bottle/salsa_bottle.png");
@@ -29,6 +35,9 @@ class ThrowableObject extends MoveableObject {
     this.throw();
   }
 
+  /**
+   * Starts bottle movement, gravity, and collision detection.
+   */
   throw() {
     this.speedY = 25;
     this.applyGravity();
@@ -46,6 +55,9 @@ class ThrowableObject extends MoveableObject {
     }, 25);
   }
 
+  /**
+   * Starts the bottle rotation animation while flying.
+   */
   animateThrow() {
     this.throwAnimationInterval = setInterval(() => {
       if (!this.hasSplashed) {
@@ -54,6 +66,9 @@ class ThrowableObject extends MoveableObject {
     }, 90);
   }
 
+  /**
+   * Handles bottle splash effect when it hits the ground.
+   */
   splash() {
     this.hasSplashed = true;
     this.stopThrow();
@@ -62,24 +77,36 @@ class ThrowableObject extends MoveableObject {
     this.hideAfterSplash();
   }
 
+  /**
+   * Stops bottle movement and animation.
+   */
   stopThrow() {
     clearInterval(this.throwInterval);
     clearInterval(this.throwAnimationInterval);
     this.speedY = 0;
   }
 
+  /**
+   * Loads splash images and prepares first frame.
+   */
   prepareSplashAnimation() {
     this.loadImages(this.SPLASH_IMAGES);
     this.currentImage = 0;
     this.img = this.imageCache[this.SPLASH_IMAGES[0]];
   }
 
+  /**
+   * Starts the splash animation sequence.
+   */
   startSplashAnimation() {
     this.splashInterval = setInterval(() => {
       this.playAnimation(this.SPLASH_IMAGES);
     }, 100);
   }
 
+  /**
+   * Hides the bottle after the splash animation ends.
+   */
   hideAfterSplash() {
     setTimeout(() => {
       clearInterval(this.splashInterval);

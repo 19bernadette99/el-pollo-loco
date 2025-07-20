@@ -11,6 +11,10 @@ class Chicken extends MoveableObject {
     "img/3_enemies_chicken/chicken_small/1_walk/3_w.png",
   ];
 
+  /**
+   * Creates a big or small chicken, sets position and speed, starts animation.
+   * @param {boolean} isLittle - Whether the chicken is small.
+   */
   constructor(isLittle = false) {
     super();
 
@@ -27,6 +31,9 @@ class Chicken extends MoveableObject {
     this.animate();
   }
 
+  /**
+   * Sets up a small chicken with image, size, and position.
+   */
   littleChicken() {
     this.loadImage(this.IMAGES_WALKING_LITTLE[0]);
     this.loadImages(this.IMAGES_WALKING_LITTLE);
@@ -36,6 +43,9 @@ class Chicken extends MoveableObject {
     this.y = 390;
   }
 
+  /**
+   * Sets up a big chicken with image, size, and position.
+   */
   bigChicken() {
     this.loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
@@ -45,6 +55,9 @@ class Chicken extends MoveableObject {
     this.y = 365;
   }
 
+  /**
+   * Starts movement and walking animation intervals.
+   */
   animate() {
     setInterval(() => {
       if (!this.hasDied) {
@@ -59,6 +72,9 @@ class Chicken extends MoveableObject {
     }, 150);
   }
 
+  /**
+   * Triggers death logic, stops animation and moves off-screen.
+   */
   die() {
     this.hasDied = true;
     this.speed = 0;

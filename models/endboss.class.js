@@ -61,6 +61,9 @@ class Endboss extends MoveableObject {
     "img/4_enemie_boss_chicken/5_dead/G26.png",
   ];
 
+  /**
+   * Creates the Endboss, loads all animations, and starts animation loop.
+   */
   constructor() {
     super().loadImage("img/4_enemie_boss_chicken/2_alert/G5.png");
     this.loadImages(this.IMAGES_ALERT);
@@ -72,6 +75,9 @@ class Endboss extends MoveableObject {
     this.animate();
   }
 
+  /**
+   * Controls the behavior and animation state of the boss.
+   */
   animate() {
     setInterval(() => {
       if (this.isDead) {
@@ -114,38 +120,37 @@ class Endboss extends MoveableObject {
     }, 200);
   }
 
+  /**
+   * Plays animation based on the type (alert, walking, attacking, etc.).
+   * @param {Array<string>} images - Image list to animate.
+   * @param {string} animationType - Type of animation to play.
+   */
   playAnimation(images, animationType) {
     switch (animationType) {
       case "alert":
         this.img = this.imageCache[images[this.currentAlertImage]];
         this.currentAlertImage++;
-        if (this.currentAlertImage >= images.length) {
-          this.currentAlertImage = 0;
-        }
+        if (this.currentAlertImage >= images.length) this.currentAlertImage = 0;
         break;
 
       case "walking":
         this.img = this.imageCache[images[this.currentWalkingImage]];
         this.currentWalkingImage++;
-        if (this.currentWalkingImage >= images.length) {
+        if (this.currentWalkingImage >= images.length)
           this.currentWalkingImage = 0;
-        }
         break;
 
       case "attacking":
         this.img = this.imageCache[images[this.currentAttackingImage]];
         this.currentAttackingImage++;
-        if (this.currentAttackingImage >= images.length) {
+        if (this.currentAttackingImage >= images.length)
           this.currentAttackingImage = 0;
-        }
         break;
 
       case "hurt":
         this.img = this.imageCache[images[this.currentHurtImage]];
         this.currentHurtImage++;
-        if (this.currentHurtImage >= images.length) {
-          this.currentHurtImage = 0;
-        }
+        if (this.currentHurtImage >= images.length) this.currentHurtImage = 0;
         break;
 
       case "dead":
@@ -158,6 +163,9 @@ class Endboss extends MoveableObject {
     }
   }
 
+  /**
+   * Starts the boss's attack behavior.
+   */
   startAttack() {
     if (!this.hasStartedAttack) {
       this.hasStartedAttack = true;
@@ -165,6 +173,9 @@ class Endboss extends MoveableObject {
     }
   }
 
+  /**
+   * Triggers the boss's death sequence and shrink animation.
+   */
   die() {
     this.isDead = true;
     this.isShrinking = true;
@@ -177,6 +188,9 @@ class Endboss extends MoveableObject {
     this.animateShrink();
   }
 
+  /**
+   * Shrinks and rotates the boss before removing it from the world.
+   */
   animateShrink() {
     const animate = () => {
       let elapsed = Date.now() - this.shrinkStart;
@@ -185,7 +199,6 @@ class Endboss extends MoveableObject {
       if (t > 1) t = 1;
 
       this.rotation = 360 * t;
-
       this.scale = 1 - t;
 
       if (t < 1) {
@@ -198,6 +211,10 @@ class Endboss extends MoveableObject {
     requestAnimationFrame(animate);
   }
 
+  /**
+   * Draws the boss with rotation and scale during shrinking.
+   * @param {CanvasRenderingContext2D} ctx - The canvas context.
+   */
   draw(ctx) {
     if (this.isShrinking) {
       ctx.save();
@@ -217,6 +234,9 @@ class Endboss extends MoveableObject {
     }
   }
 
+  /**
+   * Removes the boss from the world's enemy list.
+   */
   removeFromWorld() {
     if (this.world) {
       let index = this.world.level.enemies.indexOf(this);
@@ -226,12 +246,16 @@ class Endboss extends MoveableObject {
     }
   }
 
+  /**
+   * Applies damage to the boss and triggers behavior changes.
+   * @param {number} damage - The amount of damage taken.
+   */
   hit(damage) {
     if (this.isDead) return;
 
     if (this.isAlert) {
       this.isAlert = false;
-      this.isWalkingToPepe = true; // neu
+      this.isWalkingToPepe = true;
       this.speed = 10;
     } else if (!this.hasStartedAttack && !this.isWalkingToPepe) {
       this.isWalkingToPepe = true;

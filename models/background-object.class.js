@@ -1,3 +1,6 @@
+/**
+ * Background object for the game (e.g. clouds, scenery).
+ */
 class BackgroundObject extends MoveableObject {
   width = 720;
   height = 480;

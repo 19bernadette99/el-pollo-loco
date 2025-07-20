@@ -6,6 +6,9 @@ class MoveableObject extends DrawableObject {
   energy = 100;
   lastHit = 0;
 
+  /**
+   * Applies gravity effect to the object over time.
+   */
   applyGravity() {
     setInterval(() => {
       if (this.isAboveGround() || this.speedY > 0) {
@@ -15,6 +18,10 @@ class MoveableObject extends DrawableObject {
     }, 1000 / 25);
   }
 
+  /**
+   * Checks if the object is above ground level.
+   * @returns {boolean}
+   */
   isAboveGround() {
     if (this instanceof ThrowableObject) {
       return true;
@@ -23,6 +30,11 @@ class MoveableObject extends DrawableObject {
     }
   }
 
+  /**
+   * Checks for collision with another moveable object.
+   * @param {MoveableObject} mo - Another object to check against.
+   * @returns {boolean}
+   */
   isColliding(mo) {
     return (
       this.x + this.width > mo.x &&
@@ -32,6 +44,9 @@ class MoveableObject extends DrawableObject {
     );
   }
 
+  /**
+   * Reduces energy and updates the status bar when hit.
+   */
   hit() {
     this.energy -= 20;
 
@@ -48,6 +63,10 @@ class MoveableObject extends DrawableObject {
     }, 500);
   }
 
+  /**
+   * Checks if the object was recently hit.
+   * @returns {boolean}
+   */
   isHurt() {
     if (!this.lastHit) return false;
 
@@ -55,10 +74,18 @@ class MoveableObject extends DrawableObject {
     return timepassed < 1000 / 1;
   }
 
+  /**
+   * Returns whether the object has no energy left.
+   * @returns {boolean}
+   */
   isDead() {
     return this.energy == 0;
   }
 
+  /**
+   * Plays the next frame in an animation loop.
+   * @param {Array<string>} images - Array of image paths.
+   */
   playAnimation(images) {
     let i = this.currentImage % images.length;
     // let i = 7 % 6; => 1, Rest 1
@@ -68,14 +95,23 @@ class MoveableObject extends DrawableObject {
     this.currentImage++;
   }
 
+  /**
+   * Moves the object to the right.
+   */
   moveRight() {
     this.x += this.speed;
   }
 
+  /**
+   * Moves the object to the left.
+   */
   moveLeft() {
     this.x -= this.speed;
   }
 
+  /**
+   * Makes the object jump upward.
+   */
   jump() {
     this.speedY = 30;
   }

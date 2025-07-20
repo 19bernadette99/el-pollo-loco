@@ -10,24 +10,33 @@ class StatusBarEndboss extends DrawableObject {
 
   percentage = 100;
 
+  /**
+   * Initializes the endboss status bar and sets it to full (100%).
+   */
   constructor() {
     super();
     this.loadImages(this.IMAGES);
     this.setPercentage(100);
   }
 
-
+  /**
+   * Updates the endboss health bar and chooses the correct image.
+   * @param {number} percentage - Current health percentage (0–100).
+   */
   setPercentage(percentage) {
     this.percentage = percentage;
     let path = this.IMAGES[this.resolveImageIndex()];
-    this.x = 480;      
-    this.y = 10;     
+    this.x = 480;
+    this.y = 10;
     this.width = 200;
     this.height = 50;
     this.img = this.imageCache[path];
   }
 
-
+  /**
+   * Resolves the image index based on the current health percentage.
+   * @returns {number} Index in the IMAGES array.
+   */
   resolveImageIndex() {
     if (this.percentage === 100) {
       return 5;
