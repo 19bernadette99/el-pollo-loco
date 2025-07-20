@@ -11,9 +11,18 @@ window.addEventListener("DOMContentLoaded", () => {
  * Binds the click event that enters or exits fullscreen mode.
  */
 function setupFullscreenButton() {
-  const fsBtn = document.getElementById("fullscreenBtn");
-  fsBtn.addEventListener("click", toggleFullscreen);
+  const desktopBtn = document.getElementById("fullscreenBtn");
+  const mobileBtn = document.getElementById("mobileFullscreenBtn");
+
+  if (desktopBtn) {
+    desktopBtn.addEventListener("click", toggleFullscreen);
+  }
+
+  if (mobileBtn) {
+    mobileBtn.addEventListener("click", toggleFullscreen);
+  }
 }
+
 
 /**
  * Toggles fullscreen mode on or off depending on the current state.
@@ -91,6 +100,15 @@ function setupFullscreenEvents() {
  * depending on whether fullscreen mode is currently active.
  */
 function updateFullscreenButton() {
-  const fsBtn = document.getElementById("fullscreenBtn");
-  fsBtn.textContent = isFullscreen() ? "Exit Fullscreen" : "Fullscreen";
+  const desktopBtn = document.getElementById("fullscreenBtn");
+  const mobileBtn = document.getElementById("mobileFullscreenBtn");
+
+  if (desktopBtn) {
+    desktopBtn.textContent = isFullscreen() ? "Exit Fullscreen" : "Fullscreen";
+  }
+
+  if (mobileBtn) {
+    mobileBtn.textContent = isFullscreen() ? "↙️" : "🖥️";
+  }
 }
+

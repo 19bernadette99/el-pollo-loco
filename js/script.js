@@ -32,17 +32,17 @@ function initStartGame() {
  * Starts the game by showing the canvas and calling the main game initialization function.
  */
 function startGame() {
-  // hide("loadingScreen"); 
-document.getElementById('canvas').classList.remove('hidden');
+  // hide("loadingScreen");
+  document.getElementById("canvas").classList.remove("hidden");
 
-  // resetProgressBar(); 
+  // resetProgressBar();
   init(); // your game init function
 }
 
 /**
  * Tracks whether the game has already started.
  * Prevents multiple initializations.
- * 
+ *
  * @type {boolean}
  */
 let gameStarted = false;
@@ -56,16 +56,16 @@ function startGameSequence() {
   gameStarted = true;
 
   hide("startScreenWrapper");
-  // show("loadingScreen"); 
+  // show("loadingScreen");
   // fillProgressBar();
 
-  // setTimeout(startGame, 5000); 
+  // setTimeout(startGame, 5000);
   startGame(); // Start game immediately
 }
 
 /**
  * Shows an overlay element by removing the "hidden" class.
- * 
+ *
  * @param {string} id - The ID of the HTML element to show.
  */
 function show(id) {
@@ -74,7 +74,7 @@ function show(id) {
 
 /**
  * Hides an overlay element by adding the "hidden" class.
- * 
+ *
  * @param {string} id - The ID of the HTML element to hide.
  */
 function hide(id) {
@@ -99,7 +99,7 @@ function hide(id) {
 
 /**
  * Sets up toggle logic for showing and hiding a specific overlay.
- * 
+ *
  * @param {string|null} openId - ID of the button that opens the overlay. Pass null if not needed.
  * @param {string} overlayId - ID of the overlay element.
  * @param {string} closeId - ID of the button that closes the overlay.
@@ -129,14 +129,14 @@ function setupOverlay(openId, overlayId, closeId) {
 
 /**
  * Callback function to execute after level-up overlay is closed.
- * 
+ *
  * @type {Function|null}
  */
 let nextLevelCallback = null;
 
 /**
  * Displays the level-up overlay and stores a callback to be triggered on "Next Level".
- * 
+ *
  * @param {Function} callback - Function to be called after proceeding to the next level.
  */
 function showLevelUpOverlay(callback) {
@@ -162,7 +162,7 @@ document
 
 /**
  * Shows one overlay and hides all others first.
- * 
+ *
  * @param {HTMLElement} overlay - The overlay element to show.
  */
 function showOverlay(overlay) {
@@ -172,7 +172,7 @@ function showOverlay(overlay) {
 
 /**
  * Hides a specific overlay.
- * 
+ *
  * @param {HTMLElement} overlay - The overlay element to hide.
  */
 function hideOverlay(overlay) {
@@ -181,7 +181,7 @@ function hideOverlay(overlay) {
 
 /**
  * Adds logic to close an overlay when the user clicks outside of it.
- * 
+ *
  * @param {HTMLElement} overlay - The overlay to monitor for outside clicks.
  * @param {HTMLElement|null} trigger - The button that triggered the overlay (to avoid closing on that click).
  */
@@ -215,7 +215,7 @@ function closeAllOverlays() {
 
 /**
  * Starts a specific level by index.
- * 
+ *
  * @param {number} levelIndex - The index of the level in the levels array.
  */
 function startLevel(levelIndex) {
@@ -227,20 +227,26 @@ function startLevel(levelIndex) {
  * Adds event listeners for mobile action bar buttons to trigger the same logic as desktop buttons.
  */
 function initMobileButtons() {
-  document.getElementById("mobileStartBtn")?.addEventListener("click", startGameSequence);
+  document
+    .getElementById("mobileStartBtn")
+    ?.addEventListener("click", startGameSequence);
   document.getElementById("mobileStoryBtn")?.addEventListener("click", () => {
     showOverlay(document.getElementById("OverlayStory"));
   });
-  document.getElementById("mobileControlsBtn")?.addEventListener("click", () => {
-    showOverlay(document.getElementById("OverlayControls"));
-  });
+  document
+    .getElementById("mobileControlsBtn")
+    ?.addEventListener("click", () => {
+      showOverlay(document.getElementById("OverlayControls"));
+    });
   document.getElementById("mobileSoundBtn")?.addEventListener("click", () => {
     showOverlay(document.getElementById("OverlaySound"));
   });
-  document.getElementById("mobileImpressumBtn")?.addEventListener("click", () => {
-    showOverlay(document.getElementById("OverlayImpressum"));
-  });
-  document.getElementById("mobileFullscreenBtn")?.addEventListener("click", () => {
-    enterFullscreen();
-  });
+  document
+    .getElementById("mobileImpressumBtn")
+    ?.addEventListener("click", () => {
+      showOverlay(document.getElementById("OverlayImpressum"));
+    });
+  document
+    .getElementById("mobileFullscreenBtn")
+    ?.addEventListener("click", toggleFullscreen);
 }
