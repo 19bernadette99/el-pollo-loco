@@ -4,17 +4,39 @@
 window.addEventListener("DOMContentLoaded", () => {
   initOverlays();
   initStartGame();
-  initMobileButtons();
+  document
+    .getElementById("mobileStartBtn")
+    ?.addEventListener("click", startGameSequence);
+  document
+    .getElementById("mobileFullscreenBtn")
+    ?.addEventListener("click", toggleFullscreen);
 });
 
 /**
  * Sets up all overlay toggle functionality with their respective open and close buttons.
  */
 function initOverlays() {
-  setupOverlay("openStoryBtn", "OverlayStory", "closeStoryBtn");
-  setupOverlay("openControlsBtn", "OverlayControls", "closeControlsBtn");
-  setupOverlay("toggleSoundBtn", "OverlaySound", "closeSoundBtn");
-  setupOverlay("openImpressumBtn", "OverlayImpressum", "closeImpressumBtn");
+  setupOverlay(
+    ["openStoryBtn", "mobileStoryBtn"],
+    "OverlayStory",
+    "closeStoryBtn"
+  );
+  setupOverlay(
+    ["openControlsBtn", "mobileControlsBtn"],
+    "OverlayControls",
+    "closeControlsBtn"
+  );
+  setupOverlay(
+    ["toggleSoundBtn", "mobileSoundBtn"],
+    "OverlaySound",
+    "closeSoundBtn"
+  );
+  setupOverlay(
+    ["openImpressumBtn", "mobileImpressumBtn"],
+    "OverlayImpressum",
+    "closeImpressumBtn"
+  );
+
   setupOverlay(null, "gameOverOverlay", "closeGameOverOverlayBtn");
   setupOverlay(null, "levelUpOverlay", "nextLevelBtn");
 }
@@ -98,33 +120,77 @@ function hide(id) {
 // }
 
 /**
- * Sets up toggle logic for showing and hiding a specific overlay.
- *
- * @param {string|null} openId - ID of the button that opens the overlay. Pass null if not needed.
- * @param {string} overlayId - ID of the overlay element.
- * @param {string} closeId - ID of the button that closes the overlay.
+ * Adds a slight delay before enabling outside click to close the overlay.
+ * This prevents immediate closure due to event bubbling.
+ * @param {HTMLElement} overlay - The overlay element.
+ * @param {HTMLElement} trigger - The button that triggered the overlay.
  */
-function setupOverlay(openId, overlayId, closeId) {
-  const overlay = document.getElementById(overlayId);
-  const closeBtn = document.getElementById(closeId);
+function delayedCloseOnOutsideClick(overlay, trigger) {
+  setTimeout(() => {
+    closeOnOutsideClick(overlay, trigger);
+  }, 100);
+}
 
-  if (openId) {
-    const openBtn = document.getElementById(openId);
-    openBtn.addEventListener("click", () => showOverlay(overlay));
-    closeOnOutsideClick(overlay, openBtn);
-  } else {
-    closeOnOutsideClick(overlay, null);
-  }
+/**
+ * Adds click listeners to one or more buttons to open the overlay.
+ * @param {string[]|string|null} ids - One or more IDs of open buttons.
+ * @param {HTMLElement} overlay - The overlay element to be shown.
+ */
+function addOpenButtonListeners(ids, overlay) {
+  if (!ids) return;
+
+  const buttonIds = Array.isArray(ids) ? ids : [ids];
+
+  buttonIds.forEach((id) => {
+    const button = document.getElementById(id);
+    if (button) {
+      button.addEventListener("click", () => {
+        showOverlay(overlay);
+        delayedCloseOnOutsideClick(overlay, button);
+      });
+    }
+  });
+}
+
+/**
+ * Adds a click listener to the close button to hide the overlay.
+ * Includes custom logic for the game over overlay.
+ * @param {HTMLElement} overlay - The overlay element to be closed.
+ * @param {string} closeId - The ID of the close button.
+ */
+function attachCloseButtonListener(overlay, closeId) {
+  const closeBtn = document.getElementById(closeId);
+  if (!closeBtn) return;
 
   closeBtn.addEventListener("click", () => {
     hideOverlay(overlay);
 
+    // Special logic for game over overlay
     if (overlay.id === "gameOverOverlay") {
       hide("canvasWrapper");
       show("startScreenWrapper");
       gameStarted = false;
     }
   });
+}
+
+/**
+ * Main function to wire up an overlay's open and close logic.
+ * @param {string[]|string|null} openIds - Button(s) that open the overlay.
+ * @param {string} overlayId - ID of the overlay element.
+ * @param {string} closeId - ID of the close button.
+ */
+function setupOverlay(openIds, overlayId, closeId) {
+  const overlay = document.getElementById(overlayId);
+  if (!overlay) return;
+
+  addOpenButtonListeners(openIds, overlay);
+  attachCloseButtonListener(overlay, closeId);
+
+  // If no open buttons are specified, allow outside click to close
+  if (!openIds) {
+    closeOnOutsideClick(overlay, null);
+  }
 }
 
 /**
@@ -221,32 +287,4 @@ function closeAllOverlays() {
 function startLevel(levelIndex) {
   const canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard, levels[levelIndex]);
-}
-
-/**
- * Adds event listeners for mobile action bar buttons to trigger the same logic as desktop buttons.
- */
-function initMobileButtons() {
-  document
-    .getElementById("mobileStartBtn")
-    ?.addEventListener("click", startGameSequence);
-  document.getElementById("mobileStoryBtn")?.addEventListener("click", () => {
-    showOverlay(document.getElementById("OverlayStory"));
-  });
-  document
-    .getElementById("mobileControlsBtn")
-    ?.addEventListener("click", () => {
-      showOverlay(document.getElementById("OverlayControls"));
-    });
-  document.getElementById("mobileSoundBtn")?.addEventListener("click", () => {
-    showOverlay(document.getElementById("OverlaySound"));
-  });
-  document
-    .getElementById("mobileImpressumBtn")
-    ?.addEventListener("click", () => {
-      showOverlay(document.getElementById("OverlayImpressum"));
-    });
-  document
-    .getElementById("mobileFullscreenBtn")
-    ?.addEventListener("click", toggleFullscreen);
 }

@@ -50,19 +50,18 @@
   <body>
     <h1>El pollo loco</h1>
 
-    <div id="screenContainer">
-      <div id="startScreenWrapper">
-        <div id="startScreen"></div>
-      </div>
-
-      <div id="loadingScreen" class="hidden">
-        <div id="kaktus">🌵</div>
-        <div class="progress-bar">
-          <div class="progress-fill"></div>
+    <div id="canvasWrapper">
+      <div id="screenContainer">
+        <div id="startScreenWrapper">
+          <div id="startScreen"></div>
         </div>
-      </div>
 
-      <div id="canvasWrapper">
+        <div id="loadingScreen" class="hidden">
+          <div id="kaktus">🌵</div>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
         <canvas id="canvas" width="720" height="480" class="hidden"></canvas>
         <div class="mobile-action-bar">
           <button title="Play" id="mobileStartBtn">▶️</button>
@@ -72,10 +71,154 @@
           <button title="Fullscreen" id="mobileFullscreenBtn">🖥️</button>
           <button title="Impressum" id="mobileImpressumBtn">ℹ️</button>
         </div>
+        <div id="OverlayStory" class="hidden overlay">
+          <button id="closeStoryBtn" class="close-btn">&times;</button>
+          <div class="overlay-scroll-content">
+            <p>
+              In the sun-scorched heart of the
+              <strong>Fiery Jalapeño Desert</strong>, a lone hero named
+              <strong>Pepe</strong> emerges from the sands with a mission hotter
+              than the blazing sun: defend the desert from the
+              <em>Great Chicken Uprising</em>.
+            </p>
+            <p>
+              Once peaceful, the desert has been overrun by a wild flock of
+              rebellious chickens — from sneaky desert chicks to furious giant
+              battle hens. These feathered foes have been corrupted by a
+              mysterious
+              <em>enchilada energy</em> buried deep beneath the sands. Now, they
+              march under the command of the colossal chicken overlord,
+              <strong>General Cluckzila</strong>, threatening to turn the desert
+              into a pecked-apart wasteland.
+            </p>
+            <p>But they didn't count on <strong>Pepe</strong>.</p>
+            <p>
+              Armed with spicy <strong>Salsa Bottles</strong>, a fearless jump,
+              and swift desert reflexes, Pepe leaps and sprints across rocky
+              canyons and scorching dunes. Every thrown salsa bottle bursts like
+              a fiesta bomb, sending chicken feathers flying.
+            </p>
+            <p>
+              <strong>
+                Can Pepe out-dance, out-jump, and out-salsa the entire poultry
+                army?
+              </strong>
+            </p>
+          </div>
+        </div>
+
+        <div id="OverlayImpressum" class="hidden overlay">
+          <button id="closeImpressumBtn" class="close-btn">×</button>
+          <div class="story-text overlay-scroll-content">
+            <p><strong>Impressum</strong></p>
+            <p>
+              Informationen und Offenlegung gemäß §5 (1) ECG, § 25 MedienG, § 63
+              GewO und § 14 UGB
+            </p>
+            <p>
+              <strong>Webseitenbetreiberin:</strong><br />
+              Bernadette Pöltl
+            </p>
+            <p>
+              <strong>Anschrift:</strong><br />
+              Seitelschlag 43/1<br />
+              4161 Ulrichsberg
+            </p>
+            <p>
+              <strong>UID-Nr:</strong>
+              <strong>Gewerbeaufsichtbehörde:</strong>
+              <strong>Mitgliedschaften:</strong>
+            </p>
+            <p>
+              <strong>Kontaktdaten:</strong><br />
+              Telefon: 0650/88 00 963<br />
+              E-Mail: bernadette.poeltl99@gmail.com
+            </p>
+            <p>
+              <strong>Anwendbare Rechtsvorschrift:</strong><br />
+              <a href="https://www.ris.bka.gv.at" target="_blank"
+                >www.ris.bka.gv.at</a
+              >
+            </p>
+            <p>
+              <strong>Online Streitbeilegung:</strong><br />
+              Die Europäische Kommission stellt eine Plattform zur
+              Online-Streitbeilegung bereit:<br />
+              <a href="https://ec.europa.eu/consumers/odr" target="_blank"
+                >https://ec.europa.eu/consumers/odr</a
+              >
+            </p>
+            <p>
+              <strong>Urheberrecht:</strong><br />
+              Die Inhalte dieser Webseite unterliegen dem Urheberrecht. Jede
+              Verwendung bedarf der schriftlichen Zustimmung.
+            </p>
+            <p>
+              <strong>Haftungsausschluss:</strong><br />
+              Trotz sorgfältiger Kontrolle übernimmt der Betreiber keine Haftung
+              für externe Links. Für deren Inhalt sind ausschließlich deren
+              Betreiber verantwortlich.
+            </p>
+            <p style="font-size: 10px">
+              Quelle: Impressum Generator Österreich
+            </p>
+          </div>
+        </div>
+
+        <div id="OverlayControls" class="overlay hidden">
+          <button id="closeControlsBtn" class="close-btn">&times;</button>
+          <h2>Controls</h2>
+          <div class="controls-list">
+            <div class="control-line">
+              <span class="keycap">⯇</span>
+              <span class="label">Run left</span>
+            </div>
+            <div class="control-line">
+              <span class="keycap">⯈</span>
+              <span class="label">Run right</span>
+            </div>
+            <div class="control-line">
+              <span class="keycap">Space</span>
+              <span class="label">Jump</span>
+            </div>
+            <div class="control-line">
+              <span class="keycap">D</span>
+              <span class="label">Throw bottle</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="OverlaySound" class="hidden">
+          <button id="closeSoundBtn" class="close-btn">×</button>
+          <div class="overlay-text">
+            <p><strong>Sound:</strong> On / Off</p>
+            <p><strong>Music:</strong> On / Off</p>
+          </div>
+        </div>
+
+        <div id="gameOverOverlay" class="hidden">
+          <button id="closeGameOverOverlayBtn" class="close-btn">×</button>
+          <div class="game-over-box">
+            <img src="img/2_character_pepe/4_hurt/H-41.png" alt="Game Over" />
+            <h1>Game Over</h1>
+            <p>Oooh nooo, you lost! Try it again.</p>
+          </div>
+        </div>
+
+        <div id="levelUpOverlay" class="hidden">
+          <div class="game-over-box">
+            <img
+              class="level-up-img"
+              src="img/You won, you lost/You Win A.png"
+              alt="Level Up"
+            />
+            <h1>Level Up!</h1>
+            <p>Congratulations! Get ready for the next adventure!</p>
+            <button id="nextLevelBtn">Continue</button>
+          </div>
+        </div>
       </div>
     </div>
-
-    
 
     <div class="start-buttons">
       <button id="startGameBtn" class="menu-btn">Start Game</button>
@@ -84,149 +227,6 @@
       <button id="toggleSoundBtn" class="menu-btn">Sound: On|Off</button>
       <button id="fullscreenBtn" class="menu-btn">Fullscreen</button>
       <button id="openImpressumBtn" class="menu-btn">Impressum</button>
-    </div>
-
-    <div id="OverlayStory" class="hidden overlay">
-      <button id="closeStoryBtn" class="close-btn">&times;</button>
-      <div class="overlay-scroll-content">
-        <p>
-          In the sun-scorched heart of the
-          <strong>Fiery Jalapeño Desert</strong>, a lone hero named
-          <strong>Pepe</strong> emerges from the sands with a mission hotter
-          than the blazing sun: defend the desert from the
-          <em>Great Chicken Uprising</em>.
-        </p>
-        <p>
-          Once peaceful, the desert has been overrun by a wild flock of
-          rebellious chickens — from sneaky desert chicks to furious giant
-          battle hens. These feathered foes have been corrupted by a mysterious
-          <em>enchilada energy</em> buried deep beneath the sands. Now, they
-          march under the command of the colossal chicken overlord,
-          <strong>General Cluckzila</strong>, threatening to turn the desert
-          into a pecked-apart wasteland.
-        </p>
-        <p>But they didn't count on <strong>Pepe</strong>.</p>
-        <p>
-          Armed with spicy <strong>Salsa Bottles</strong>, a fearless jump, and
-          swift desert reflexes, Pepe leaps and sprints across rocky canyons and
-          scorching dunes. Every thrown salsa bottle bursts like a fiesta bomb,
-          sending chicken feathers flying.
-        </p>
-        <p>
-          <strong>
-            Can Pepe out-dance, out-jump, and out-salsa the entire poultry army?
-          </strong>
-        </p>
-      </div>
-    </div>
-
-    <div id="OverlayImpressum" class="hidden overlay">
-      <button id="closeImpressumBtn" class="close-btn">×</button>
-      <div class="story-text, overlay-scroll-content">
-        <p><strong>Impressum</strong></p>
-        <p>
-          Informationen und Offenlegung gemäß §5 (1) ECG, § 25 MedienG, § 63
-          GewO und § 14 UGB
-        </p>
-        <p>
-          <strong>Webseitenbetreiberin:</strong><br />
-          Bernadette Pöltl
-        </p>
-        <p>
-          <strong>Anschrift:</strong><br />
-          Seitelschlag 43/1<br />
-          4161 Ulrichsberg
-        </p>
-        <p>
-          <strong>UID-Nr:</strong>
-          <strong>Gewerbeaufsichtbehörde:</strong>
-          <strong>Mitgliedschaften:</strong>
-        </p>
-        <p>
-          <strong>Kontaktdaten:</strong><br />
-          Telefon: 0650/88 00 963<br />
-          E-Mail: bernadette.poeltl99@gmail.com
-        </p>
-        <p>
-          <strong>Anwendbare Rechtsvorschrift:</strong><br />
-          <a href="https://www.ris.bka.gv.at" target="_blank"
-            >www.ris.bka.gv.at</a
-          >
-        </p>
-        <p>
-          <strong>Online Streitbeilegung:</strong><br />
-          Die Europäische Kommission stellt eine Plattform zur
-          Online-Streitbeilegung bereit:<br />
-          <a href="https://ec.europa.eu/consumers/odr" target="_blank"
-            >https://ec.europa.eu/consumers/odr</a
-          >
-        </p>
-        <p>
-          <strong>Urheberrecht:</strong><br />
-          Die Inhalte dieser Webseite unterliegen dem Urheberrecht. Jede
-          Verwendung bedarf der schriftlichen Zustimmung.
-        </p>
-        <p>
-          <strong>Haftungsausschluss:</strong><br />
-          Trotz sorgfältiger Kontrolle übernimmt der Betreiber keine Haftung für
-          externe Links. Für deren Inhalt sind ausschließlich deren Betreiber
-          verantwortlich.
-        </p>
-        <p style="font-size: 10px">Quelle: Impressum Generator Österreich</p>
-      </div>
-    </div>
-
-    <div id="OverlayControls" class="overlay hidden">
-      <button id="closeControlsBtn" class="close-btn">&times;</button>
-      <h2>Controls</h2>
-      <div class="controls-list">
-        <div class="control-line">
-          <span class="keycap">⯇</span>
-          <span class="label">Run left</span>
-        </div>
-        <div class="control-line">
-          <span class="keycap">⯈</span>
-          <span class="label">Run right</span>
-        </div>
-        <div class="control-line">
-          <span class="keycap">Space</span>
-          <span class="label">Jump</span>
-        </div>
-        <div class="control-line">
-          <span class="keycap">D</span>
-          <span class="label">Throw bottle</span>
-        </div>
-      </div>
-    </div>
-
-    <div id="OverlaySound" class="hidden">
-      <button id="closeSoundBtn" class="close-btn">×</button>
-      <div class="overlay-text">
-        <p><strong>Sound:</strong> On / Off</p>
-        <p><strong>Music:</strong> On / Off</p>
-      </div>
-    </div>
-
-    <div id="gameOverOverlay" class="hidden">
-      <button id="closeGameOverOverlayBtn" class="close-btn">×</button>
-      <div class="game-over-box">
-        <img src="img/2_character_pepe/4_hurt/H-41.png" alt="Game Over" />
-        <h1>Game Over</h1>
-        <p>Oooh nooo, you lost! Try it again.</p>
-      </div>
-    </div>
-
-    <div id="levelUpOverlay" class="hidden">
-      <div class="game-over-box">
-        <img
-          class="level-up-img"
-          src="img/You won, you lost/You Win A.png"
-          alt="Level Up"
-        />
-        <h1>Level Up!</h1>
-        <p>Congratulations! Get ready for the next adventure!</p>
-        <button id="nextLevelBtn">Continue</button>
-      </div>
     </div>
 
     <script src="js/fullscreen.js"></script>

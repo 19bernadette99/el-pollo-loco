@@ -66,6 +66,8 @@ canvas {
   border-radius: 12px;
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.2),
     0 0 60px rgba(255, 255, 255, 0.1);
+  z-index: 1;
+  position: relative;
 }
 
 @keyframes neonPulse {
@@ -81,20 +83,17 @@ canvas {
 #OverlaySound,
 #OverlayControls,
 #OverlayImpressum {
-  position: fixed;
-  top: 51.3%;
-  left: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 720px;
   height: 480px;
   background: linear-gradient(rgba(10, 10, 25, 0.95), rgba(20, 20, 50, 0.9));
-  transform: translate(-50%, -50%);
-  z-index: 1000;
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
   padding: 60px 40px 20px 40px;
-  box-sizing: border-box;
   border-radius: 12px;
   box-shadow: 0 0 25px rgba(255, 204, 0, 0.4);
   overflow: hidden;
