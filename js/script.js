@@ -1,10 +1,13 @@
+/**
+ * Initializes overlays and game start logic once the DOM is fully loaded.
+ */
 window.addEventListener("DOMContentLoaded", () => {
   initOverlays();
   initStartGame();
 });
 
 /**
- * Sets up all overlay toggle functionality.
+ * Sets up all overlay toggle functionality with their respective open and close buttons.
  */
 function initOverlays() {
   setupOverlay("openStoryBtn", "OverlayStory", "closeStoryBtn");
@@ -16,7 +19,7 @@ function initOverlays() {
 }
 
 /**
- * Prepares the start game button and listener.
+ * Prepares the "Start Game" button with an event listener to start the game sequence.
  */
 function initStartGame() {
   document
@@ -25,7 +28,7 @@ function initStartGame() {
 }
 
 /**
- * Starts the game and shows canvas.
+ * Starts the game by showing the canvas and calling the main game initialization function.
  */
 function startGame() {
   // hide("loadingScreen"); // Loading screen is disabled
@@ -34,10 +37,17 @@ function startGame() {
   init(); // your game init function
 }
 
-let gameStarted = false; // Flag to track game start
+/**
+ * Tracks whether the game has already started.
+ * Prevents multiple initializations.
+ * 
+ * @type {boolean}
+ */
+let gameStarted = false;
 
 /**
- * Starts game flow: hide screen, show loading, start after delay.
+ * Starts the full game sequence: hides the start screen, shows loading (optional),
+ * and initializes the game after a delay (optional).
  */
 function startGameSequence() {
   if (gameStarted) return;
@@ -52,23 +62,25 @@ function startGameSequence() {
 }
 
 /**
- * Shows an overlay element.
- * @param {string} id - The element ID to show.
+ * Shows an overlay element by removing the "hidden" class.
+ * 
+ * @param {string} id - The ID of the HTML element to show.
  */
 function show(id) {
   document.getElementById(id).classList.remove("hidden");
 }
 
 /**
- * Hides an overlay element.
- * @param {string} id - The element ID to hide.
+ * Hides an overlay element by adding the "hidden" class.
+ * 
+ * @param {string} id - The ID of the HTML element to hide.
  */
 function hide(id) {
   document.getElementById(id).classList.add("hidden");
 }
 
 /**
- * Animates the loading progress bar.
+ * Animates the loading progress bar by filling it.
  */
 // function fillProgressBar() {
 //   const bar = document.querySelector(".progress-fill");
@@ -77,17 +89,18 @@ function hide(id) {
 // }
 
 /**
- * Resets progress bar width after loading.
+ * Resets the loading progress bar back to 0% width.
  */
 // function resetProgressBar() {
 //   document.querySelector(".progress-fill").style.width = "0%";
 // }
 
 /**
- * Attaches toggle logic for an overlay.
- * @param {string} openId - Button that opens the overlay.
- * @param {string} overlayId - Overlay element ID.
- * @param {string} closeId - Button that closes the overlay.
+ * Sets up toggle logic for showing and hiding a specific overlay.
+ * 
+ * @param {string|null} openId - ID of the button that opens the overlay. Pass null if not needed.
+ * @param {string} overlayId - ID of the overlay element.
+ * @param {string} closeId - ID of the button that closes the overlay.
  */
 function setupOverlay(openId, overlayId, closeId) {
   const overlay = document.getElementById(overlayId);
@@ -112,13 +125,26 @@ function setupOverlay(openId, overlayId, closeId) {
   });
 }
 
+/**
+ * Callback function to execute after level-up overlay is closed.
+ * 
+ * @type {Function|null}
+ */
 let nextLevelCallback = null;
 
+/**
+ * Displays the level-up overlay and stores a callback to be triggered on "Next Level".
+ * 
+ * @param {Function} callback - Function to be called after proceeding to the next level.
+ */
 function showLevelUpOverlay(callback) {
   nextLevelCallback = callback;
   show("levelUpOverlay");
 }
 
+/**
+ * Continues to the next level after level-up overlay is closed.
+ */
 function continueToNextLevel() {
   hide("levelUpOverlay");
   if (typeof nextLevelCallback === "function") {
@@ -127,13 +153,15 @@ function continueToNextLevel() {
   }
 }
 
+// Set up the "Next Level" button if it exists
 document
   .getElementById("nextLevelBtn")
   ?.addEventListener("click", continueToNextLevel);
 
 /**
- * Shows one overlay and hides others.
- * @param {HTMLElement} overlay
+ * Shows one overlay and hides all others first.
+ * 
+ * @param {HTMLElement} overlay - The overlay element to show.
  */
 function showOverlay(overlay) {
   closeAllOverlays();
@@ -141,17 +169,19 @@ function showOverlay(overlay) {
 }
 
 /**
- * Hides the given overlay.
- * @param {HTMLElement} overlay
+ * Hides a specific overlay.
+ * 
+ * @param {HTMLElement} overlay - The overlay element to hide.
  */
 function hideOverlay(overlay) {
   overlay.classList.add("hidden");
 }
 
 /**
- * Closes overlay when clicking outside of it.
- * @param {HTMLElement} overlay
- * @param {HTMLElement} trigger
+ * Adds logic to close an overlay when the user clicks outside of it.
+ * 
+ * @param {HTMLElement} overlay - The overlay to monitor for outside clicks.
+ * @param {HTMLElement|null} trigger - The button that triggered the overlay (to avoid closing on that click).
  */
 function closeOnOutsideClick(overlay, trigger) {
   document.addEventListener("click", (e) => {
@@ -172,7 +202,7 @@ function closeOnOutsideClick(overlay, trigger) {
 }
 
 /**
- * Hides all overlays.
+ * Hides all currently visible overlays (except special ones).
  */
 function closeAllOverlays() {
   const overlays = document.querySelectorAll(
@@ -181,7 +211,13 @@ function closeAllOverlays() {
   overlays.forEach((overlay) => overlay.classList.add("hidden"));
 }
 
+/**
+ * Starts a specific level by index.
+ * 
+ * @param {number} levelIndex - The index of the level in the levels array.
+ */
 function startLevel(levelIndex) {
   const canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard, levels[levelIndex]);
 }
+
