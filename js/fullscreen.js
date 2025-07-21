@@ -12,17 +12,11 @@ window.addEventListener("DOMContentLoaded", () => {
  */
 function setupFullscreenButton() {
   const desktopBtn = document.getElementById("fullscreenBtn");
-  const mobileBtn = document.getElementById("mobileFullscreenBtn");
 
   if (desktopBtn) {
     desktopBtn.addEventListener("click", toggleFullscreen);
   }
-
-  if (mobileBtn) {
-    mobileBtn.addEventListener("click", toggleFullscreen);
-  }
 }
-
 
 /**
  * Toggles fullscreen mode on or off depending on the current state.
@@ -31,8 +25,9 @@ function setupFullscreenButton() {
  */
 function toggleFullscreen() {
   if (!isFullscreen()) {
-    enterFullscreen(document.documentElement)
-      .catch((err) => console.error("Fullscreen Error:", err));
+    enterFullscreen(document.documentElement).catch((err) =>
+      console.error("Fullscreen Error:", err)
+    );
   } else {
     exitFullscreen();
   }
@@ -101,14 +96,8 @@ function setupFullscreenEvents() {
  */
 function updateFullscreenButton() {
   const desktopBtn = document.getElementById("fullscreenBtn");
-  const mobileBtn = document.getElementById("mobileFullscreenBtn");
 
   if (desktopBtn) {
     desktopBtn.textContent = isFullscreen() ? "Exit Fullscreen" : "Fullscreen";
   }
-
-  if (mobileBtn) {
-    mobileBtn.textContent = isFullscreen() ? "↙️" : "🖥️";
-  }
 }
-
