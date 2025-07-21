@@ -10,6 +10,12 @@ window.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("mobileFullscreenBtn")
     ?.addEventListener("click", toggleFullscreen);
+  checkOrientationAndToggleOverlay();
+  window.addEventListener("resize", checkOrientationAndToggleOverlay);
+  window.addEventListener(
+    "orientationchange",
+    checkOrientationAndToggleOverlay
+  );
 });
 
 /**
@@ -287,4 +293,16 @@ function closeAllOverlays() {
 function startLevel(levelIndex) {
   const canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard, levels[levelIndex]);
+}
+
+function checkOrientationAndToggleOverlay() {
+  const overlay = document.getElementById("rotateOverlay");
+  const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+  const isMobile = window.innerWidth <= 1060;
+
+  if (isMobile && isPortrait) {
+    overlay.classList.remove("hidden");
+  } else {
+    overlay.classList.add("hidden");
+  }
 }
