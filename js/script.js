@@ -317,3 +317,18 @@ function resizeCanvasToWrapper() {
   canvas.width = rect.width;
   canvas.height = rect.height;
 }
+
+  const menuToggle = document.getElementById('mobileMenuToggle');
+  const mobileMenu = document.querySelector('.mobile-menu');
+  const menuButtons = mobileMenu.querySelectorAll('button');
+
+
+  menuToggle.addEventListener('click', () => {
+    mobileMenu.classList.toggle('visible');
+  });
+
+  menuButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      mobileMenu.classList.remove('visible');
+    });
+  });
