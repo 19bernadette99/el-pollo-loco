@@ -23,6 +23,7 @@ body {
 
 h1,
 .game-over-box h1 {
+  position: relative;
   font-size: 28px;
   color: #fff;
   text-shadow: 0 0 5px #ffcc00, 0 0 10px #ffcc00, 0 0 20px #ffaa00;
@@ -62,7 +63,6 @@ canvas,
 
 canvas {
   background-color: black;
-  position: relative;
   z-index: 1;
 }
 

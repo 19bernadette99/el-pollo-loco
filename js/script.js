@@ -306,3 +306,14 @@ function checkOrientationAndToggleOverlay() {
     overlay.classList.add("hidden");
   }
 }
+
+function resizeCanvasToWrapper() {
+  const canvas = document.querySelector('canvas');
+  const wrapper = document.getElementById('canvasWrapper');
+  const rect = wrapper.getBoundingClientRect();
+
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+}
