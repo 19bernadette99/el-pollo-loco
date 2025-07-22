@@ -19,6 +19,23 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
+ * Allows user to confirm the orientation and enters fullscreen mode.
+ */
+document.getElementById("rotateConfirmBtn")?.addEventListener("click", async () => {
+  document.getElementById("rotateOverlay").classList.add("hidden");
+
+  // Try to enter fullscreen after user interaction
+  const el = document.documentElement; // Alternativ: canvasWrapper
+  if (el.requestFullscreen) {
+    try {
+      await el.requestFullscreen();
+    } catch (err) {
+      console.warn("Fullscreen failed:", err);
+    }
+  }
+});
+
+/**
  * Sets up all overlay toggle functionality with their respective open and close buttons.
  */
 function initOverlays() {
