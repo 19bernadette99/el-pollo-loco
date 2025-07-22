@@ -238,7 +238,7 @@ canvas {
 }
 
 .level-up-img {
-  height: 240px;
+  height: 210px;
   margin-bottom: 20px;
 }
 
@@ -249,14 +249,14 @@ canvas {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding: 30px 40px;
+  padding: 0px 15px;
   text-align: center;
   overflow: hidden;
   animation: fadeIn 1s;
 }
 
 .game-over-box img {
-  max-height: 280px;
+  max-height: 240px;
   margin-bottom: 20px;
 }
 
