@@ -22,7 +22,6 @@ canvas {
   object-fit: contain;
 }
 
-.overlay,
 #rotateOverlay {
   position: absolute;
   top: 0;
