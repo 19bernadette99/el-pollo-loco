@@ -89,6 +89,10 @@ function startGameSequence() {
 
   // setTimeout(startGame, 5000);
   startGame(); // Start game immediately
+    if (window.innerWidth <= 1050) {
+    document.querySelector(".mobile-action-bar")?.classList.add("visible");
+    document.querySelector("#mobile-controls")?.classList.add("visible");
+  }
 }
 
 /**

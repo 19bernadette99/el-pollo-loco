@@ -53,13 +53,18 @@ canvas {
   flex-direction: row;
   align-items: center;
   z-index: 10;
+  display: none;
 }
 
 #mobileMenuToggle {
+  width: 50px;
+  height: 50px;
   font-size: 24px;
-  background: #ffcc00;
+  background-color: #ffd500;
   border: none;
-  border-radius: 8px;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
   padding: 6px 10px;
   box-shadow: 0 0 8px #ffaa00;
   cursor: pointer;
@@ -68,45 +73,79 @@ canvas {
 }
 
 .mobile-menu {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
   display: flex;
-  flex-direction: row;
-  overflow: hidden;
-  max-width: 0;
-  opacity: 0;
+  flex-direction: column-reverse;
   gap: 8px;
-  transition: max-width 0.4s ease, opacity 0.4s ease;
-  margin-left: 8px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.4s ease;
 }
 
 .mobile-menu.visible {
-  max-width: 600px;
+  max-height: 400px;
   opacity: 1;
 }
 
 .mobile-menu button {
+  width: 45px;
+  height: 45px;
   font-size: 20px;
-  background: #ffcc00;
+  background-color: #ffd500;
   border: none;
-  border-radius: 8px;
-  padding: 4px 6px;
-  box-shadow: 0 0 8px #ffaa00;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  color: #000;
+  font-weight: bold;
   cursor: pointer;
   transition: transform 0.2s ease;
-  white-space: nowrap;
 }
 
 .mobile-menu button:hover {
   transform: scale(1.1);
 }
 
-@media (min-width: 1200px) {
-  .start-buttons {
-    display: flex;
-  }
+#mobile-controls {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-sizing: border-box;
+  pointer-events: none;
+}
 
-  .mobile-action-bar {
-    display: none;
-  }
+.left-controls,
+.right-controls {
+  display: flex;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.right-controls {
+  padding-left: 52px;
+}
+
+.control-btn {
+  width: 45px;
+  height: 45px;
+  font-size: 24px;
+  border: none;
+  border-radius: 50%;
+  background-color: #ffd500;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.mobile-action-bar,
+#mobile-controls {
+  display: none;
 }
 
 @media (max-width: 1060px) {
@@ -163,7 +202,6 @@ canvas {
     height: calc(100vh - 0px);
     padding: 16px;
     border-radius: 0px;
-    background: linear-gradient(rgba(10, 10, 25, 0.95), rgba(20, 20, 50, 0.9));
     box-sizing: border-box;
     box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
   }
@@ -189,6 +227,31 @@ canvas {
   .game-over-box img {
     padding: 5px 10px;
     width: 100px;
+  }
+
+  h1 {
+    display: none;
+  }
+}
+
+@media (max-width: 1050px) {
+  .mobile-action-bar.visible,
+  #mobile-controls.visible {
+    display: flex;
+  }
+
+  .start-buttons {
+    display: none;
+  }
+}
+
+@media (min-width: 1051px) {
+  .mobile-action-bar {
+    display: none;
+  }
+
+  .start-buttons {
+    display: flex;
   }
 }
 

@@ -10,8 +10,61 @@ function init() {
   canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard);
   world.setLevel(levels[currentLevelIndex]);
+  setupMobileControls();
 
   console.log("My Character is", world.character);
+}
+
+/**
+ * Sets up all mobile control buttons.
+ */
+function setupMobileControls() {
+  setupDirectionalControls();
+  setupJumpControl();
+  setupThrowControl();
+}
+
+/**
+ * Sets up the left and right movement buttons for mobile control.
+ */
+function setupDirectionalControls() {
+  const btnLeft = document.getElementById("btn-left");
+  const btnRight = document.getElementById("btn-right");
+
+  btnLeft.addEventListener("touchstart", () => (keyboard.LEFT = true));
+  btnLeft.addEventListener("touchend", () => (keyboard.LEFT = false));
+
+  btnRight.addEventListener("touchstart", () => (keyboard.RIGHT = true));
+  btnRight.addEventListener("touchend", () => (keyboard.RIGHT = false));
+}
+
+/**
+ * Sets up the jump button for mobile control.
+ * Triggers both UP and SPACE to ensure compatibility.
+ */
+function setupJumpControl() {
+  const btnJump = document.getElementById("btn-jump");
+
+  btnJump.addEventListener("touchstart", () => {
+    keyboard.UP = true;
+    keyboard.SPACE = true;
+  });
+
+  btnJump.addEventListener("touchend", () => {
+    keyboard.UP = false;
+    keyboard.SPACE = false;
+  });
+}
+
+/**
+ * Sets up the throw button for mobile control.
+ * Activates the 'D' key for bottle throwing.
+ */
+function setupThrowControl() {
+  const btnThrow = document.getElementById("btn-throw");
+
+  btnThrow.addEventListener("touchstart", () => (keyboard.D = true));
+  btnThrow.addEventListener("touchend", () => (keyboard.D = false));
 }
 
 /**

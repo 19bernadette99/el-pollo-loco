@@ -58,30 +58,47 @@
       </div>
     </div>
 
-    <div id="canvasWrapper">
-      <div id="screenContainer">
-        <div id="startScreenWrapper">
-          <div id="startScreen"></div>
-        </div>
+<div id="canvasWrapper">
+  <div id="screenContainer">
+    <div id="startScreenWrapper">
+      <div id="startScreen"></div>
+    </div>
 
-        <div id="loadingScreen" class="hidden">
-          <div id="kaktus">🌵</div>
-          <div class="progress-bar">
-            <div class="progress-fill"></div>
-          </div>
-        </div>
-        <canvas id="canvas" width="720" height="480" class="hidden"></canvas>
-        <div class="mobile-action-bar">
-          <button title="Menü öffnen" id="mobileMenuToggle">🧰</button>
-          <div class="mobile-menu">
-            <button title="Play" id="mobileStartBtn">▶️</button>
-            <button title="Story" id="mobileStoryBtn">📖</button>
-            <button title="Controls" id="mobileControlsBtn">🎮</button>
-            <button title="Sound" id="mobileSoundBtn">🔊</button>
-            <button title="Impressum" id="mobileImpressumBtn">ℹ️</button>
-          </div>
-        </div>
+    <div id="loadingScreen" class="hidden">
+      <div id="kaktus">🌵</div>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
 
+    <canvas id="canvas" width="720" height="480" class="hidden"></canvas>
+
+    <div class="mobile-action-bar">
+      <button title="Menü öffnen" id="mobileMenuToggle">🧰</button>
+      <div class="mobile-menu">
+        <button title="Play" id="mobileStartBtn">▶️</button>
+        <button title="Story" id="mobileStoryBtn">📖</button>
+        <button title="Controls" id="mobileControlsBtn">🎮</button>
+        <button title="Sound" id="mobileSoundBtn">🔊</button>
+        <button title="Impressum" id="mobileImpressumBtn">ℹ️</button>
+      </div>
+    </div>
+
+    <div id="mobile-controls" class="mobile-controls">
+      <div class="right-controls">
+        <button class="control-btn" id="btn-jump">⬆️</button>
+        <button class="control-btn" id="btn-throw">🍾</button>
+      </div>
+
+      <div class="left-controls">
+        <button class="control-btn" id="btn-left">⬅️</button>
+        <button class="control-btn" id="btn-right">➡️</button>
+      </div>
+    </div>
+
+  </div> 
+</div> 
+</div>
         <div id="OverlayStory" class="hidden overlay">
           <button id="closeStoryBtn" class="close-btn">&times;</button>
           <div class="overlay-scroll-content">
