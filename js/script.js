@@ -21,19 +21,21 @@ window.addEventListener("DOMContentLoaded", () => {
 /**
  * Allows user to confirm the orientation and enters fullscreen mode.
  */
-document.getElementById("rotateConfirmBtn")?.addEventListener("click", async () => {
-  document.getElementById("rotateOverlay").classList.add("hidden");
+document
+  .getElementById("rotateConfirmBtn")
+  ?.addEventListener("click", async () => {
+    document.getElementById("rotateOverlay").classList.add("hidden");
 
-  // Try to enter fullscreen after user interaction
-  const el = document.documentElement; 
-  if (el.requestFullscreen) {
-    try {
-      await el.requestFullscreen();
-    } catch (err) {
-      console.warn("Fullscreen failed:", err);
+    // Try to enter fullscreen after user interaction
+    const el = document.documentElement;
+    if (el.requestFullscreen) {
+      try {
+        await el.requestFullscreen();
+      } catch (err) {
+        console.warn("Fullscreen failed:", err);
+      }
     }
-  }
-});
+  });
 
 /**
  * Sets up all overlay toggle functionality with their respective open and close buttons.
@@ -106,7 +108,7 @@ function startGameSequence() {
 
   // setTimeout(startGame, 5000);
   startGame(); // Start game immediately
-    if (window.innerWidth <= 1050) {
+  if (window.innerWidth <= 1050) {
     document.querySelector(".mobile-action-bar")?.classList.add("visible");
     document.querySelector("#mobile-controls")?.classList.add("visible");
   }
@@ -329,26 +331,65 @@ function checkOrientationAndToggleOverlay() {
 }
 
 function resizeCanvasToWrapper() {
-  const canvas = document.querySelector('canvas');
-  const wrapper = document.getElementById('canvasWrapper');
+  const canvas = document.querySelector("canvas");
+  const wrapper = document.getElementById("canvasWrapper");
   const rect = wrapper.getBoundingClientRect();
 
-  canvas.style.width = rect.width + 'px';
-  canvas.style.height = rect.height + 'px';
+  canvas.style.width = rect.width + "px";
+  canvas.style.height = rect.height + "px";
   canvas.width = rect.width;
   canvas.height = rect.height;
 }
 
-  const menuToggle = document.getElementById('mobileMenuToggle');
-  const mobileMenu = document.querySelector('.mobile-menu');
-  const menuButtons = mobileMenu.querySelectorAll('button');
+const menuToggle = document.getElementById("mobileMenuToggle");
+const mobileMenu = document.querySelector(".mobile-menu");
+const menuButtons = mobileMenu.querySelectorAll("button");
 
-  menuToggle.addEventListener('click', () => {
-    mobileMenu.classList.toggle('visible');
-  });
+menuToggle.addEventListener("click", () => {
+  mobileMenu.classList.toggle("visible");
+});
 
-  menuButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      mobileMenu.classList.remove('visible');
-    });
+menuButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    mobileMenu.classList.remove("visible");
   });
+});
+
+let backgroundMusic = new Audio('audio/backgroundMusic.mp3');
+backgroundMusic.loop = true;
+backgroundMusic.volume = 0.5;
+
+let soundEnabled = true;
+
+window.addEventListener('load', () => {
+  backgroundMusic.play().catch(() => {
+    console.warn('Autoplay blocked.');
+  });
+});
+
+function toggleMusic(checked) {
+  if (checked) {
+    backgroundMusic.play();
+  } else {
+    backgroundMusic.pause();
+  }
+}
+
+function toggleSound(checked) {
+  soundEnabled = checked;
+}
+
+function playJumpSound() {
+  if (!soundEnabled) return;
+  const jumpSound = new Audio('audio/jump.mp3');
+  jumpSound.volume = 0.5;
+  jumpSound.play();
+}
+
+document.getElementById('musicToggle').addEventListener('change', function () {
+  toggleMusic(this.checked);
+});
+
+document.getElementById('soundToggle').addEventListener('change', function () {
+  toggleSound(this.checked);
+});
