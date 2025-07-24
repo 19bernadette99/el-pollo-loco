@@ -81,7 +81,7 @@ function initStartGame() {
 function startGame() {
   // hide("loadingScreen");
   document.getElementById("canvas").classList.remove("hidden");
-
+  backgroundMusic.play();
   // resetProgressBar();
   init(); // your game init function
 }
@@ -353,43 +353,4 @@ menuButtons.forEach((button) => {
   button.addEventListener("click", () => {
     mobileMenu.classList.remove("visible");
   });
-});
-
-let backgroundMusic = new Audio('audio/backgroundMusic.mp3');
-backgroundMusic.loop = true;
-backgroundMusic.volume = 0.5;
-
-let soundEnabled = true;
-
-window.addEventListener('load', () => {
-  backgroundMusic.play().catch(() => {
-    console.warn('Autoplay blocked.');
-  });
-});
-
-function toggleMusic(checked) {
-  if (checked) {
-    backgroundMusic.play();
-  } else {
-    backgroundMusic.pause();
-  }
-}
-
-function toggleSound(checked) {
-  soundEnabled = checked;
-}
-
-function playJumpSound() {
-  if (!soundEnabled) return;
-  const jumpSound = new Audio('audio/jump.mp3');
-  jumpSound.volume = 0.5;
-  jumpSound.play();
-}
-
-document.getElementById('musicToggle').addEventListener('change', function () {
-  toggleMusic(this.checked);
-});
-
-document.getElementById('soundToggle').addEventListener('change', function () {
-  toggleSound(this.checked);
 });
