@@ -82,8 +82,9 @@ class Character extends MoveableObject {
   collectedBottles = 0;
   energy = 100;
 
-  walkSound = new Audio("audio/walkSound.mp3");
+  walkSound = new Audio("audio/walkingSound.mp3");
   jumpSound = new Audio("audio/jumpSound.mp3");
+  // hurtSound = new Audio("audio/hurtSound.mp3");
   bottleClinkSound = new Audio("audio/bottleClink.mp3");
   collectCoinSound = new Audio("audio/collectingCoinsSound.mp3");
 
@@ -102,6 +103,7 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_SLEEPING);
     this.applyGravity();
     this.animate();
+    this.playSounds();
   }
 
   /**
@@ -113,16 +115,12 @@ class Character extends MoveableObject {
         this.moveRight();
         this.otherDirection = false;
         this.lastActionTime = Date.now();
-
-        if (!this.isAboveGround()) this.playWalkSound();
       }
 
       if (this.world.keyboard.LEFT && this.x > 0) {
         this.moveLeft();
         this.otherDirection = true;
         this.lastActionTime = Date.now();
-
-        if (!this.isAboveGround()) this.playWalkSound();
       }
 
       if (this.world.keyboard.SPACE && !this.isAboveGround()) {
@@ -162,6 +160,49 @@ class Character extends MoveableObject {
     }, 50);
   }
 
+  playSounds() {
+    this.soundInterval = setInterval(() => {
+      if (!soundEnabled) return;
+      this.handleWalkSound();
+      this.handleJumpSound();
+      this.handleHurtSound();
+    }, 1000 / 60);
+  }
+
+  handleWalkSound() {
+    const right = this.world.keyboard.RIGHT;
+    const left = this.world.keyboard.LEFT;
+
+    if (!this.isAboveGround() && (right || left)) {
+      if (this.walkSound.currentTime > 3.7) {
+        this.walkSound.currentTime = 0;
+      }
+      this.walkSound.volume = 0.6;
+      this.walkSound.play();
+    } else {
+      this.walkSound.pause();
+      this.walkSound.currentTime = 0;
+    }
+  }
+
+  handleJumpSound() {
+    const jump = this.world.keyboard.SPACE;
+
+    if (jump && !this.isAboveGround()) {
+      const jumpClone = this.jumpSound.cloneNode();
+      jumpClone.volume = 0.5;
+      jumpClone.play();
+    }
+  }
+
+  // handleHurtSound() {
+  //   if (this.isHurt()) {
+  //     const hurtClone = this.hurtSound.cloneNode();
+  //     hurtClone.volume = 0.5;
+  //     hurtClone.play();
+  //   }
+  // }
+
   /**
    * Plays the idle animation after short inactivity.
    */
@@ -199,12 +240,6 @@ class Character extends MoveableObject {
     if (!this.isAboveGround()) {
       this.speedY = 30;
       this.isJumping = true;
-
-      if (soundEnabled) {
-        const sound = this.jumpSound.cloneNode();
-        sound.volume = 0.5;
-        sound.play();
-      }
     }
   }
 
