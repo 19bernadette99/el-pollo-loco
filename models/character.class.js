@@ -82,6 +82,11 @@ class Character extends MoveableObject {
   collectedBottles = 0;
   energy = 100;
 
+  walkSound = new Audio("audio/walkSound.mp3");
+  jumpSound = new Audio("audio/jumpSound.mp3");
+  bottleClinkSound = new Audio("audio/bottleClink.mp3");
+  collectCoinSound = new Audio("audio/collectingCoinsSound.mp3");
+
   /**
    * Creates the character, loads images, applies gravity, and starts animation.
    */
@@ -108,12 +113,16 @@ class Character extends MoveableObject {
         this.moveRight();
         this.otherDirection = false;
         this.lastActionTime = Date.now();
+
+        if (!this.isAboveGround()) this.playWalkSound();
       }
 
       if (this.world.keyboard.LEFT && this.x > 0) {
         this.moveLeft();
         this.otherDirection = true;
         this.lastActionTime = Date.now();
+
+        if (!this.isAboveGround()) this.playWalkSound();
       }
 
       if (this.world.keyboard.SPACE && !this.isAboveGround()) {
@@ -190,6 +199,12 @@ class Character extends MoveableObject {
     if (!this.isAboveGround()) {
       this.speedY = 30;
       this.isJumping = true;
+
+      if (soundEnabled) {
+        const sound = this.jumpSound.cloneNode();
+        sound.volume = 0.5;
+        sound.play();
+      }
     }
   }
 
@@ -279,6 +294,7 @@ class Character extends MoveableObject {
           this.world.statusBarBottle.setCollected(
             this.world.statusBarBottle.collected + 1
           );
+          playSound(this.bottleClinkSound, 0.5);
           this.world.level.salsaBottles.splice(index, 1);
         }
       });
@@ -315,5 +331,16 @@ class Character extends MoveableObject {
     setTimeout(() => {
       this.y = 1000;
     }, this.IMAGES_DEAD.length * 200);
+  }
+
+  playWalkSound() {
+    if (!soundEnabled) return;
+
+    if (!this.lastWalkSoundTime || Date.now() - this.lastWalkSoundTime > 400) {
+      const sound = this.walkSound.cloneNode();
+      sound.volume = 0.4;
+      sound.play();
+      this.lastWalkSoundTime = Date.now();
+    }
   }
 }

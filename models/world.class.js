@@ -13,6 +13,9 @@ class World {
 
   throwableObjects;
 
+  collectCoinSound = new Audio("audio/collectingCoinsSound.mp3");
+
+
   /**
    * Initializes the world with canvas, keyboard input, and game objects.
    * @param {HTMLCanvasElement} canvas - The game canvas.
@@ -94,6 +97,7 @@ class World {
         this.level.coins.splice(i, 1);
         this.collectedCoins++;
         this.statusBarCoin.setCollected(this.collectedCoins);
+          playSound(this.collectCoinSound, 0.5); 
       }
     }
   }

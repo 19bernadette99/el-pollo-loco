@@ -71,6 +71,7 @@ class Coin extends MoveableObject {
       } else {
         this.playAnimation(this.COLLECTED_COIN_ANIMATION);
         this.collectMovement();
+ 
       }
     }, 30);
   }

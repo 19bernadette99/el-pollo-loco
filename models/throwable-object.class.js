@@ -17,6 +17,8 @@ class ThrowableObject extends MoveableObject {
 
   hasSplashed = false;
 
+  breakingBottleSound = new Audio("audio/breakingBottle.mp3");
+
   /**
    * Creates and throws a new salsa bottle in the given direction.
    * @param {number} x - Starting X position.
@@ -33,6 +35,8 @@ class ThrowableObject extends MoveableObject {
     this.height = 60;
     this.otherDirection = otherDirection;
     this.throw();
+    this.breakingBottleSound.preload = "auto";
+    this.breakingBottleSound.load();
   }
 
   /**
@@ -70,6 +74,14 @@ class ThrowableObject extends MoveableObject {
    * Handles bottle splash effect when it hits the ground.
    */
   splash() {
+if (soundEnabled) {
+  console.log('BOOM'); // Zeitpunkt testen
+  const splashSound = this.breakingBottleSound.cloneNode();
+  splashSound.volume = 0.5;
+  splashSound.play();
+}
+
+
     this.hasSplashed = true;
     this.stopThrow();
     this.prepareSplashAnimation();
