@@ -84,9 +84,6 @@ class Character extends MoveableObject {
 
   walkSound = new Audio("audio/walkingSound.mp3");
   jumpSound = new Audio("audio/jumpSound.mp3");
-
-  hurtSound = new Audio("audio/hurtSound.mp3");
-
   bottleClinkSound = new Audio("audio/bottleClink.mp3");
   collectCoinSound = new Audio("audio/collectingCoinsSound.mp3");
 
@@ -96,7 +93,7 @@ class Character extends MoveableObject {
   constructor(keyboard) {
     super();
     this.keyboard = keyboard;
-    this.loadImage("img/2_character_pepe/2_walk/W-21.png");
+    this.loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
@@ -196,7 +193,8 @@ class Character extends MoveableObject {
   }
 
   playHurtSound() {
-    const sound = this.hurtSound.cloneNode();
+    if (!soundEnabled) return;
+    const sound = new Audio("audio/hurtSound.mp3");
     sound.volume = 0.4;
     sound.play();
   }

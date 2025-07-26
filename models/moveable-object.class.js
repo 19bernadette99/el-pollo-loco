@@ -50,7 +50,6 @@ class MoveableObject extends DrawableObject {
 
     if (this.energy > 0 && timeSinceLastHit > 1000 && !this.hasDied) {
       this.energy = Math.max(this.energy - 20, 0);
-      console.log("Energy after hit:", this.energy);
 
       this.world.statusBar.setPercentage(this.energy);
       this.lastHit = now;

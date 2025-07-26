@@ -1,10 +1,24 @@
 /**
- * Background music audio element.
+ * Chill background music for the start screen.
+ * @type {HTMLAudioElement}
+ */
+let startScreenMusic = new Audio("audio/startScreenMusic.mp3");
+startScreenMusic.loop = true;
+startScreenMusic.volume = 0.4;
+
+/**
+ * Background music during the game.
  * @type {HTMLAudioElement}
  */
 let backgroundMusic = new Audio("audio/backgroundMusic.mp3");
 backgroundMusic.loop = true;
 backgroundMusic.volume = 0.5;
+
+/**
+ * Hurt sound effect.
+ * @type {HTMLAudioElement}
+ */
+const hurtSound = new Audio("audio/hurtSound.mp3");
 
 /**
  * Indicates whether sound effects are enabled.
@@ -14,7 +28,6 @@ let soundEnabled = true;
 
 /**
  * Toggles the background music on or off.
- *
  * @param {boolean} checked - If true, music will play; if false, music will pause.
  */
 function toggleMusic(checked) {
@@ -27,11 +40,21 @@ function toggleMusic(checked) {
 
 /**
  * Enables or disables sound effects globally.
- *
  * @param {boolean} checked - If true, sound effects are enabled.
  */
 function toggleSound(checked) {
   soundEnabled = checked;
+}
+
+/**
+ * Plays a sound effect from a cloned audio element.
+ * @param {HTMLAudioElement} audio - The audio element to clone and play.
+ */
+function playSound(audio) {
+  if (!soundEnabled) return;
+  const sound = audio.cloneNode();
+  sound.volume = 0.5;
+  sound.play();
 }
 
 /**
@@ -43,15 +66,6 @@ function playJumpSound() {
   jumpSound.volume = 0.5;
   jumpSound.play();
 }
-
-// Register event listeners for the music and sound toggle switches
-document.getElementById("musicToggle").addEventListener("change", function () {
-  toggleMusic(this.checked);
-});
-
-document.getElementById("soundToggle").addEventListener("change", function () {
-  toggleSound(this.checked);
-});
 
 /**
  * Plays a generic button click sound if sound effects are enabled.
@@ -75,14 +89,18 @@ function registerButtonClickSounds() {
   });
 }
 
-// Call this once after DOM is loaded
+// Setup sound toggles
+
+document.getElementById("musicToggle").addEventListener("change", function () {
+  toggleMusic(this.checked);
+});
+
+document.getElementById("soundToggle").addEventListener("change", function () {
+  toggleSound(this.checked);
+});
+
+// Initialize after DOM is loaded
+
 document.addEventListener("DOMContentLoaded", () => {
   registerButtonClickSounds();
 });
-
-function playSound(audio) {
-  if (!soundEnabled) return;
-  const sound = audio.cloneNode();
-  sound.volume = 0.5;
-  sound.play();
-}
