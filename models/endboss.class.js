@@ -7,6 +7,7 @@ class Endboss extends MoveableObject {
   isDead = false;
   isAlert = true;
   isWalkingToPepe = false;
+  isActive = false;
 
   hasStartedAttack = false;
   scale = 1;
@@ -71,7 +72,15 @@ class Endboss extends MoveableObject {
     this.loadImages(this.IMAGES_ATTACKING);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
-    this.x = 2400;
+    this.x = 2400; 
+    this.speed = 10;
+  }
+
+
+  activate() {
+    this.isActive = true;
+    this.isAlert = true;
+      console.log("✅ Endboss aktiviert!");
     this.animate();
   }
 
@@ -79,7 +88,9 @@ class Endboss extends MoveableObject {
    * Controls the behavior and animation state of the boss.
    */
   animate() {
-    setInterval(() => {
+    if (!this.isActive || this.isDead) return;
+
+    this.animationInterval = setInterval(() => {
       if (this.isDead) {
         this.playAnimation(this.IMAGES_DEAD, "dead");
       } else if (this.isHurt) {
@@ -88,14 +99,8 @@ class Endboss extends MoveableObject {
         this.playAnimation(this.IMAGES_ALERT, "alert");
       } else if (this.isWalkingToPepe) {
         let pepe = this.world.character;
-
-        if (pepe.x < this.x) {
-          this.otherDirection = false;
-          this.x -= this.speed;
-        } else {
-          this.otherDirection = true;
-          this.x += this.speed;
-        }
+        this.otherDirection = pepe.x > this.x;
+        this.x += this.otherDirection ? this.speed : -this.speed;
 
         this.playAnimation(this.IMAGES_WALKING, "walking");
 
@@ -105,14 +110,7 @@ class Endboss extends MoveableObject {
           this.startAttack();
         }
       } else if (this.hasStartedAttack) {
-        let pepe = this.world.character;
-
-        if (pepe.x < this.x) {
-          this.otherDirection = false;
-        } else {
-          this.otherDirection = true;
-        }
-
+        this.otherDirection = this.world.character.x > this.x;
         this.playAnimation(this.IMAGES_ATTACKING, "attacking");
       } else {
         this.playAnimation(this.IMAGES_WALKING, "walking");
@@ -174,6 +172,31 @@ class Endboss extends MoveableObject {
   }
 
   /**
+   * Applies damage to the boss and triggers behavior changes.
+   * @param {number} damage - The amount of damage taken.
+   */
+  hit(damage) {
+    if (this.isDead) return;
+
+    if (this.isAlert) {
+      this.isAlert = false;
+      this.isWalkingToPepe = true;
+    } else if (!this.hasStartedAttack && !this.isWalkingToPepe) {
+      this.isWalkingToPepe = true;
+    }
+
+    this.percentage -= damage;
+
+    if (this.percentage <= 0) {
+      this.percentage = 0;
+      this.die();
+    } else {
+      this.isHurt = true;
+      setTimeout(() => (this.isHurt = false), 500);
+    }
+  }
+
+  /**
    * Triggers the boss's death sequence and shrink animation.
    */
   die() {
@@ -181,8 +204,8 @@ class Endboss extends MoveableObject {
     this.isShrinking = true;
     this.shrinkStart = Date.now();
 
-    if (this.moveInterval) {
-      clearInterval(this.moveInterval);
+    if (this.animationInterval) {
+      clearInterval(this.animationInterval);
     }
 
     this.animateShrink();
@@ -194,10 +217,7 @@ class Endboss extends MoveableObject {
   animateShrink() {
     const animate = () => {
       let elapsed = Date.now() - this.shrinkStart;
-      let t = elapsed / this.shrinkDuration;
-
-      if (t > 1) t = 1;
-
+      let t = Math.min(1, elapsed / this.shrinkDuration);
       this.rotation = 360 * t;
       this.scale = 1 - t;
 
@@ -205,10 +225,22 @@ class Endboss extends MoveableObject {
         requestAnimationFrame(animate);
       } else {
         this.removeFromWorld();
+        this.triggerNextEndboss();
       }
     };
-
     requestAnimationFrame(animate);
+  }
+
+
+  triggerNextEndboss() {
+    if (!this.world) return;
+
+    const next = this.world.level.enemies.find(
+      (e) => e instanceof Endboss && !e.isDead && !e.isActive
+    );
+    if (next) {
+      next.activate();
+    }
   }
 
   /**
@@ -216,6 +248,8 @@ class Endboss extends MoveableObject {
    * @param {CanvasRenderingContext2D} ctx - The canvas context.
    */
   draw(ctx) {
+    if (!this.isActive) return;
+
     if (this.isShrinking) {
       ctx.save();
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
@@ -239,39 +273,10 @@ class Endboss extends MoveableObject {
    */
   removeFromWorld() {
     if (this.world) {
-      let index = this.world.level.enemies.indexOf(this);
-      if (index !== -1) {
-        this.world.level.enemies.splice(index, 1);
+      const idx = this.world.level.enemies.indexOf(this);
+      if (idx !== -1) {
+        this.world.level.enemies.splice(idx, 1);
       }
-    }
-  }
-
-  /**
-   * Applies damage to the boss and triggers behavior changes.
-   * @param {number} damage - The amount of damage taken.
-   */
-  hit(damage) {
-    if (this.isDead) return;
-
-    if (this.isAlert) {
-      this.isAlert = false;
-      this.isWalkingToPepe = true;
-      this.speed = 10;
-    } else if (!this.hasStartedAttack && !this.isWalkingToPepe) {
-      this.isWalkingToPepe = true;
-      this.speed = 10;
-    }
-
-    this.percentage -= damage;
-
-    if (this.percentage <= 0) {
-      this.percentage = 0;
-      this.die();
-    } else {
-      this.isHurt = true;
-      setTimeout(() => {
-        this.isHurt = false;
-      }, 500);
     }
   }
 }

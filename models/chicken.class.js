@@ -17,16 +17,13 @@ class Chicken extends MoveableObject {
    */
   constructor(isLittle = false) {
     super();
-
     this.isLittle = isLittle;
 
-    if (this.isLittle) {
-      this.littleChicken();
-    } else {
-      this.bigChicken();
-    }
+    if (this.isLittle) this.littleChicken();
+    else this.bigChicken();
 
-    this.x = 450 + Math.random() * 500;
+    this.otherDirection = false;
+    this.x = Math.max(this.x, 450);
     this.speed = 0.15 + Math.random() * 0.5;
     this.animate();
   }
@@ -55,17 +52,37 @@ class Chicken extends MoveableObject {
     this.y = 365;
   }
 
+  moveLeft() {
+    this.x -= this.speed;
+    this.otherDirection = false;
+  }
+
+  moveRight() {
+    this.x += this.speed;
+    this.otherDirection = true;
+  }
+
   /**
    * Starts movement and walking animation intervals.
    */
   animate() {
-    setInterval(() => {
+    this.walkInterval = setInterval(() => {
       if (!this.hasDied) {
-        this.moveLeft();
+        if (this.otherDirection) {
+          this.moveRight();
+        } else {
+          this.moveLeft();
+        }
+
+        if (this.x <= 10) {
+          this.moveRight();
+        } else if (this.x + this.width >= this.world.level.level_end_x - 10) {
+          this.moveLeft();
+        }
       }
     }, 1000 / 60);
 
-    setInterval(() => {
+    this.animationInterval = setInterval(() => {
       if (!this.hasDied) {
         this.playAnimation(this.currentWalkingImages);
       }
@@ -95,5 +112,17 @@ class Chicken extends MoveableObject {
     setTimeout(() => {
       this.y = 9999;
     }, 500);
+  }
+
+  draw(ctx) {
+    if (this.otherDirection) {
+      ctx.save();
+      ctx.translate(this.x + this.width, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(this.img, 0, this.y, this.width, this.height);
+      ctx.restore();
+    } else {
+      super.draw(ctx);
+    }
   }
 }

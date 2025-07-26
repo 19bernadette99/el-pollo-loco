@@ -274,6 +274,12 @@ canvas {
     width: 100px;
   }
 
+  .level-up-img {
+    padding: 5px 10px;
+    width: 200px !important;
+    height: 200px;
+  }
+
   h1 {
     display: none;
   }

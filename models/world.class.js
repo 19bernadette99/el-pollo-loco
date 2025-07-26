@@ -1,50 +1,68 @@
 class World {
   character;
-  level = level1;
   canvas;
   ctx;
   keyboard;
   camera_x = 0;
-  statusBar = new StatusBar();
   statusBarBottle;
   statusBarCoin;
-  statusBarEndboss = new StatusBarEndboss();
+  statusBar;
+  statusBarEndboss;
+
   collectedCoins = 0;
 
   throwableObjects;
 
   collectCoinSound = new Audio("audio/collectingCoinsSound.mp3");
 
-
   /**
-   * Initializes the world with canvas, keyboard input, and game objects.
+   * Initializes the world with canvas, keyboard input, and selected level.
    * @param {HTMLCanvasElement} canvas - The game canvas.
    * @param {Keyboard} keyboard - Keyboard input handler.
+   * @param {Level} level - The level to load.
    */
-  constructor(canvas, keyboard) {
+  constructor(canvas, keyboard, level) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
+    this.level = level;
+
+    this.statusBar = new StatusBar();
+    this.statusBarEndboss = new StatusBarEndboss();
     this.throwableObjects = [];
 
+    this.setCharacter();
+
+    this.camera_x = 0;
     this.gameStarted = false;
     setTimeout(() => {
       this.gameStarted = true;
     }, 500);
-
+    this.setLevel(level);
     this.spawnClouds();
-    this.setWorld();
     this.run();
     this.draw();
     this.endbossIsVisible();
+
+    const firstEndboss = this.level.enemies.find((e) => e instanceof Endboss);
+    if (firstEndboss) {
+      firstEndboss.world = this;
+      firstEndboss.activate();
+    }
   }
 
   /**
    * Links the character to the current world instance.
    */
-  setWorld() {
+  setCharacter() {
     this.character = new Character(this.keyboard);
     this.character.world = this;
+
+    this.character.x = 120;
+    this.character.y = 210;
+    this.character.speed = 10;
+    this.character.isDead = false;
+    this.character.lastActionTime = Date.now();
   }
 
   /**
@@ -97,7 +115,7 @@ class World {
         this.level.coins.splice(i, 1);
         this.collectedCoins++;
         this.statusBarCoin.setCollected(this.collectedCoins);
-          playSound(this.collectCoinSound, 0.5); 
+        playSound(this.collectCoinSound, 0.5);
       }
     }
   }
@@ -106,7 +124,7 @@ class World {
    * Draws the game frame, UI, and characters continuously.
    */
   draw() {
-     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.ctx.translate(this.camera_x, 0);
     this.addObjectsToMap(this.level.backgroundObjects);
@@ -249,6 +267,9 @@ class World {
       this.levelUpTriggered = true;
       this.triggerLevelUp();
     }
+    if (!this.level || !this.level.enemies || this.level.enemies.length === 0) {
+      return;
+    }
   }
 
   /**
@@ -256,8 +277,7 @@ class World {
    */
   triggerLevelUp() {
     showLevelUpOverlay(() => {
-      currentLevelIndex++;
-      if (currentLevelIndex < levels.length) {
+      if (currentLevelIndex + 1 < levels.length) {
         this.loadNextLevel();
       } else {
         show("gameOverOverlay");
@@ -280,8 +300,8 @@ class World {
   }
 
   /**
-   * Sets the current level and updates all world references.
-   * @param {Level} level - The level to load.
+   * Sets up the current level, initializes enemies and status bars.
+   * @param {Level} level - The level to set.
    */
   setLevel(level) {
     this.level = level;
@@ -297,7 +317,19 @@ class World {
 
     if (this.character) {
       this.character.world = this;
+      this.character.x = 120;
+      this.character.y = 210;
+      this.character.speed = 10;
+      this.character.isDead = false;
+      this.character.isJumping = false;
+      this.character.lastActionTime = Date.now();
+      this.camera_x = 0;
+    }
+
+    const firstEndboss = this.level.enemies.find((e) => e instanceof Endboss);
+    if (firstEndboss) {
+      firstEndboss.world = this;
+      firstEndboss.activate();
     }
   }
 }
-

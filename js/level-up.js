@@ -1,33 +1,12 @@
-/**
- * An array containing all game levels in sequential order.
- * Each level is assumed to be a predefined object (e.g. level1, level2, etc.).
- * 
- * @type {Array<Object>}
- */
-const levels = [
-  level1,
-  level2,
-  level3,
-  level4,
-  level5,
-  level6,
-  level7,
-  level8,
-  level9,
-  level10,
-  level11,
-  level12,
-  level13,
-  level14,
-  level15
-];
+const levels = levelConfigs.map(config => generateLevel(config));
 
 /**
  * Index of the currently active level within the `levels` array.
- * 
+ *
  * @type {number}
  */
 let currentLevelIndex = 0;
+let currentLevel = levels[currentLevelIndex];
 
 /**
  * Checks if the current level is completed and switches to the next level if available.
@@ -41,11 +20,23 @@ function checkAndSwitchLevel(world) {
     showLevelUpOverlay(() => {
       currentLevelIndex++;
       if (currentLevelIndex < levels.length) {
-        world.setLevel(levels[currentLevelIndex]);
+        initNewLevel(currentLevelIndex);
       } else {
-        console.log("🎉 Game finished! No more levels.");
-        showGameFinishedOverlay();
+        console.log("Game finished! No more levels. :)");
+        // TO DO: showGameFinishedOverlay();
       }
     });
   }
+}
+
+/**
+ * Initializes a new World with the level at the given index.
+ * Resets character, world, camera, and overlays.
+ * @param {number} index - Index of the new level.
+ */
+function initNewLevel(index) {
+  const canvas = document.getElementById("canvas");
+  const keyboard = new Keyboard();
+
+  world = new World(canvas, keyboard, levels[index]);
 }
