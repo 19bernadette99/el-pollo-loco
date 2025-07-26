@@ -361,7 +361,7 @@ class Character extends MoveableObject {
     this.speed = 0;
 
     let i = 0;
-    const frameInterval = 100;
+    const frameInterval = 120;
     const totalFrames = this.IMAGES_DEAD.length;
 
     const deadAnimation = setInterval(() => {
@@ -370,10 +370,9 @@ class Character extends MoveableObject {
         i++;
       } else {
         clearInterval(deadAnimation);
-
         setTimeout(() => {
           this.removeCharacter();
-        }, 500); 
+        }, 400);
       }
     }, frameInterval);
   }

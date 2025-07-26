@@ -269,8 +269,11 @@ function showOverlay(overlay) {
  * Shows the game over overlay after death animation is complete.
  */
 function showGameOverOverlay() {
-  const overlay = document.getElementById("gameOverOverlay");
-  showOverlay(overlay);
+  const gameOverSound = new Audio("audio/GameOver.mp3");
+  gameOverSound.volume = 0.8;
+  gameOverSound.play();
+
+  document.getElementById("gameOverOverlay").classList.remove("hidden");
 }
 
 /**
