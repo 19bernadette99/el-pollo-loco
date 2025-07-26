@@ -75,7 +75,6 @@ class ThrowableObject extends MoveableObject {
    */
   splash() {
 if (soundEnabled) {
-  console.log('BOOM'); // Zeitpunkt testen
   const splashSound = this.breakingBottleSound.cloneNode();
   splashSound.volume = 0.5;
   splashSound.play();

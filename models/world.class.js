@@ -115,7 +115,7 @@ class World {
         this.level.coins.splice(i, 1);
         this.collectedCoins++;
         this.statusBarCoin.setCollected(this.collectedCoins);
-        playSound(this.collectCoinSound, 0.5);
+           playSound("collectingCoins");
       }
     }
   }

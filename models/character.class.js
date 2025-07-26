@@ -140,7 +140,6 @@ class Character extends MoveableObject {
       }
 
       if (this.energy <= 0 && !this.hasDied) {
-        console.log("Triggering die()");
         this.die();
       } else if (this.isHurt()) {
         this.playAnimation(this.IMAGES_HURT);
@@ -325,7 +324,7 @@ class Character extends MoveableObject {
           this.world.statusBarBottle.setCollected(
             this.world.statusBarBottle.collected + 1
           );
-          playSound(this.bottleClinkSound, 0.5);
+               playSound("bottleClink");
           this.world.level.salsaBottles.splice(index, 1);
         }
       });

@@ -15,46 +15,61 @@ backgroundMusic.loop = true;
 backgroundMusic.volume = 0.5;
 
 /**
- * Hurt sound effect.
- * @type {HTMLAudioElement}
- */
-const hurtSound = new Audio("audio/hurtSound.mp3");
-
-/**
- * Indicates whether sound effects are enabled.
+ * Indicates whether music and sound effects are enabled.
  * @type {boolean}
  */
+let musicEnabled = true;
 let soundEnabled = true;
 
 /**
- * Toggles the background music on or off.
- * @param {boolean} checked - If true, music will play; if false, music will pause.
+ * Sound effects map for easy access.
+ * @type {Object.<string, HTMLAudioElement>}
  */
-function toggleMusic(checked) {
-  if (checked) {
-    backgroundMusic.play();
+const soundEffects = {
+  hurt: new Audio("audio/hurtSound.mp3"),
+  bottleClink: new Audio("audio/bottleClink.mp3"),
+  breakingBottle: new Audio("audio/breakingBottle.mp3"),
+  collectingCoins: new Audio("audio/collectingCoinsSound.mp3"),
+  death: new Audio("audio/deathSound.mp3"),
+  gameOver: new Audio("audio/GameOver.mp3"),
+  toggle: new Audio("audio/toggleBtnSound.mp3"),
+  walking: new Audio("audio/walkingSound.mp3"),
+  chickenAlarm: new Audio("audio/chickenAlarm.mp3"),
+};
+
+/**
+ * Toggles the background and start screen music.
+ * @param {boolean} enabled - If true, music will play; if false, it will stop.
+ */
+function toggleMusic(enabled) {
+  musicEnabled = enabled;
+  if (enabled) {
   } else {
     backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+    startScreenMusic.pause();
+    startScreenMusic.currentTime = 0;
   }
 }
 
 /**
- * Enables or disables sound effects globally.
- * @param {boolean} checked - If true, sound effects are enabled.
+ * Enables or disables all sound effects.
+ * @param {boolean} enabled - If true, sound effects are enabled.
  */
-function toggleSound(checked) {
-  soundEnabled = checked;
+function toggleSound(enabled) {
+  soundEnabled = enabled;
 }
 
 /**
- * Plays a sound effect from a cloned audio element.
- * @param {HTMLAudioElement} audio - The audio element to clone and play.
+ * Plays a named sound effect if enabled.
+ * @param {string} effectName - Key of the sound in the soundEffects map.
  */
-function playSound(audio) {
-  if (!soundEnabled) return;
-  const sound = audio.cloneNode();
-  sound.volume = 0.5;
-  sound.play();
+function playSound(effectName) {
+  if (soundEnabled && soundEffects[effectName]) {
+    const clone = soundEffects[effectName].cloneNode();
+    clone.volume = 0.5;
+    clone.play().catch((e) => console.error("Playback failed:", e));
+  }
 }
 
 /**
@@ -89,18 +104,21 @@ function registerButtonClickSounds() {
   });
 }
 
-// Setup sound toggles
-
-document.getElementById("musicToggle").addEventListener("change", function () {
-  toggleMusic(this.checked);
-});
-
-document.getElementById("soundToggle").addEventListener("change", function () {
-  toggleSound(this.checked);
-});
-
-// Initialize after DOM is loaded
-
 document.addEventListener("DOMContentLoaded", () => {
   registerButtonClickSounds();
+
+  document
+    .getElementById("musicToggle")
+    .addEventListener("change", function () {
+      toggleMusic(this.checked);
+    });
+
+  document
+    .getElementById("soundToggle")
+    .addEventListener("change", function () {
+      toggleSound(this.checked);
+    });
+
+  toggleMusic(document.getElementById("musicToggle").checked);
+  toggleSound(document.getElementById("soundToggle").checked);
 });

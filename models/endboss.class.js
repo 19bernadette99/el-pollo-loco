@@ -80,7 +80,6 @@ class Endboss extends MoveableObject {
   activate() {
     this.isActive = true;
     this.isAlert = true;
-      console.log("✅ Endboss aktiviert!");
     this.animate();
   }
 
@@ -192,6 +191,7 @@ class Endboss extends MoveableObject {
       this.die();
     } else {
       this.isHurt = true;
+          playSound('chickenAlarm');
       setTimeout(() => (this.isHurt = false), 500);
     }
   }
