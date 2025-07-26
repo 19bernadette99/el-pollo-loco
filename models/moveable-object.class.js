@@ -44,34 +44,23 @@ class MoveableObject extends DrawableObject {
     );
   }
 
-  /**
-   * Reduces energy and updates the status bar when hit.
-   */
   hit() {
-    this.energy -= 20;
+    let now = Date.now();
+    let timeSinceLastHit = now - (this.lastHit || 0);
 
-    if (this.energy < 0) {
-      this.energy = 0;
+    if (this.energy > 0 && timeSinceLastHit > 1000 && !this.hasDied) {
+      this.energy = Math.max(this.energy - 20, 0);
+      console.log("Energy after hit:", this.energy);
+
+      this.world.statusBar.setPercentage(this.energy);
+      this.lastHit = now;
+      this.playHurtSound();
     }
-
-    this.world.statusBar.setPercentage(this.energy);
-
-    this.isBeingHit = true;
-
-    setTimeout(() => {
-      this.isBeingHit = false;
-    }, 500);
   }
 
-  /**
-   * Checks if the object was recently hit.
-   * @returns {boolean}
-   */
   isHurt() {
-    if (!this.lastHit) return false;
-
-    let timepassed = new Date().getTime() - this.lastHit;
-    return timepassed < 1000 / 1;
+    let timePassed = Date.now() - this.lastHit;
+    return timePassed < 1000;
   }
 
   /**

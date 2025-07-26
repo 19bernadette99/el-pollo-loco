@@ -266,6 +266,14 @@ function showOverlay(overlay) {
 }
 
 /**
+ * Shows the game over overlay after death animation is complete.
+ */
+function showGameOverOverlay() {
+  const overlay = document.getElementById("gameOverOverlay");
+  showOverlay(overlay);
+}
+
+/**
  * Hides a specific overlay.
  *
  * @param {HTMLElement} overlay - The overlay element to hide.

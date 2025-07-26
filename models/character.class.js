@@ -84,7 +84,9 @@ class Character extends MoveableObject {
 
   walkSound = new Audio("audio/walkingSound.mp3");
   jumpSound = new Audio("audio/jumpSound.mp3");
-  // hurtSound = new Audio("audio/hurtSound.mp3");
+
+  hurtSound = new Audio("audio/hurtSound.mp3");
+
   bottleClinkSound = new Audio("audio/bottleClink.mp3");
   collectCoinSound = new Audio("audio/collectingCoinsSound.mp3");
 
@@ -136,14 +138,13 @@ class Character extends MoveableObject {
 
     setInterval(() => {
       const timeSinceLastAction = Date.now() - this.lastActionTime;
+      if (this.hasDied) {
+        return;
+      }
 
       if (this.energy <= 0 && !this.hasDied) {
+        console.log("Triggering die()");
         this.die();
-      } else if (this.hasDied) {
-        this.img =
-          this.imageCache[this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]];
-      } else if (this.isBeingHit) {
-        this.playAnimation(this.IMAGES_DEAD);
       } else if (this.isHurt()) {
         this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround()) {
@@ -165,7 +166,6 @@ class Character extends MoveableObject {
       if (!soundEnabled) return;
       this.handleWalkSound();
       this.handleJumpSound();
-      this.handleHurtSound();
     }, 1000 / 60);
   }
 
@@ -195,13 +195,11 @@ class Character extends MoveableObject {
     }
   }
 
-  // handleHurtSound() {
-  //   if (this.isHurt()) {
-  //     const hurtClone = this.hurtSound.cloneNode();
-  //     hurtClone.volume = 0.5;
-  //     hurtClone.play();
-  //   }
-  // }
+  playHurtSound() {
+    const sound = this.hurtSound.cloneNode();
+    sound.volume = 0.4;
+    sound.play();
+  }
 
   /**
    * Plays the idle animation after short inactivity.
@@ -356,16 +354,40 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Triggers death animation and disables character.
+   * Triggers death animation, removes character, and shows game over screen.
    */
   die() {
     this.hasDied = true;
+    this.speed = 0;
 
-    this.playAnimation(this.IMAGES_DEAD);
+    let i = 0;
+    const frameInterval = 100;
+    const totalFrames = this.IMAGES_DEAD.length;
 
-    setTimeout(() => {
-      this.y = 1000;
-    }, this.IMAGES_DEAD.length * 200);
+    const deadAnimation = setInterval(() => {
+      if (i < totalFrames) {
+        this.img = this.imageCache[this.IMAGES_DEAD[i]];
+        i++;
+      } else {
+        clearInterval(deadAnimation);
+
+        setTimeout(() => {
+          this.removeCharacter();
+        }, 500); 
+      }
+    }, frameInterval);
+  }
+
+  /**
+   * Removes Pepe from the world and shows the game over overlay.
+   */
+  removeCharacter() {
+    this.speed = 0;
+    this.y = 1000;
+
+    this.img = this.imageCache[this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]];
+
+    showGameOverOverlay();
   }
 
   playWalkSound() {
