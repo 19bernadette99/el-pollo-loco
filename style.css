@@ -212,6 +212,13 @@ top: 0;
   animation: pulseNeon 1.5s infinite, wobble 1s infinite;
 }
 
+#loadingScreen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 #kaktus {
   font-size: 64px;
   margin-bottom: 30px;

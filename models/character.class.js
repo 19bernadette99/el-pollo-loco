@@ -110,6 +110,7 @@ class Character extends MoveableObject {
    */
   animate() {
     setInterval(() => {
+      if (gamePaused) return;
       if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
         this.moveRight();
         this.otherDirection = false;
@@ -134,6 +135,7 @@ class Character extends MoveableObject {
     }, 1000 / 60);
 
     setInterval(() => {
+        if (gamePaused) return;
       const timeSinceLastAction = Date.now() - this.lastActionTime;
       if (this.hasDied) {
         return;

@@ -4,6 +4,7 @@ class World {
   ctx;
   keyboard;
   camera_x = 0;
+  gamePaused = false;
   statusBarBottle;
   statusBarCoin;
   statusBar;
@@ -115,7 +116,7 @@ class World {
         this.level.coins.splice(i, 1);
         this.collectedCoins++;
         this.statusBarCoin.setCollected(this.collectedCoins);
-           playSound("collectingCoins");
+        playSound("collectingCoins");
       }
     }
   }
@@ -331,5 +332,11 @@ class World {
       firstEndboss.world = this;
       firstEndboss.activate();
     }
+  }
+
+  update() {
+    this.checkCollisions?.(); 
+    this.updateEnemies?.(); 
+    this.updateThrowableObjects?.(); 
   }
 }

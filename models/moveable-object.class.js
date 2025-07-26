@@ -10,6 +10,7 @@ class MoveableObject extends DrawableObject {
    * Applies gravity effect to the object over time.
    */
   applyGravity() {
+    if (gamePaused) return;
     setInterval(() => {
       if (this.isAboveGround() || this.speedY > 0) {
         this.y -= this.speedY;

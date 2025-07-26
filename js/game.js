@@ -14,6 +14,7 @@ function init() {
   setupMobileControls();
 
   console.log("My Character is", world.character);
+  gameLoop();
 }
 
 /**

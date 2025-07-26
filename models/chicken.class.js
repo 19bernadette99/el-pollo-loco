@@ -65,29 +65,29 @@ class Chicken extends MoveableObject {
   /**
    * Starts movement and walking animation intervals.
    */
-  animate() {
-    this.walkInterval = setInterval(() => {
-      if (!this.hasDied) {
-        if (this.otherDirection) {
-          this.moveRight();
-        } else {
-          this.moveLeft();
-        }
+animate() {
+  this.walkInterval = setInterval(() => {
+    if (gamePaused || this.hasDied) return;
 
-        if (this.x <= 10) {
-          this.moveRight();
-        } else if (this.x + this.width >= this.world.level.level_end_x - 10) {
-          this.moveLeft();
-        }
-      }
-    }, 1000 / 60);
+    if (this.otherDirection) {
+      this.moveRight();
+    } else {
+      this.moveLeft();
+    }
 
-    this.animationInterval = setInterval(() => {
-      if (!this.hasDied) {
-        this.playAnimation(this.currentWalkingImages);
-      }
-    }, 150);
-  }
+    if (this.x <= 10) {
+      this.moveRight();
+    } else if (this.x + this.width >= this.world.level.level_end_x - 10) {
+      this.moveLeft();
+    }
+  }, 1000 / 60);
+
+  this.animationInterval = setInterval(() => {
+    if (gamePaused || this.hasDied) return;
+    this.playAnimation(this.currentWalkingImages);
+  }, 150);
+}
+
 
   /**
    * Triggers death logic, stops animation and moves off-screen.
