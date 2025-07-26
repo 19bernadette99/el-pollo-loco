@@ -106,24 +106,24 @@ function startGameSequence() {
   }
 }
 
-function showStartScreen() {
-  hide("canvasWrapper");
-  show("startScreenWrapper");
-  gameStarted = false;
-  backgroundMusic.pause();
-  backgroundMusic.currentTime = 0;
-  startScreenMusic.currentTime = 0;
-  startScreenMusic
-    .play()
-    .catch(() => console.warn("Startscreen music blocked."));
-}
-
 function show(id) {
   document.getElementById(id).classList.remove("hidden");
 }
 
 function hide(id) {
   document.getElementById(id).classList.add("hidden");
+}
+
+function showStartScreen() {
+  hide("canvas");
+  show("startScreenWrapper");
+
+  gameStarted = false;
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+  startScreenMusic.currentTime = 0;
+
+  startScreenMusic.play().catch(() => {});
 }
 
 // function fillProgressBar() {
