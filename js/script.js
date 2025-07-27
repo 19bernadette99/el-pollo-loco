@@ -108,10 +108,15 @@ function startGame() {
 function showLoadingScreen(callback) {
   const loading = document.getElementById("loadingScreen");
   loading.classList.remove("hidden");
+  document.querySelector("#mobile-controls")?.classList.add("hidden");
+  document.querySelector(".mobile-action-bar")?.classList.add("hidden");
+
   resetProgressBar();
   fillProgressBar();
   setTimeout(() => {
     loading.classList.add("hidden");
+    document.querySelector("#mobile-controls")?.classList.remove("hidden");
+    document.querySelector(".mobile-action-bar")?.classList.remove("hidden");
     callback?.();
   }, 5000);
 }
