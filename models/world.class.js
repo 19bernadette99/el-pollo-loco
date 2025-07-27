@@ -58,7 +58,6 @@ class World {
   setCharacter() {
     this.character = new Character(this.keyboard);
     this.character.world = this;
-
     this.character.x = 120;
     this.character.y = 210;
     this.character.speed = 10;
@@ -79,31 +78,49 @@ class World {
   }
 
   /**
-   * Handles throwing bottles when 'D' key is pressed.
+   * Checks if a bottle can be thrown and initiates the throw.
    */
   checkThrowObjects() {
-    if (this.keyboard.D && !this.bottleThrown) {
-      if (this.statusBarBottle.collected > 0) {
-        this.bottleThrown = true;
+    if (!this.canThrowBottle()) return;
 
-        let offsetX = this.character.otherDirection ? -30 : 60;
-        let bottle = new ThrowableObject(
-          this.character.x + offsetX,
-          this.character.y + 100,
-          this.character.otherDirection
-        );
-        this.throwableObjects.push(bottle);
+    this.bottleThrown = true;
+    this.spawnThrowable();
+    this.updateBottleCount();
 
-        this.character.collectedBottles -= 1;
+    setTimeout(() => (this.bottleThrown = false), 500);
+  }
 
-        this.statusBarBottle.setCollected(this.character.collectedBottles);
-        this.character.lastActionTime = Date.now();
+  /**
+   * Returns true if bottle key is pressed, not on cooldown, and bottles are available.
+   */
+  canThrowBottle() {
+    return (
+      this.keyboard.D &&
+      !this.bottleThrown &&
+      this.statusBarBottle.collected > 0
+    );
+  }
 
-        setTimeout(() => {
-          this.bottleThrown = false;
-        }, 500);
-      }
-    }
+  /**
+   * Creates and adds a new throwable object near the character.
+   */
+  spawnThrowable() {
+    const offsetX = this.character.otherDirection ? -30 : 60;
+    const bottle = new ThrowableObject(
+      this.character.x + offsetX,
+      this.character.y + 100,
+      this.character.otherDirection
+    );
+    this.throwableObjects.push(bottle);
+  }
+
+  /**
+   * Decreases bottle count and updates status bar.
+   */
+  updateBottleCount() {
+    this.character.collectedBottles--;
+    this.statusBarBottle.setCollected(this.character.collectedBottles);
+    this.character.lastActionTime = Date.now();
   }
 
   /**
@@ -122,19 +139,39 @@ class World {
   }
 
   /**
-   * Draws the game frame, UI, and characters continuously.
+   * Draws game world, UI, and characters per frame.
    */
   draw() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.clearCanvas();
+    this.drawBackgroundLayers();
+    this.drawUI();
+    this.drawGameObjects();
+    this.scheduleNextFrame();
+  }
 
+  /**
+   * Clears the entire canvas before drawing.
+   */
+  clearCanvas() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  /**
+   * Draws background, clouds, coins and bottles with camera offset.
+   */
+  drawBackgroundLayers() {
     this.ctx.translate(this.camera_x, 0);
     this.addObjectsToMap(this.level.backgroundObjects);
     this.addObjectsToMap(this.level.clouds);
     this.addObjectsToMap(this.level.coins);
     this.addObjectsToMap(this.level.salsaBottles);
-
     this.ctx.translate(-this.camera_x, 0);
+  }
 
+  /**
+   * Draws status bars like health, bottles and coins.
+   */
+  drawUI() {
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarBottle);
     this.addToMap(this.statusBarCoin);
@@ -142,27 +179,31 @@ class World {
     if (this.endbossIsVisible()) {
       this.addToMap(this.statusBarEndboss);
     }
+  }
 
+  /**
+   * Draws player, enemies and throwable bottles.
+   * Also checks for throw and collisions.
+   */
+  drawGameObjects() {
     this.ctx.translate(this.camera_x, 0);
-
     this.checkThrowObjects();
-
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.throwableObjects);
     this.checkBottleHitsEndboss();
-
     this.ctx.translate(-this.camera_x, 0);
+  }
 
-    let self = this;
-    requestAnimationFrame(function () {
-      self.draw();
-    });
+  /**
+   * Requests the next animation frame for drawing.
+   */
+  scheduleNextFrame() {
+    requestAnimationFrame(() => this.draw());
   }
 
   /**
    * Adds an array of objects to the canvas.
-   * @param {DrawableObject[]} objects
    */
   addObjectsToMap(objects) {
     objects.forEach((o) => {
@@ -172,7 +213,6 @@ class World {
 
   /**
    * Adds a single object to the canvas, handling flipping if needed.
-   * @param {DrawableObject} mo
    */
   addToMap(mo) {
     if (!mo) return;
@@ -190,7 +230,6 @@ class World {
 
   /**
    * Mirrors the drawing context horizontally.
-   * @param {DrawableObject} mo
    */
   flipImage(mo) {
     this.ctx.save();
@@ -301,32 +340,55 @@ class World {
   }
 
   /**
-   * Sets up the current level, initializes enemies and status bars.
-   * @param {Level} level - The level to set.
+   * Sets up the current level, enemies, status bars and character.
    */
   setLevel(level) {
     this.level = level;
+    this.initializeEnemies();
+    this.initializeStatusBars();
+    this.initializeCharacter();
+    this.initializeEndboss();
+  }
 
+  /**
+   * Assigns the world reference to all enemies.
+   */
+  initializeEnemies() {
     this.level.enemies.forEach((enemy) => {
       enemy.world = this;
     });
+  }
 
+  /**
+   * Sets up coin and bottle status bars and resets counters.
+   */
+  initializeStatusBars() {
     this.statusBarCoin = new StatusBarCoin(this.level.maxCoins);
     this.statusBarBottle = new StatusBarBottle(this.level.maxBottles);
     this.collectedCoins = 0;
     this.throwableObjects = [];
+  }
 
-    if (this.character) {
-      this.character.world = this;
-      this.character.x = 120;
-      this.character.y = 210;
-      this.character.speed = 10;
-      this.character.isDead = false;
-      this.character.isJumping = false;
-      this.character.lastActionTime = Date.now();
-      this.camera_x = 0;
-    }
+  /**
+   * Sets character position and resets relevant states.
+   */
+  initializeCharacter() {
+    if (!this.character) return;
 
+    this.character.world = this;
+    this.character.x = 120;
+    this.character.y = 210;
+    this.character.speed = 10;
+    this.character.isDead = false;
+    this.character.isJumping = false;
+    this.character.lastActionTime = Date.now();
+    this.camera_x = 0;
+  }
+
+  /**
+   * Finds and activates the first Endboss in the level.
+   */
+  initializeEndboss() {
     const firstEndboss = this.level.enemies.find((e) => e instanceof Endboss);
     if (firstEndboss) {
       firstEndboss.world = this;
@@ -334,9 +396,12 @@ class World {
     }
   }
 
+  /**
+   * Updates world state: collisions, enemies, throwable objects.
+   */
   update() {
-    this.checkCollisions?.(); 
-    this.updateEnemies?.(); 
-    this.updateThrowableObjects?.(); 
+    this.checkCollisions?.();
+    this.updateEnemies?.();
+    this.updateThrowableObjects?.();
   }
 }

@@ -72,11 +72,13 @@ class Endboss extends MoveableObject {
     this.loadImages(this.IMAGES_ATTACKING);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
-    this.x = 2400; 
+    this.x = 2400;
     this.speed = 10;
   }
 
-
+  /**
+   * Activates the boss and starts its animation logic.
+   */
   activate() {
     this.isActive = true;
     this.isAlert = true;
@@ -84,79 +86,78 @@ class Endboss extends MoveableObject {
   }
 
   /**
-   * Controls the behavior and animation state of the boss.
+   * Starts main animation loop if boss is alive and active.
    */
   animate() {
     if (!this.isActive || this.isDead) return;
-
-    this.animationInterval = setInterval(() => {
-      if (this.isDead) {
-        this.playAnimation(this.IMAGES_DEAD, "dead");
-      } else if (this.isHurt) {
-        this.playAnimation(this.IMAGES_HURT, "hurt");
-      } else if (this.isAlert) {
-        this.playAnimation(this.IMAGES_ALERT, "alert");
-      } else if (this.isWalkingToPepe) {
-        let pepe = this.world.character;
-        this.otherDirection = pepe.x > this.x;
-        this.x += this.otherDirection ? this.speed : -this.speed;
-
-        this.playAnimation(this.IMAGES_WALKING, "walking");
-
-        let distance = Math.abs(this.x - pepe.x);
-        if (distance < 150) {
-          this.isWalkingToPepe = false;
-          this.startAttack();
-        }
-      } else if (this.hasStartedAttack) {
-        this.otherDirection = this.world.character.x > this.x;
-        this.playAnimation(this.IMAGES_ATTACKING, "attacking");
-      } else {
-        this.playAnimation(this.IMAGES_WALKING, "walking");
-      }
-    }, 200);
+    this.animationInterval = setInterval(() => this.handleState(), 200);
   }
 
   /**
-   * Plays animation based on the type (alert, walking, attacking, etc.).
-   * @param {Array<string>} images - Image list to animate.
-   * @param {string} animationType - Type of animation to play.
+   * Handles animation based on current state flags.
    */
-  playAnimation(images, animationType) {
-    switch (animationType) {
-      case "alert":
-        this.img = this.imageCache[images[this.currentAlertImage]];
-        this.currentAlertImage++;
-        if (this.currentAlertImage >= images.length) this.currentAlertImage = 0;
-        break;
+  handleState() {
+    if (this.isDead) return this.playAnimation(this.IMAGES_DEAD, "dead");
+    if (this.isHurt) return this.playAnimation(this.IMAGES_HURT, "hurt");
+    if (this.isAlert) return this.playAnimation(this.IMAGES_ALERT, "alert");
+    if (this.isWalkingToPepe) return this.walkTowardsPepe();
+    if (this.hasStartedAttack) return this.playAttackAnimation();
+    this.playAnimation(this.IMAGES_WALKING, "walking");
+  }
 
-      case "walking":
-        this.img = this.imageCache[images[this.currentWalkingImage]];
-        this.currentWalkingImage++;
-        if (this.currentWalkingImage >= images.length)
-          this.currentWalkingImage = 0;
-        break;
+  /**
+   * Moves boss toward Pepe and switches to attack if close.
+   */
+  walkTowardsPepe() {
+    let pepe = this.world.character;
+    this.otherDirection = pepe.x > this.x;
+    this.x += this.otherDirection ? this.speed : -this.speed;
 
-      case "attacking":
-        this.img = this.imageCache[images[this.currentAttackingImage]];
-        this.currentAttackingImage++;
-        if (this.currentAttackingImage >= images.length)
-          this.currentAttackingImage = 0;
-        break;
+    this.playAnimation(this.IMAGES_WALKING, "walking");
 
-      case "hurt":
-        this.img = this.imageCache[images[this.currentHurtImage]];
-        this.currentHurtImage++;
-        if (this.currentHurtImage >= images.length) this.currentHurtImage = 0;
-        break;
+    if (Math.abs(this.x - pepe.x) < 150) {
+      this.isWalkingToPepe = false;
+      this.startAttack();
+    }
+  }
 
-      case "dead":
-        this.img = this.imageCache[images[this.currentDeadImage]];
-        this.currentDeadImage++;
-        if (this.currentDeadImage >= images.length) {
-          this.currentDeadImage = images.length - 1;
-        }
-        break;
+  /**
+   * Handles attack animation facing towards Pepe.
+   */
+  playAttackAnimation() {
+    this.otherDirection = this.world.character.x > this.x;
+    this.playAnimation(this.IMAGES_ATTACKING, "attacking");
+  }
+
+  /**
+   * Plays animation for the given type using the correct frame index.
+   * @param {string[]} images - Animation frames.
+   * @param {string} type - Animation type.
+   */
+  playAnimation(images, type) {
+    const map = {
+      alert: "currentAlertImage",
+      walking: "currentWalkingImage",
+      attacking: "currentAttackingImage",
+      hurt: "currentHurtImage",
+      dead: "currentDeadImage",
+    };
+
+    let index = map[type];
+    this.img = this.imageCache[images[this[index]]];
+    this[index]++;
+    this.limitFrameIndex(index, images.length, type);
+  }
+
+  /**
+   * Limits animation index to avoid out-of-bounds errors.
+   * @param {string} indexName - Name of the counter variable.
+   * @param {number} max - Number of frames.
+   * @param {string} type - Type of animation.
+   */
+  limitFrameIndex(indexName, max, type) {
+    if (this[indexName] >= max) {
+      this[indexName] = type === "dead" ? max - 1 : 0;
     }
   }
 
@@ -171,29 +172,42 @@ class Endboss extends MoveableObject {
   }
 
   /**
-   * Applies damage to the boss and triggers behavior changes.
-   * @param {number} damage - The amount of damage taken.
+   * Applies damage and triggers boss reaction or death.
+   * @param {number} damage - Amount of damage dealt.
    */
   hit(damage) {
     if (this.isDead) return;
 
-    if (this.isAlert) {
-      this.isAlert = false;
-      this.isWalkingToPepe = true;
-    } else if (!this.hasStartedAttack && !this.isWalkingToPepe) {
-      this.isWalkingToPepe = true;
-    }
-
+    this.triggerBehavior();
     this.percentage -= damage;
 
     if (this.percentage <= 0) {
       this.percentage = 0;
       this.die();
     } else {
-      this.isHurt = true;
-          playSound('chickenAlarm');
-      setTimeout(() => (this.isHurt = false), 500);
+      this.reactToHit();
     }
+  }
+
+  /**
+   * Updates boss behavior based on current state.
+   */
+  triggerBehavior() {
+    if (this.isAlert) {
+      this.isAlert = false;
+      this.isWalkingToPepe = true;
+    } else if (!this.hasStartedAttack && !this.isWalkingToPepe) {
+      this.isWalkingToPepe = true;
+    }
+  }
+
+  /**
+   * Plays hurt reaction and resets hurt state after delay.
+   */
+  reactToHit() {
+    this.isHurt = true;
+    playSound("chickenAlarm");
+    setTimeout(() => (this.isHurt = false), 500);
   }
 
   /**
@@ -231,7 +245,6 @@ class Endboss extends MoveableObject {
     requestAnimationFrame(animate);
   }
 
-
   triggerNextEndboss() {
     if (!this.world) return;
 
@@ -244,28 +257,34 @@ class Endboss extends MoveableObject {
   }
 
   /**
-   * Draws the boss with rotation and scale during shrinking.
-   * @param {CanvasRenderingContext2D} ctx - The canvas context.
+   * Draws the boss (shrinking if dying).
    */
   draw(ctx) {
     if (!this.isActive) return;
 
     if (this.isShrinking) {
-      ctx.save();
-      ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-      ctx.rotate((this.rotation * Math.PI) / 180);
-      ctx.scale(this.scale, this.scale);
-      ctx.drawImage(
-        this.img,
-        -this.width / 2,
-        -this.height / 2,
-        this.width,
-        this.height
-      );
-      ctx.restore();
+      this.drawShrinking(ctx);
     } else {
       super.draw(ctx);
     }
+  }
+
+  /**
+   * Draws boss with rotation and scale for shrinking effect.
+   */
+  drawShrinking(ctx) {
+    ctx.save();
+    ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+    ctx.rotate((this.rotation * Math.PI) / 180);
+    ctx.scale(this.scale, this.scale);
+    ctx.drawImage(
+      this.img,
+      -this.width / 2,
+      -this.height / 2,
+      this.width,
+      this.height
+    );
+    ctx.restore();
   }
 
   /**

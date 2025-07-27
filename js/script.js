@@ -4,7 +4,6 @@ let countdownElement = null;
 let gameStarted = false;
 let nextLevelCallback = null;
 
-
 /**
  * Initializes overlays, UI, and listeners after DOM load.
  */
@@ -22,7 +21,10 @@ window.addEventListener("DOMContentLoaded", () => {
  */
 function setupResizeListeners() {
   window.addEventListener("resize", checkOrientationAndToggleOverlay);
-  window.addEventListener("orientationchange", checkOrientationAndToggleOverlay);
+  window.addEventListener(
+    "orientationchange",
+    checkOrientationAndToggleOverlay
+  );
 }
 
 /**
@@ -43,14 +45,24 @@ function setupFullscreenConfirm() {
 /**
  * Prepares the start game button.
  */
+/**
+ * Prepares both desktop and mobile start buttons.
+ */
 function initStartGame() {
-  const btn = document.getElementById("startGameBtn");
-  btn?.addEventListener("click", () => {
+  const desktopBtn = document.getElementById("startGameBtn");
+  const mobileBtn = document.getElementById("mobileStartBtn");
+
+  const handleStart = () => {
     if (musicEnabled) {
-      startScreenMusic.play().catch(e => console.warn("Autoplay blocked:", e));
+      startScreenMusic
+        .play()
+        .catch((e) => console.warn("Autoplay blocked:", e));
     }
     startGameSequence();
-  });
+  };
+
+  desktopBtn?.addEventListener("click", handleStart);
+  mobileBtn?.addEventListener("click", handleStart);
 }
 
 /**
@@ -125,10 +137,26 @@ function fillProgressBar() {
  */
 function initOverlays() {
   const configs = [
-    { open: ["openStoryBtn", "mobileStoryBtn"], id: "OverlayStory", close: "closeStoryBtn" },
-    { open: ["openControlsBtn", "mobileControlsBtn"], id: "OverlayControls", close: "closeControlsBtn" },
-    { open: ["toggleSoundBtn", "mobileSoundBtn"], id: "OverlaySound", close: "closeSoundBtn" },
-    { open: ["openImpressumBtn", "mobileImpressumBtn"], id: "OverlayImpressum", close: "closeImpressumBtn" },
+    {
+      open: ["openStoryBtn", "mobileStoryBtn"],
+      id: "OverlayStory",
+      close: "closeStoryBtn",
+    },
+    {
+      open: ["openControlsBtn", "mobileControlsBtn"],
+      id: "OverlayControls",
+      close: "closeControlsBtn",
+    },
+    {
+      open: ["toggleSoundBtn", "mobileSoundBtn"],
+      id: "OverlaySound",
+      close: "closeSoundBtn",
+    },
+    {
+      open: ["openImpressumBtn", "mobileImpressumBtn"],
+      id: "OverlayImpressum",
+      close: "closeImpressumBtn",
+    },
     { open: null, id: "gameOverOverlay", close: "closeGameOverOverlayBtn" },
     { open: null, id: "levelUpOverlay", close: "nextLevelBtn" },
   ];
@@ -153,7 +181,7 @@ function setupOverlay(openIds, overlayId, closeId) {
 function addOpenButtonListeners(ids, overlay) {
   if (!ids) return;
   const btns = Array.isArray(ids) ? ids : [ids];
-  btns.forEach(id => {
+  btns.forEach((id) => {
     const btn = document.getElementById(id);
     btn?.addEventListener("click", () => {
       showOverlay(overlay);
@@ -174,7 +202,11 @@ function delayedCloseOnOutsideClick(overlay, trigger) {
  */
 function closeOnOutsideClick(overlay, trigger) {
   document.addEventListener("click", (e) => {
-    if (!overlay.contains(e.target) && !overlay.classList.contains("hidden") && e.target !== trigger) {
+    if (
+      !overlay.contains(e.target) &&
+      !overlay.classList.contains("hidden") &&
+      e.target !== trigger
+    ) {
       hideOverlay(overlay);
       if (overlay.id === "gameOverOverlay") {
         hide("canvasWrapper");
@@ -205,7 +237,9 @@ function attachCloseButtonListener(overlay, closeId) {
  */
 function setupPauseResumeOnOverlay(openIds, id, closeId, overlay) {
   const btns = Array.isArray(openIds) ? openIds : [openIds];
-  btns?.forEach(id => document.getElementById(id)?.addEventListener("click", pauseGame));
+  btns?.forEach((id) =>
+    document.getElementById(id)?.addEventListener("click", pauseGame)
+  );
   if (closeId) {
     document.getElementById(closeId)?.addEventListener("click", () => {
       if (!["gameOverOverlay", "levelUpOverlay"].includes(id)) {
@@ -217,7 +251,7 @@ function setupPauseResumeOnOverlay(openIds, id, closeId, overlay) {
 
 /**
  * Shows given overlay and hides others.
- * @param {HTMLElement} overlay 
+ * @param {HTMLElement} overlay
  */
 function showOverlay(overlay) {
   closeAllOverlays();
@@ -226,7 +260,7 @@ function showOverlay(overlay) {
 
 /**
  * Hides given overlay.
- * @param {HTMLElement} overlay 
+ * @param {HTMLElement} overlay
  */
 function hideOverlay(overlay) {
   overlay.classList.add("hidden");
@@ -239,12 +273,12 @@ function closeAllOverlays() {
   const overlays = document.querySelectorAll(
     "#OverlayStory, #OverlayControls, #OverlaySound, #OverlayImpressum"
   );
-  overlays.forEach(o => o.classList.add("hidden"));
+  overlays.forEach((o) => o.classList.add("hidden"));
 }
 
 /**
  * Shows level up overlay with callback.
- * @param {Function} callback 
+ * @param {Function} callback
  */
 function showLevelUpOverlay(callback) {
   nextLevelCallback = callback;
@@ -261,7 +295,9 @@ function continueToNextLevel() {
   }, 200);
 }
 
-document.getElementById("nextLevelBtn")?.addEventListener("click", continueToNextLevel);
+document
+  .getElementById("nextLevelBtn")
+  ?.addEventListener("click", continueToNextLevel);
 
 /**
  * Shows game over overlay with sound.
@@ -301,7 +337,7 @@ function showStartScreen() {
 
 /**
  * Shows element by ID.
- * @param {string} id 
+ * @param {string} id
  */
 function show(id) {
   document.getElementById(id).classList.remove("hidden");
@@ -309,7 +345,7 @@ function show(id) {
 
 /**
  * Hides element by ID.
- * @param {string} id 
+ * @param {string} id
  */
 function hide(id) {
   document.getElementById(id).classList.add("hidden");
@@ -325,7 +361,7 @@ function pauseGame() {
 /**
  * Resumes game after delay with visual countdown.
  * Only shows countdown if game has started.
- * 
+ *
  * @param {number} delay - ms delay before resume
  */
 function resumeGameAfterDelay(delay = 3000) {
@@ -365,11 +401,14 @@ function createCountdownElementIfNeeded() {
   countdownElement.id = "resumeCountdown";
   Object.assign(countdownElement.style, {
     position: "absolute",
-    top: "50%", left: "50%",
+    top: "50%",
+    left: "50%",
     transform: "translate(-50%, -50%)",
-    fontSize: "100px", color: "white",
+    fontSize: "100px",
+    color: "white",
     fontFamily: "Press Start 2P",
-    zIndex: "9999", display: "none"
+    zIndex: "9999",
+    display: "none",
   });
   document.body.appendChild(countdownElement);
 }
@@ -413,7 +452,9 @@ function setupMobileMenu() {
   const buttons = menu?.querySelectorAll("button") || [];
 
   toggle?.addEventListener("click", () => menu.classList.toggle("visible"));
-  buttons.forEach(btn => btn.addEventListener("click", () => menu.classList.remove("visible")));
+  buttons.forEach((btn) =>
+    btn.addEventListener("click", () => menu.classList.remove("visible"))
+  );
 }
 
 /**

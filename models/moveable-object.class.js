@@ -45,19 +45,25 @@ class MoveableObject extends DrawableObject {
     );
   }
 
+  /**
+   * Reduces energy if enough time has passed since last hit.
+   * Updates status bar and plays hurt sound.
+   */
   hit() {
     let now = Date.now();
     let timeSinceLastHit = now - (this.lastHit || 0);
 
     if (this.energy > 0 && timeSinceLastHit > 1000 && !this.hasDied) {
       this.energy = Math.max(this.energy - 20, 0);
-
       this.world.statusBar.setPercentage(this.energy);
       this.lastHit = now;
       this.playHurtSound();
     }
   }
 
+  /**
+   * Returns true if the character was hit within the last second.
+   */
   isHurt() {
     let timePassed = Date.now() - this.lastHit;
     return timePassed < 1000;

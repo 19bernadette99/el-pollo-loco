@@ -44,32 +44,35 @@ class Level {
   }
 
   /**
-   * Creates a set of coins at randomized positions within horizontal sectors.
-   * @param {number} amount - Number of coins to generate.
-   * @returns {Coin[]} Array of Coin objects.
+   * Creates coins at randomized positions across shuffled sectors.
    */
   createRandomCoins(amount) {
-    let coins = [];
-    let minX = 700;
-    let maxX = 2000;
-    let minY = 300;
-    let maxY = 350;
-    let sectorWidth = 200;
+    const sectors = this.getShuffledSectors(700, 2000, 200);
+    return this.generateCoinsFromSectors(sectors, amount, 300, 350);
+  }
 
-    let sectors = [];
-    for (let s = minX; s < maxX; s += sectorWidth) {
-      sectors.push({ start: s, end: s + sectorWidth });
+  /**
+   * Divides horizontal range into shuffled sectors.
+   */
+  getShuffledSectors(minX, maxX, width) {
+    const sectors = [];
+    for (let s = minX; s < maxX; s += width) {
+      sectors.push({ start: s, end: s + width });
     }
+    return this.shuffle(sectors);
+  }
 
-    sectors = this.shuffle(sectors);
-
+  /**
+   * Creates coins at random Y positions within each sector.
+   */
+  generateCoinsFromSectors(sectors, amount, minY, maxY) {
+    const coins = [];
     for (let i = 0; i < amount && i < sectors.length; i++) {
-      let sector = sectors[i];
-      let x = Math.random() * (sector.end - sector.start) + sector.start;
-      let y = Math.random() * (maxY - minY) + minY;
+      const s = sectors[i];
+      const x = Math.random() * (s.end - s.start) + s.start;
+      const y = Math.random() * (maxY - minY) + minY;
       coins.push(new Coin(x, y));
     }
-
     return coins;
   }
 

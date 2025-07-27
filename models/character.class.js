@@ -106,59 +106,84 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Starts the main game and animation loop for movement and states.
+   * Starts the main game animation and input handling loops.
    */
   animate() {
+    this.startMovementLoop();
+    this.startAnimationLoop();
+  }
+
+  /**
+   * Handles keyboard inputs and movement at 60 FPS.
+   */
+  startMovementLoop() {
     setInterval(() => {
       if (gamePaused) return;
-      if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-        this.moveRight();
-        this.otherDirection = false;
-        this.lastActionTime = Date.now();
-      }
-
-      if (this.world.keyboard.LEFT && this.x > 0) {
-        this.moveLeft();
-        this.otherDirection = true;
-        this.lastActionTime = Date.now();
-      }
-
-      if (this.world.keyboard.SPACE && !this.isAboveGround()) {
-        this.jump();
-        this.lastActionTime = Date.now();
-      }
-
+      this.handleMovementInput();
       this.world.camera_x = -this.x + 100;
-
       this.checkEnemyCollisions();
       this.checkBottleCollisions();
     }, 1000 / 60);
+  }
 
+  /**
+   * Triggers animations based on state every 50ms.
+   */
+  startAnimationLoop() {
     setInterval(() => {
-        if (gamePaused) return;
-      const timeSinceLastAction = Date.now() - this.lastActionTime;
-      if (this.hasDied) {
-        return;
-      }
+      if (gamePaused || this.hasDied) return;
+      if (this.energy <= 0) return this.die();
 
-      if (this.energy <= 0 && !this.hasDied) {
-        this.die();
-      } else if (this.isHurt()) {
-        this.playAnimation(this.IMAGES_HURT);
-      } else if (this.isAboveGround()) {
-        this.animateJump();
-      } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-        this.playAnimation(this.IMAGES_WALKING);
-      } else if (timeSinceLastAction > 5000) {
-        this.animateSleeping();
-      } else if (timeSinceLastAction > 2000) {
-        this.animateIdle();
-      } else {
-        this.showStandingImage();
-      }
+      const idleTime = Date.now() - this.lastActionTime;
+      this.handleAnimations(idleTime);
     }, 50);
   }
 
+  /**
+   * Processes movement keys and jump input.
+   */
+  handleMovementInput() {
+    if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
+      this.moveRight();
+      this.otherDirection = false;
+      this.lastActionTime = Date.now();
+    }
+
+    if (this.world.keyboard.LEFT && this.x > 0) {
+      this.moveLeft();
+      this.otherDirection = true;
+      this.lastActionTime = Date.now();
+    }
+
+    if (this.world.keyboard.SPACE && !this.isAboveGround()) {
+      this.jump();
+      this.lastActionTime = Date.now();
+    }
+  }
+
+  /**
+   * Chooses and plays the appropriate animation.
+   * @param {number} idleTime - Time since last user action in ms.
+   */
+  handleAnimations(idleTime) {
+    if (this.isHurt()) {
+      this.playAnimation(this.IMAGES_HURT);
+    } else if (this.isAboveGround()) {
+      this.animateJump();
+    } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+      this.playAnimation(this.IMAGES_WALKING);
+    } else if (idleTime > 5000) {
+      this.animateSleeping();
+    } else if (idleTime > 2000) {
+      this.animateIdle();
+    } else {
+      this.showStandingImage();
+    }
+  }
+
+  /**
+   * Starts sound loop for walking and jumping (60 FPS).
+   */
   playSounds() {
     this.soundInterval = setInterval(() => {
       if (!soundEnabled) return;
@@ -167,6 +192,9 @@ class Character extends MoveableObject {
     }, 1000 / 60);
   }
 
+  /**
+   * Plays walking sound when moving on the ground.
+   */
   handleWalkSound() {
     const right = this.world.keyboard.RIGHT;
     const left = this.world.keyboard.LEFT;
@@ -183,6 +211,9 @@ class Character extends MoveableObject {
     }
   }
 
+  /**
+   * Plays jump sound when jumping from the ground.
+   */
   handleJumpSound() {
     const jump = this.world.keyboard.SPACE;
 
@@ -193,6 +224,9 @@ class Character extends MoveableObject {
     }
   }
 
+  /**
+   * Plays hurt sound effect.
+   */
   playHurtSound() {
     if (!soundEnabled) return;
     const sound = new Audio("audio/hurtSound.mp3");
@@ -248,26 +282,70 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Handles jump animation based on vertical speed.
+   * Handles jump animation logic by evaluating vertical speed and state.
    */
   animateJump() {
+    if (this.startJumpFrame()) return;
+    this.updateJumpFrame();
+  }
+
+  /**
+   * Shows initial jump frame and sets jumping state.
+   * @returns {boolean} True if start frame was shown.
+   */
+  startJumpFrame() {
     if (!this.isJumping) {
       this.img = this.imageCache[this.IMAGES_JUMPING[2]];
       this.isJumping = true;
-      return;
+      return true;
     }
-    if (this.speedY >= 0.5 && !this.isHurt()) {
-      this.img = this.imageCache[this.IMAGES_JUMPING[3]];
-    } else if (this.isOnJumpPeak()) {
-      this.img = this.imageCache[this.IMAGES_JUMPING[4]];
-    } else if (this.speedY <= -0.2 && this.speedY >= -0.6 && !this.isHurt()) {
-      this.img = this.imageCache[this.IMAGES_JUMPING[5]];
-    } else if (this.speedY < -0.6 && !this.isHurt() && this.isAboveGround()) {
+    return false;
+  }
+
+  /**
+   * Updates jump image based on vertical speed and jump phase.
+   */
+  updateJumpFrame() {
+    if (this.isFallingFast()) {
       this.img = this.imageCache[this.IMAGES_JUMPING[6]];
+    } else if (this.isFallingMid()) {
+      this.img = this.imageCache[this.IMAGES_JUMPING[5]];
+    } else if (this.isAtJumpPeak()) {
+      this.img = this.imageCache[this.IMAGES_JUMPING[4]];
+    } else if (this.isRising()) {
+      this.img = this.imageCache[this.IMAGES_JUMPING[3]];
     } else {
       this.img = this.imageCache[this.IMAGES_JUMPING[7]];
       this.isJumping = false;
     }
+  }
+
+  /**
+   * Checks if the character is rising.
+   */
+  isRising() {
+    return this.speedY >= 0.5 && !this.isHurt();
+  }
+
+  /**
+   * Checks if the character is at the peak of the jump.
+   */
+  isAtJumpPeak() {
+    return this.isOnJumpPeak();
+  }
+
+  /**
+   * Checks if the character is in mid fall.
+   */
+  isFallingMid() {
+    return this.speedY <= -0.2 && this.speedY >= -0.6 && !this.isHurt();
+  }
+
+  /**
+   * Checks if the character is falling fast.
+   */
+  isFallingFast() {
+    return this.speedY < -0.6 && !this.isHurt() && this.isAboveGround();
   }
 
   /**
@@ -326,7 +404,7 @@ class Character extends MoveableObject {
           this.world.statusBarBottle.setCollected(
             this.world.statusBarBottle.collected + 1
           );
-               playSound("bottleClink");
+          playSound("bottleClink");
           this.world.level.salsaBottles.splice(index, 1);
         }
       });
@@ -353,27 +431,21 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Triggers death animation, removes character, and shows game over screen.
+   * Starts death animation and removes character.
    */
   die() {
     this.hasDied = true;
     this.speed = 0;
 
     let i = 0;
-    const frameInterval = 120;
-    const totalFrames = this.IMAGES_DEAD.length;
-
-    const deadAnimation = setInterval(() => {
-      if (i < totalFrames) {
-        this.img = this.imageCache[this.IMAGES_DEAD[i]];
-        i++;
+    const interval = setInterval(() => {
+      if (i < this.IMAGES_DEAD.length) {
+        this.img = this.imageCache[this.IMAGES_DEAD[i++]];
       } else {
-        clearInterval(deadAnimation);
-        setTimeout(() => {
-          this.removeCharacter();
-        }, 400);
+        clearInterval(interval);
+        setTimeout(() => this.removeCharacter(), 400);
       }
-    }, frameInterval);
+    }, 120);
   }
 
   /**

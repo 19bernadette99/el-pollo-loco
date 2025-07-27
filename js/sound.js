@@ -50,14 +50,12 @@ const soundEffects = {
 function toggleMusic(enabled) {
   musicEnabled = enabled;
   localStorage.setItem("musicEnabled", JSON.stringify(enabled));
-
   if (!enabled) {
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
     startScreenMusic.pause();
     startScreenMusic.currentTime = 0;
   } else {
-    // Nur abspielen, wenn z.B. im Menü
     const isStartScreen = document.getElementById("startScreenWrapper")?.classList.contains("visible");
     if (isStartScreen) {
       startScreenMusic.play().catch(() => {});

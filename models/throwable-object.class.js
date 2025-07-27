@@ -74,12 +74,11 @@ class ThrowableObject extends MoveableObject {
    * Handles bottle splash effect when it hits the ground.
    */
   splash() {
-if (soundEnabled) {
-  const splashSound = this.breakingBottleSound.cloneNode();
-  splashSound.volume = 0.5;
-  splashSound.play();
-}
-
+    if (soundEnabled) {
+      const splashSound = this.breakingBottleSound.cloneNode();
+      splashSound.volume = 0.5;
+      splashSound.play();
+    }
 
     this.hasSplashed = true;
     this.stopThrow();
