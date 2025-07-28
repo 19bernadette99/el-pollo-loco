@@ -7,14 +7,16 @@ let keyboard = new Keyboard();
  * and loading the current level into the world.
  */
 function init() {
-  canvas = document.getElementById("canvas");
-  world = new World(canvas, keyboard, levels[currentLevelIndex]);
+  const canvas = document.getElementById("canvas");
+  resizeCanvasToWrapper();
 
+  world = new World(canvas, keyboard, levels[currentLevelIndex]);
   world.setLevel(levels[currentLevelIndex]);
+
   setupMobileControls();
 
   console.log("My Character is", world.character);
-  gameLoop();
+  gameLoop(); 
 }
 
 /**

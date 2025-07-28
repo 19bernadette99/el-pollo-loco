@@ -3,6 +3,7 @@ let resumeTimeout = null;
 let countdownElement = null;
 let gameStarted = false;
 let nextLevelCallback = null;
+let animationFrameId = null;
 
 /**
  * Initializes overlays, UI, and listeners after DOM load.
@@ -45,9 +46,6 @@ function setupFullscreenConfirm() {
 /**
  * Prepares the start game button.
  */
-/**
- * Prepares both desktop and mobile start buttons.
- */
 function initStartGame() {
   const desktopBtn = document.getElementById("startGameBtn");
   const mobileBtn = document.getElementById("mobileStartBtn");
@@ -70,6 +68,7 @@ function initStartGame() {
  */
 function startGameSequence() {
   if (gameStarted) return;
+
   gameStarted = true;
   hide("startScreenWrapper");
   startGame();
@@ -98,6 +97,7 @@ function startGame() {
       backgroundMusic.play();
     }
     init();
+    document.getElementById("backToStartBtn").classList.remove("hidden");
   });
 }
 
@@ -466,11 +466,11 @@ function setupMobileMenu() {
  * Main game loop using requestAnimationFrame.
  */
 function gameLoop() {
-  if (!gamePaused) {
+  if (!gamePaused && world) {
     world.update?.();
-    world.draw();
+    world.draw?.();
   }
-  requestAnimationFrame(gameLoop);
+  animationFrameId = requestAnimationFrame(gameLoop);
 }
 
 /**
@@ -482,3 +482,53 @@ function init() {
   resizeCanvasToWrapper();
   gameLoop();
 }
+
+/**
+ * Stops the game and returns to the start screen.
+ */
+function stopGameAndReturnToStart() {
+  gamePaused = true;
+  gameStarted = false;
+
+  if (world && typeof world.stop === "function") {
+    world.stop();
+  }
+
+  clearAllIntervals();
+  clearAllTimeouts();
+  cancelAnimationFrame(animationFrameId);
+
+  showStartScreen();
+
+  document.getElementById("backToStartBtn")?.classList.add("hidden");
+  document.querySelector("#mobile-controls")?.classList.remove("visible");
+
+  resetWorldState();
+}
+
+function resetWorldState() {
+  world = null;
+  keyboard = new Keyboard();
+  currentLevelIndex = 0;
+}
+
+function clearAllIntervals() {
+  for (let i = 1; i < 99999; i++) {
+    clearInterval(i);
+  }
+}
+
+function clearAllTimeouts() {
+  for (let i = 1; i < 99999; i++) {
+    clearTimeout(i);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const backBtn = document.getElementById("backToStartBtn");
+  if (backBtn) {
+    backBtn.addEventListener("click", () => {
+      stopGameAndReturnToStart();
+    });
+  }
+});

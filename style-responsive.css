@@ -22,6 +22,38 @@ canvas {
   object-fit: contain;
 }
 
+.canvas-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 20;
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent; 
+}
+
+.canvas-btn:hover {
+  outline: 1px solid white;
+}
+
+
+@media (max-width: 768px) {
+  .canvas-btn {
+    top: 8px;
+    left: 8px;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+}
+
 #rotateOverlay {
   position: absolute;
   top: 0;

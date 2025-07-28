@@ -11,6 +11,8 @@ class World {
   statusBarEndboss;
 
   collectedCoins = 0;
+  intervalId = null;
+  cloudSpawnInterval = null;
 
   throwableObjects;
 
@@ -69,7 +71,8 @@ class World {
    * Starts recurring checks (collision, input, progress).
    */
   run() {
-    setInterval(() => {
+    this.intervalId = setInterval(() => {
+      if (!this.character) return;
       this.character.checkEnemyCollisions();
       this.checkThrowObjects();
       this.checkCoinCollisions();
@@ -142,6 +145,8 @@ class World {
    * Draws game world, UI, and characters per frame.
    */
   draw() {
+    if (!this.level) return;
+
     this.clearCanvas();
     this.drawBackgroundLayers();
     this.drawUI();
@@ -160,11 +165,20 @@ class World {
    * Draws background, clouds, coins and bottles with camera offset.
    */
   drawBackgroundLayers() {
+    if (!this.level) return;
     this.ctx.translate(this.camera_x, 0);
-    this.addObjectsToMap(this.level.backgroundObjects);
-    this.addObjectsToMap(this.level.clouds);
-    this.addObjectsToMap(this.level.coins);
-    this.addObjectsToMap(this.level.salsaBottles);
+    if (this.level.backgroundObjects) {
+      this.addObjectsToMap(this.level.backgroundObjects);
+    }
+    if (this.level.clouds) {
+      this.addObjectsToMap(this.level.clouds);
+    }
+    if (this.level.coins) {
+      this.addObjectsToMap(this.level.coins);
+    }
+    if (this.level.salsaBottles) {
+      this.addObjectsToMap(this.level.salsaBottles);
+    }
     this.ctx.translate(-this.camera_x, 0);
   }
 
@@ -252,7 +266,9 @@ class World {
    * Spawns clouds periodically if fewer than the max allowed.
    */
   spawnClouds() {
-    setInterval(() => {
+    this.cloudSpawnInterval = setInterval(() => {
+      if (!this.level || !this.level.clouds) return;
+
       const maxClouds = 2;
       if (this.level.clouds.length < maxClouds) {
         let newCloud = new Cloud(this.level.clouds);
@@ -356,6 +372,7 @@ class World {
   initializeEnemies() {
     this.level.enemies.forEach((enemy) => {
       enemy.world = this;
+      enemy.animate?.();
     });
   }
 
@@ -404,4 +421,44 @@ class World {
     this.updateEnemies?.();
     this.updateThrowableObjects?.();
   }
+
+  scheduleNextFrame() {
+    if (!this.level) return; 
+    this.animationFrameId = requestAnimationFrame(() => this.draw());
+  }
+
+stop() {
+  this.gameStarted = false;
+
+  if (this.animationFrameId) {
+    cancelAnimationFrame(this.animationFrameId);
+    this.animationFrameId = null;
+  }
+
+  if (this.intervalId) {
+    clearInterval(this.intervalId);
+    this.intervalId = null;
+  }
+
+  if (this.cloudSpawnInterval) {
+    clearInterval(this.cloudSpawnInterval);
+    this.cloudSpawnInterval = null;
+  }
+
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+
+  this.character?.stopMovementLoop?.();
+
+  this.level?.enemies?.forEach((enemy) => enemy?.stopAnimation?.());
+
+  this.throwableObjects?.forEach((obj) => {
+    clearInterval(obj?.moveInterval);
+  });
+
+  this.throwableObjects = [];
+  this.level = null;
+  this.character = null;
+}
+
 }
