@@ -364,6 +364,7 @@ class World {
     this.initializeStatusBars();
     this.initializeCharacter();
     this.initializeEndboss();
+    this.statusBarEndboss = new StatusBarEndboss(); 
   }
 
   /**

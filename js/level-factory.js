@@ -29,7 +29,7 @@ function generateLevel(config) {
  * @param {number} endX - Level end X position
  * @returns {Chicken[]} Array of chicken enemies
  */
-function createChickens(enemies, endX) {
+function createChickens(enemies = [], endX) {
   const count = enemies.filter(e => e === "C" || e === "CB").length;
   const world = { level: { level_end_x: endX } };
   return createSpacedChickens(count, world);
@@ -38,10 +38,10 @@ function createChickens(enemies, endX) {
 /**
  * Creates all endboss instances based on enemy data.
  * 
- * @param {string[]} enemies - Array of enemy identifiers
+ * @param {string[]} [enemies=[]] - Array of enemy identifiers
  * @returns {Endboss[]} Array of endboss instances
  */
-function createEndbosses(enemies) {
+function createEndbosses(enemies = []) {
   return enemies.filter(e => e === "E").map(() => new Endboss());
 }
 
@@ -56,7 +56,7 @@ function createEndbosses(enemies) {
  */
 function createSpacedChickens(count, world, startX = 500, spacing = 200) {
   const chickens = [];
-  const minX = 460;
+  const minX = 500;
   startX = Math.max(startX, minX);
 
   for (let i = 0; i < count; i++) {

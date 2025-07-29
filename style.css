@@ -88,7 +88,8 @@ canvas {
 #OverlayControls,
 #OverlayImpressum,
 #gameOverOverlay,
-#levelUpOverlay {
+#levelUpOverlay,
+#gameFinishedOverlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -246,9 +247,13 @@ canvas {
   transition: width 5s linear;
 }
 
-.level-up-img {
+.level-up-img{
   height: 210px;
   margin-bottom: 20px;
+}
+
+.level-finish-img {
+  height: 210px;
 }
 
 .game-over-box {

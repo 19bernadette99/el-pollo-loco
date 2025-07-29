@@ -15,18 +15,22 @@ let currentLevel = levels[currentLevelIndex];
  * 
  * @param {World} world - The current game world instance
  */
+let levelTransitionInProgress = false;
+
 function checkAndSwitchLevel(world) {
   const level = world.level;
 
-  if (level.checkLevelCompletion()) {
+  if (!levelTransitionInProgress && level.checkLevelCompletion()) {
+    levelTransitionInProgress = true;
+
     showLevelUpOverlay(() => {
       currentLevelIndex++;
 
       if (currentLevelIndex < levels.length) {
         initNewLevel(currentLevelIndex);
+        levelTransitionInProgress = false;
       } else {
-        console.log("Game finished! No more levels. :)");
-        // TO DO: showGameFinishedOverlay();
+        showGameFinishedOverlay
       }
     });
   }
@@ -43,4 +47,6 @@ function initNewLevel(index) {
   const keyboard = new Keyboard();
 
   world = new World(canvas, keyboard, levels[index]);
+  resizeCanvasToWrapper();   
+  gameLoop();                
 }

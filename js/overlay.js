@@ -16,6 +16,7 @@ window.addEventListener("DOMContentLoaded", () => {
   setupMobileMenu();
   checkOrientationAndToggleOverlay();
   setupResizeListeners();
+  setupMobileControls();
 });
 
 /**
@@ -23,7 +24,10 @@ window.addEventListener("DOMContentLoaded", () => {
  */
 function setupResizeListeners() {
   window.addEventListener("resize", checkOrientationAndToggleOverlay);
-  window.addEventListener("orientationchange", checkOrientationAndToggleOverlay);
+  window.addEventListener(
+    "orientationchange",
+    checkOrientationAndToggleOverlay
+  );
 }
 
 /**
@@ -50,7 +54,9 @@ function initStartGame() {
 
   const handleStart = () => {
     if (musicEnabled) {
-      startScreenMusic.play().catch((e) => console.warn("Autoplay blocked:", e));
+      startScreenMusic
+        .play()
+        .catch((e) => console.warn("Autoplay blocked:", e));
     }
     startGameSequence();
   };
@@ -88,8 +94,8 @@ function startGame() {
   showLoadingScreen(() => {
     startScreenMusic.pause();
     startScreenMusic.currentTime = 0;
+    setupMobileControls();
     if (musicEnabled) backgroundMusic.play();
-
     const canvas = document.getElementById("canvas");
     keyboard = new Keyboard();
     world = new World(canvas, keyboard, levels[currentLevelIndex]);
@@ -105,12 +111,11 @@ function startGame() {
  * @param {Function} callback - Called when finished
  */
 function showLoadingScreen(callback) {
- isLoadingScreenActive = true;
+  isLoadingScreenActive = true;
   const loading = document.getElementById("loadingScreen");
   loading.classList.remove("hidden");
   document.querySelector("#mobile-controls")?.classList.add("hidden");
   document.querySelector(".mobile-action-bar")?.classList.add("hidden");
-
   resetProgressBar();
   fillProgressBar();
   setTimeout(() => {
@@ -142,12 +147,29 @@ function fillProgressBar() {
  */
 function initOverlays() {
   const configs = [
-    { open: ["openStoryBtn", "mobileStoryBtn"], id: "OverlayStory", close: "closeStoryBtn" },
-    { open: ["openControlsBtn", "mobileControlsBtn"], id: "OverlayControls", close: "closeControlsBtn" },
-    { open: ["toggleSoundBtn", "mobileSoundBtn"], id: "OverlaySound", close: "closeSoundBtn" },
-    { open: ["openImpressumBtn", "mobileImpressumBtn"], id: "OverlayImpressum", close: "closeImpressumBtn" },
+    {
+      open: ["openStoryBtn", "mobileStoryBtn"],
+      id: "OverlayStory",
+      close: "closeStoryBtn",
+    },
+    {
+      open: ["openControlsBtn", "mobileControlsBtn"],
+      id: "OverlayControls",
+      close: "closeControlsBtn",
+    },
+    {
+      open: ["toggleSoundBtn", "mobileSoundBtn"],
+      id: "OverlaySound",
+      close: "closeSoundBtn",
+    },
+    {
+      open: ["openImpressumBtn", "mobileImpressumBtn"],
+      id: "OverlayImpressum",
+      close: "closeImpressumBtn",
+    },
     { open: null, id: "gameOverOverlay", close: "closeGameOverOverlayBtn" },
-    { open: null, id: "levelUpOverlay", close: "nextLevelBtn" }
+    { open: null, id: "levelUpOverlay", close: "nextLevelBtn" },
+    { open: null, id: "gameFinishedOverlay", close: null },
   ];
   configs.forEach(({ open, id, close }) => setupOverlay(open, id, close));
 }
@@ -191,7 +213,11 @@ function delayedCloseOnOutsideClick(overlay, trigger) {
  */
 function closeOnOutsideClick(overlay, trigger) {
   document.addEventListener("click", (e) => {
-    if (!overlay.contains(e.target) && !overlay.classList.contains("hidden") && e.target !== trigger) {
+    if (
+      !overlay.contains(e.target) &&
+      !overlay.classList.contains("hidden") &&
+      e.target !== trigger
+    ) {
       hideOverlay(overlay);
       if (overlay.id === "gameOverOverlay") {
         hide("canvasWrapper");
@@ -222,22 +248,22 @@ function attachCloseButtonListener(overlay, closeId) {
  */
 function setupPauseResumeOnOverlay(openIds, id, closeId, overlay) {
   const btns = Array.isArray(openIds) ? openIds : [openIds];
-
   btns?.forEach((id) =>
     document.getElementById(id)?.addEventListener("click", () => {
       if (!isLoadingScreenActive) pauseGame();
     })
   );
-
   if (closeId) {
     document.getElementById(closeId)?.addEventListener("click", () => {
-      if (!["gameOverOverlay", "levelUpOverlay"].includes(id) && !isLoadingScreenActive) {
+      if (
+        !["gameOverOverlay", "levelUpOverlay"].includes(id) &&
+        !isLoadingScreenActive
+      ) {
         resumeGameAfterDelay(3000);
       }
     });
   }
 }
-
 
 /**
  * Shows given overlay and hides others.
@@ -281,7 +307,9 @@ function continueToNextLevel() {
     nextLevelCallback = null;
   }, 200);
 }
-document.getElementById("nextLevelBtn")?.addEventListener("click", continueToNextLevel);
+document
+  .getElementById("nextLevelBtn")
+  ?.addEventListener("click", continueToNextLevel);
 
 /**
  * Shows game over overlay with sound.
@@ -422,4 +450,26 @@ function setupMobileMenu() {
   buttons.forEach((btn) =>
     btn.addEventListener("click", () => menu.classList.remove("visible"))
   );
+}
+
+/**
+ * Shows the final overlay after all levels are completed.
+ * Automatically returns to start screen after 10 seconds.
+ */
+function showGameFinishedOverlay() {
+  document.getElementById("backToStartBtn")?.classList.add("hidden");
+  document.querySelector("#mobile-controls")?.classList.add("hidden");
+  show("gameFinishedOverlay");
+
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+
+  if (soundEnabled) {
+    playSound("applause");
+  }
+
+  setTimeout(() => {
+    hide("gameFinishedOverlay");
+    stopGameAndReturnToStart();
+  }, 10000);
 }

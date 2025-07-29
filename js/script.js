@@ -7,7 +7,10 @@ function gameLoop() {
   if (!gamePaused && world) {
     world.update?.();
     world.draw?.();
+
+    checkAndSwitchLevel(world);
   }
+
   animationFrameId = requestAnimationFrame(gameLoop);
 }
 
@@ -27,18 +30,15 @@ function init() {
 function stopGameAndReturnToStart() {
   gamePaused = true;
   gameStarted = false;
-
   if (world?.stop) world.stop();
   cancelAnimationFrame(animationFrameId);
   clearAllIntervals();
   clearAllTimeouts();
 
   showStartScreen();
-
   hide("canvas");
   hide("backToStartBtn");
   document.querySelector("#mobile-controls")?.classList.remove("visible");
-
   resetWorldState();
 }
 

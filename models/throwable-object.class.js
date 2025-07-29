@@ -43,6 +43,11 @@ class ThrowableObject extends MoveableObject {
    * Starts bottle movement, gravity, and collision detection.
    */
   throw() {
+    if (soundEnabled) {
+      const splashSound = this.breakingBottleSound.cloneNode();
+      splashSound.volume = 0.5;
+      splashSound.play();
+    }
     this.speedY = 25;
     this.applyGravity();
     this.animateThrow();
@@ -74,12 +79,6 @@ class ThrowableObject extends MoveableObject {
    * Handles bottle splash effect when it hits the ground.
    */
   splash() {
-    if (soundEnabled) {
-      const splashSound = this.breakingBottleSound.cloneNode();
-      splashSound.volume = 0.5;
-      splashSound.play();
-    }
-
     this.hasSplashed = true;
     this.stopThrow();
     this.prepareSplashAnimation();

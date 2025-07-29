@@ -40,6 +40,7 @@ const soundEffects = {
   toggle: new Audio("audio/toggleBtnSound.mp3"),
   walking: new Audio("audio/walkingSound.mp3"),
   chickenAlarm: new Audio("audio/chickenAlarm.mp3"),
+  applause: new Audio("audio/applauseSound.mp3")
 };
 
 /**

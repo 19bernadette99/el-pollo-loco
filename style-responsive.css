@@ -36,13 +36,12 @@ canvas {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background: transparent; 
+  background: transparent;
 }
 
 .canvas-btn:hover {
   outline: 1px solid white;
 }
-
 
 @media (max-width: 768px) {
   .canvas-btn {
@@ -285,7 +284,8 @@ canvas {
 
   #loadingScreen,
   #gameOverOverlay,
-  #levelUpOverlay {
+  #levelUpOverlay,
+  #gameFinishedOverlay {
     border: none;
   }
 
@@ -310,6 +310,15 @@ canvas {
     padding: 5px 10px;
     width: 200px !important;
     height: 200px;
+  }
+
+  .level-finish-img {
+    height: 210px;
+    width: 130px !important;
+  }
+
+  #gameFinishedOverlay {
+    padding: 20px 20px 10px;
   }
 
   h1 {
