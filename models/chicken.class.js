@@ -75,7 +75,7 @@ class Chicken extends MoveableObject {
    */
   moveLoop() {
     this.walkInterval = setInterval(() => {
-      if (gamePaused || this.hasDied) return;
+      if (window.gamePaused || this.hasDied) return;
 
       if (this.otherDirection || this.x <= 10) this.moveRight();
       else if (this.x + this.width >= this.world.level.level_end_x - 10)
@@ -89,7 +89,8 @@ class Chicken extends MoveableObject {
    */
   walkLoop() {
     this.animationInterval = setInterval(() => {
-      if (gamePaused || this.hasDied) return;
+      if (window.gamePaused || this.hasDied) return;
+
       this.playAnimation(this.currentWalkingImages);
     }, 150);
   }

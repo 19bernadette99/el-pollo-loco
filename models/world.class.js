@@ -393,6 +393,7 @@ class World {
     if (!this.character) return;
 
     this.character.world = this;
+    this.character.keyboard = this.keyboard; 
     this.character.x = 120;
     this.character.y = 210;
     this.character.speed = 10;
@@ -422,43 +423,26 @@ class World {
     this.updateThrowableObjects?.();
   }
 
-  scheduleNextFrame() {
-    if (!this.level) return; 
-    this.animationFrameId = requestAnimationFrame(() => this.draw());
-  }
-
-stop() {
-  this.gameStarted = false;
-
-  if (this.animationFrameId) {
-    cancelAnimationFrame(this.animationFrameId);
-    this.animationFrameId = null;
-  }
-
-  if (this.intervalId) {
-    clearInterval(this.intervalId);
-    this.intervalId = null;
-  }
-
-  if (this.cloudSpawnInterval) {
-    clearInterval(this.cloudSpawnInterval);
-    this.cloudSpawnInterval = null;
-  }
-
-  backgroundMusic.pause();
-  backgroundMusic.currentTime = 0;
-
-  this.character?.stopMovementLoop?.();
-
-  this.level?.enemies?.forEach((enemy) => enemy?.stopAnimation?.());
-
-  this.throwableObjects?.forEach((obj) => {
-    clearInterval(obj?.moveInterval);
-  });
-
-  this.throwableObjects = [];
-  this.level = null;
-  this.character = null;
+scheduleNextFrame() {
+  if (!this.level) return;
+  this.animationFrameId = requestAnimationFrame(() => this.draw());
 }
 
+  stop() {
+    this.gameStarted = false;
+    cancelAnimationFrame(this.animationFrameId);
+    clearInterval(this.intervalId);
+    clearInterval(this.cloudSpawnInterval);
+
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+
+    this.character?.stopMovementLoop?.();
+    this.level?.enemies?.forEach((enemy) => enemy?.stopAnimation?.());
+    this.throwableObjects?.forEach((obj) => clearInterval(obj?.moveInterval));
+
+    this.throwableObjects = [];
+
+    this.animationFrameId = null;
+  }
 }
