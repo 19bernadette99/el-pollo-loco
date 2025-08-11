@@ -6,18 +6,25 @@ class MoveableObject extends DrawableObject {
   energy = 100;
   lastHit = 0;
 
-  /**
-   * Applies gravity effect to the object over time.
-   */
-  applyGravity() {
-    if (gamePaused) return;
-    setInterval(() => {
-      if (this.isAboveGround() || this.speedY > 0) {
-        this.y -= this.speedY;
-        this.speedY -= this.acceleration;
-      }
-    }, 1000 / 25);
+/**
+ * Applies gravity effect to the object over time.
+ */
+applyGravity() {
+  if (this.gravityInterval) {
+    clearInterval(this.gravityInterval);
+    this.gravityInterval = null;
   }
+  this.gravityInterval = setInterval(() => {
+    if (gamePaused) return;
+    if (this.isAboveGround() || this.speedY > 0) {
+      this.y -= this.speedY;
+      this.speedY -= this.acceleration;
+    } else {
+      this.y = Math.max(this.y, 210);
+      this.speedY = 0;
+    }
+  }, 1000 / 25);
+}
 
   /**
    * Checks if the object is above ground level.

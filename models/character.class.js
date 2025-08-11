@@ -82,6 +82,11 @@ class Character extends MoveableObject {
   collectedBottles = 0;
   energy = 100;
 
+
+  _moveLoopId = null;
+  _animLoopId = null;
+  _soundLoopId = null;
+
   walkSound = new Audio("audio/walkingSound.mp3");
   jumpSound = new Audio("audio/jumpSound.mp3");
   bottleClinkSound = new Audio("audio/bottleClink.mp3");
@@ -117,7 +122,8 @@ class Character extends MoveableObject {
    * Handles keyboard inputs and movement at 60 FPS.
    */
   startMovementLoop() {
-    setInterval(() => {
+    if (this._moveLoopId) return; 
+    this._moveLoopId = setInterval(() => {
       if (gamePaused) return;
       this.handleMovementInput();
       this.world.camera_x = -this.x + 100;
@@ -130,7 +136,8 @@ class Character extends MoveableObject {
    * Triggers animations based on state every 50ms.
    */
   startAnimationLoop() {
-    setInterval(() => {
+    if (this._animLoopId) return; // Guard
+    this._animLoopId = setInterval(() => {
       if (gamePaused || this.hasDied) return;
       if (this.energy <= 0) return this.die();
 
@@ -148,13 +155,11 @@ class Character extends MoveableObject {
       this.otherDirection = false;
       this.lastActionTime = Date.now();
     }
-
     if (this.world.keyboard.LEFT && this.x > 0) {
       this.moveLeft();
       this.otherDirection = true;
       this.lastActionTime = Date.now();
     }
-
     if (this.world.keyboard.SPACE && !this.isAboveGround()) {
       this.jump();
       this.lastActionTime = Date.now();
@@ -182,10 +187,21 @@ class Character extends MoveableObject {
   }
 
   /**
+   * Stops all character-owned loops.
+   */
+  stopMovementLoop() {
+    if (this._moveLoopId) { clearInterval(this._moveLoopId); this._moveLoopId = null; }
+    if (this._animLoopId) { clearInterval(this._animLoopId); this._animLoopId = null; }
+    if (this._soundLoopId) { clearInterval(this._soundLoopId); this._soundLoopId = null; }
+  }
+
+
+  /**
    * Starts sound loop for walking and jumping (60 FPS).
    */
   playSounds() {
-    this.soundInterval = setInterval(() => {
+    if (this._soundLoopId) return; // Guard
+    this._soundLoopId = setInterval(() => {
       if (!soundEnabled) return;
       this.handleWalkSound();
       this.handleJumpSound();

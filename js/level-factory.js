@@ -1,64 +1,104 @@
 /**
- * Generates a new level with enemies, background and items.
- * 
- * @param {Object} config - Configuration object
- * @param {number} config.endX - End position of the level
- * @param {string[]} config.enemies - Array of enemy types ("C", "CB", "E")
- * @param {number} config.coins - Total number of coins
- * @param {number} config.bottles - Total number of bottles
- * @returns {Level} A new level instance
+ * Generates a new level with enemies, background, and items.
  */
 function generateLevel(config) {
-  const chickens = createChickens(config.enemies, config.endX);
-  const endbosses = createEndbosses(config.enemies);
-  
+  const enemies = createAllEnemies(config.enemies, config.endX);
+  const clouds = [new Cloud(), new Cloud()];
+  const background = generateBackground();
+  const items = createLevelItems(config);
+
+  return buildLevel(config, enemies, clouds, background, items);
+}
+
+/**
+ * Creates all enemy instances (chickens + endbosses).
+ */
+function createAllEnemies(enemies, endX) {
+  const chickens = createChickens(enemies, endX);
+  const endbosses = createEndbosses(enemies);
+  return [...chickens, ...endbosses];
+}
+
+/**
+ * Creates all collectible items (coins + bottles).
+ */
+function createLevelItems(config) {
+  const coins = createCoins(config.coins, config.endX);
+  const salsaBottles = createSalsaBottles(config.bottles, config.endX);
+  return { coins, salsaBottles };
+}
+
+/**
+ * Builds and returns a Level instance.
+ */
+function buildLevel(config, enemies, clouds, background, items) {
   return new Level({
-    enemies: [...chickens, ...endbosses],
-    clouds: [new Cloud(), new Cloud()],
-    backgroundObjects: generateBackground(),
-    coinCount: config.coins,
-    bottleCount: config.bottles,
+    enemies,
+    clouds,
+    backgroundObjects: background,
+    coins: items.coins,
+    salsaBottles: items.salsaBottles,
+    maxCoins: config.coins,
+    maxBottles: config.bottles,
     level_end_x: config.endX,
   });
 }
 
 /**
+ * Creates coin instances across the level width.
+ */
+function createCoins(count, endX) {
+  const arr = [];
+  const startX = 300;
+  const span = Math.max(1, endX - startX - 200);
+  const step = Math.max(120, Math.floor(span / Math.max(1, count)));
+  for (let i = 0; i < count; i++) {
+    const x = startX + i * step + Math.random() * 40;
+    const y = 120 + Math.random() * 60;
+    arr.push(new Coin(x, y));
+  }
+  return arr;
+}
+
+/**
+ * Creates bottle instances (ground-level).
+ */
+function createSalsaBottles(count, endX) {
+  const arr = [];
+  const startX = 350;
+  const span = Math.max(1, endX - startX - 200);
+  const step = Math.max(150, Math.floor(span / Math.max(1, count)));
+  for (let i = 0; i < count; i++) {
+    const x = startX + i * step + Math.random() * 40;
+    const y = 180; // ground
+    arr.push(new SalsaBottle(x, y));
+  }
+  return arr;
+}
+
+/**
  * Creates chicken enemies spaced along the level.
- * 
- * @param {string[]} enemies - Array of enemy identifiers
- * @param {number} endX - Level end X position
- * @returns {Chicken[]} Array of chicken enemies
  */
 function createChickens(enemies = [], endX) {
-  const count = enemies.filter(e => e === "C" || e === "CB").length;
+  const count = enemies.filter((e) => e === "C" || e === "CB").length;
   const world = { level: { level_end_x: endX } };
   return createSpacedChickens(count, world);
 }
 
 /**
  * Creates all endboss instances based on enemy data.
- * 
- * @param {string[]} [enemies=[]] - Array of enemy identifiers
- * @returns {Endboss[]} Array of endboss instances
  */
 function createEndbosses(enemies = []) {
-  return enemies.filter(e => e === "E").map(() => new Endboss());
+  return enemies.filter((e) => e === "E").map(() => new Endboss());
 }
 
 /**
  * Places chickens at spaced intervals with slight randomness.
- * 
- * @param {number} count - Total chickens to create
- * @param {Object} world - Reference to the level world
- * @param {number} [startX=500] - Starting X position
- * @param {number} [spacing=200] - Distance between chickens
- * @returns {Chicken[]} Array of chicken objects
  */
 function createSpacedChickens(count, world, startX = 500, spacing = 200) {
   const chickens = [];
   const minX = 500;
   startX = Math.max(startX, minX);
-
   for (let i = 0; i < count; i++) {
     const isLittle = i % 3 === 0;
     const chicken = new Chicken(isLittle);
@@ -66,18 +106,14 @@ function createSpacedChickens(count, world, startX = 500, spacing = 200) {
     chicken.world = world;
     chickens.push(chicken);
   }
-
   return chickens;
 }
 
 /**
  * Generates layered background objects for the level.
- * 
- * @returns {BackgroundObject[]} Array of background objects
  */
 function generateBackground() {
   return [
-
     new BackgroundObject("img/5_background/layers/air.png", -720),
     new BackgroundObject("img/5_background/layers/3_third_layer/2.png", -720),
     new BackgroundObject("img/5_background/layers/2_second_layer/2.png", -720),
@@ -104,4 +140,3 @@ function generateBackground() {
     new BackgroundObject("img/5_background/layers/1_first_layer/2.png", 720 * 3),
   ];
 }
-

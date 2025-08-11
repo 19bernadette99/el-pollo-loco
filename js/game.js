@@ -1,6 +1,5 @@
 let canvas;
 let world;
-let keyboard = new Keyboard();
 
 /**
  * Initializes the game world by connecting the canvas and keyboard,
@@ -8,10 +7,10 @@ let keyboard = new Keyboard();
  */
 function init() {
   canvas = document.getElementById("canvas");
-  keyboard = new Keyboard(); 
-  world = new World(canvas, keyboard, levels[currentLevelIndex]);
-
-  console.log("My Character is", world.character);
+  const keyboard = new keyboard();
+  const levelTemplate = levels[currentLevelIndex];
+  const freshLevel = createLevel(levelTemplate);
+  world = new World(canvas, keyboard, freshLevel);
 }
 
 /**
@@ -69,10 +68,10 @@ function setupThrowControl() {
 /**
  * Event listener for keydown events. Updates the keyboard object
  * to reflect which keys are currently pressed.
- *
- * @param {KeyboardEvent} e - The keyboard event triggered by user input.
  */
 document.addEventListener("keydown", (e) => {
+  if ([32, 37, 38, 39, 40].includes(e.keyCode)) e.preventDefault();
+  document.activeElement?.blur();
   if (e.keyCode == 39) {
     keyboard.RIGHT = true;
   }
@@ -105,6 +104,8 @@ document.addEventListener("keydown", (e) => {
  * @param {KeyboardEvent} e - The keyboard event triggered by user input.
  */
 document.addEventListener("keyup", (e) => {
+  if ([32, 37, 38, 39, 40].includes(e.keyCode)) e.preventDefault();
+  document.activeElement?.blur();
   if (e.keyCode == 39) {
     keyboard.RIGHT = false;
   }
@@ -129,3 +130,4 @@ document.addEventListener("keyup", (e) => {
     keyboard.D = false;
   }
 });
+

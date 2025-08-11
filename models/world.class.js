@@ -43,8 +43,6 @@ class World {
     }, 500);
     this.setLevel(level);
     this.spawnClouds();
-    this.run();
-    this.draw();
     this.endbossIsVisible();
 
     const firstEndboss = this.level.enemies.find((e) => e instanceof Endboss);
@@ -151,7 +149,6 @@ class World {
     this.drawBackgroundLayers();
     this.drawUI();
     this.drawGameObjects();
-    this.scheduleNextFrame();
   }
 
   /**
@@ -344,11 +341,11 @@ class World {
   /**
    * Loads the next level from the level list.
    */
-  loadNextLevel() {
-    if (currentLevelIndex + 1 < levels.length) {
-      currentLevelIndex++;
-      this.setLevel(levels[currentLevelIndex]);
-      this.levelUpTriggered = false;
+loadNextLevel() {
+  if (currentLevelIndex + 1 < levelConfigs.length) {
+    currentLevelIndex++;
+    this.setLevel(generateLevel(levelConfigs[currentLevelIndex])); 
+    this.levelUpTriggered = false;
     } else {
       console.log("🎉 All levels completed!");
       show("gameOverOverlay");
@@ -364,7 +361,7 @@ class World {
     this.initializeStatusBars();
     this.initializeCharacter();
     this.initializeEndboss();
-    this.statusBarEndboss = new StatusBarEndboss(); 
+    this.statusBarEndboss = new StatusBarEndboss();
   }
 
   /**
@@ -392,9 +389,8 @@ class World {
    */
   initializeCharacter() {
     if (!this.character) return;
-
     this.character.world = this;
-    this.character.keyboard = this.keyboard; 
+    this.character.keyboard = this.keyboard;
     this.character.x = 120;
     this.character.y = 210;
     this.character.speed = 10;
@@ -402,6 +398,7 @@ class World {
     this.character.isJumping = false;
     this.character.lastActionTime = Date.now();
     this.camera_x = 0;
+
   }
 
   /**
@@ -416,34 +413,83 @@ class World {
   }
 
   /**
-   * Updates world state: collisions, enemies, throwable objects.
+   * Updates world state. Called by the external game loop each frame.
    */
   update() {
-    this.checkCollisions?.();
+    if (!this.character) return;
+
+    this.character.checkEnemyCollisions?.();
+    this.checkThrowObjects?.();
+    this.checkCoinCollisions?.();
+    this.checkLevelProgress?.();
+
     this.updateEnemies?.();
     this.updateThrowableObjects?.();
   }
 
-scheduleNextFrame() {
-  if (!this.level) return;
-  this.animationFrameId = requestAnimationFrame(() => this.draw());
+  scheduleNextFrame() {
+    if (!this.level) return;
+    this.animationFrameId = requestAnimationFrame(() => this.draw());
+  }
+
+/**
+ * Stops the game and resets all game state.
+ */
+stop() {
+  this.resetGameFlags();
+  this.stopGameLoops();
+  this.stopCharacterAndEnemies();
+  this.resetAudio();
+  this.clearGameObjects();
 }
 
-  stop() {
-    this.gameStarted = false;
-    cancelAnimationFrame(this.animationFrameId);
-    clearInterval(this.intervalId);
-    clearInterval(this.cloudSpawnInterval);
+/**
+ * Resets game state flags.
+ */
+resetGameFlags() {
+  this.gameStarted = false;
+  this.levelUpTriggered = false;
+}
 
-    backgroundMusic.pause();
-    backgroundMusic.currentTime = 0;
+/**
+ * Stops all active animation and update loops.
+ */
+stopGameLoops() {
+  cancelAnimationFrame(this.animationFrameId);
+  this.animationFrameId = null;
 
-    this.character?.stopMovementLoop?.();
-    this.level?.enemies?.forEach((enemy) => enemy?.stopAnimation?.());
-    this.throwableObjects?.forEach((obj) => clearInterval(obj?.moveInterval));
+  clearInterval(this.intervalId);
+  clearInterval(this.cloudSpawnInterval);
 
-    this.throwableObjects = [];
-
-    this.animationFrameId = null;
+  if (this.character?.gravityInterval) {
+    clearInterval(this.character.gravityInterval);
+    this.character.gravityInterval = null;
   }
+}
+
+/**
+ * Stops character movement and enemy animations.
+ */
+stopCharacterAndEnemies() {
+  this.character?.stopMovementLoop?.();
+  this.level?.enemies?.forEach((enemy) => enemy?.stopAnimation?.());
+  this.throwableObjects?.forEach((obj) => clearInterval(obj?.moveInterval));
+}
+
+/**
+ * Pauses and resets background music.
+ */
+resetAudio() {
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+}
+
+/**
+ * Clears all remaining game objects from memory.
+ */
+clearGameObjects() {
+  this.throwableObjects = [];
+  this.level = null;
+  this.character = null;
+}
 }

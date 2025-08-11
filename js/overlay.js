@@ -5,6 +5,7 @@ let gameStarted = false;
 let nextLevelCallback = null;
 let animationFrameId = null;
 let isLoadingScreenActive = false;
+let loopActive = false;
 
 /**
  * Initializes overlays, UI, and listeners after DOM load.
@@ -51,7 +52,6 @@ function setupFullscreenConfirm() {
 function initStartGame() {
   const desktopBtn = document.getElementById("startGameBtn");
   const mobileBtn = document.getElementById("mobileStartBtn");
-
   const handleStart = () => {
     if (musicEnabled) {
       startScreenMusic
@@ -60,7 +60,6 @@ function initStartGame() {
     }
     startGameSequence();
   };
-
   desktopBtn?.addEventListener("click", handleStart);
   mobileBtn?.addEventListener("click", handleStart);
 }
@@ -88,46 +87,44 @@ function showMobileUI() {
 }
 
 /**
- * Starts the game by initializing the world and showing the canvas.
+ * Shows and animates the loading screen.
  */
-function startGame() {
-  showLoadingScreen(() => {
-    startScreenMusic.pause();
-    startScreenMusic.currentTime = 0;
-    setupMobileControls();
-    if (musicEnabled) backgroundMusic.play();
-    const canvas = document.getElementById("canvas");
-    keyboard = new Keyboard();
-    world = new World(canvas, keyboard, levels[currentLevelIndex]);
+function showLoadingScreen(callback) {
+  activateLoadingUI();
+  runLoadingAnimation();
 
-    show("canvas");
-    document.getElementById("backToStartBtn")?.classList.remove("hidden");
-    showMobileUI();
-  });
+  setTimeout(() => {
+    deactivateLoadingUI();
+    callback?.();
+  }, 5000);
 }
 
 /**
- * Shows and animates the loading screen.
- * @param {Function} callback - Called when finished
+ * Activates loading screen UI and hides controls.
  */
-function showLoadingScreen(callback) {
+function activateLoadingUI() {
   isLoadingScreenActive = true;
-  const loading = document.getElementById("loadingScreen");
-  loading.classList.remove("hidden");
+  document.getElementById("loadingScreen")?.classList.remove("hidden");
   document.querySelector("#mobile-controls")?.classList.add("hidden");
   document.querySelector(".mobile-action-bar")?.classList.add("hidden");
+}
+
+/**
+ * Fills the loading bar.
+ */
+function runLoadingAnimation() {
   resetProgressBar();
   fillProgressBar();
+}
 
-  setTimeout(() => {
-    loading.classList.add("hidden");
-    document.querySelector("#mobile-controls")?.classList.remove("hidden");
-    document.querySelector(".mobile-action-bar")?.classList.remove("hidden");
-
-    isLoadingScreenActive = false;
-
-    callback?.();
-  }, 5000);
+/**
+ * Deactivates loading screen UI and shows controls.
+ */
+function deactivateLoadingUI() {
+  document.getElementById("loadingScreen")?.classList.add("hidden");
+  document.querySelector("#mobile-controls")?.classList.remove("hidden");
+  document.querySelector(".mobile-action-bar")?.classList.remove("hidden");
+  isLoadingScreenActive = false;
 }
 
 /**
@@ -150,32 +147,47 @@ function fillProgressBar() {
  * Initializes all overlay configurations.
  */
 function initOverlays() {
-  const configs = [
-    {
-      open: ["openStoryBtn", "mobileStoryBtn"],
-      id: "OverlayStory",
-      close: "closeStoryBtn",
-    },
-    {
-      open: ["openControlsBtn", "mobileControlsBtn"],
-      id: "OverlayControls",
-      close: "closeControlsBtn",
-    },
-    {
-      open: ["toggleSoundBtn", "mobileSoundBtn"],
-      id: "OverlaySound",
-      close: "closeSoundBtn",
-    },
-    {
-      open: ["openImpressumBtn", "mobileImpressumBtn"],
-      id: "OverlayImpressum",
-      close: "closeImpressumBtn",
-    },
-    { open: null, id: "gameOverOverlay", close: "closeGameOverOverlayBtn" },
-    { open: null, id: "levelUpOverlay", close: "nextLevelBtn" },
-    { open: null, id: "gameFinishedOverlay", close: null },
+  getOverlayConfigs().forEach(({ open, id, close }) =>
+    setupOverlay(open, id, close)
+  );
+}
+
+/**
+ * Returns all overlay configuration objects.
+ */
+function getOverlayConfigs() {
+  return [
+    createOverlayConfig(
+      ["openStoryBtn", "mobileStoryBtn"],
+      "OverlayStory",
+      "closeStoryBtn"
+    ),
+    createOverlayConfig(
+      ["openControlsBtn", "mobileControlsBtn"],
+      "OverlayControls",
+      "closeControlsBtn"
+    ),
+    createOverlayConfig(
+      ["toggleSoundBtn", "mobileSoundBtn"],
+      "OverlaySound",
+      "closeSoundBtn"
+    ),
+    createOverlayConfig(
+      ["openImpressumBtn", "mobileImpressumBtn"],
+      "OverlayImpressum",
+      "closeImpressumBtn"
+    ),
+    createOverlayConfig(null, "gameOverOverlay", "closeGameOverOverlayBtn"),
+    createOverlayConfig(null, "levelUpOverlay", "nextLevelBtn"),
+    createOverlayConfig(null, "gameFinishedOverlay", null),
   ];
-  configs.forEach(({ open, id, close }) => setupOverlay(open, id, close));
+}
+
+/**
+ * Creates a standardized overlay configuration object.
+ */
+function createOverlayConfig(open, id, close) {
+  return { open, id, close };
 }
 
 /**
@@ -197,7 +209,6 @@ function addOpenButtonListeners(ids, overlay) {
   if (!ids) {
     return;
   }
-
   const btns = Array.isArray(ids) ? ids : [ids];
   btns.forEach((id) => {
     const btn = document.getElementById(id);
@@ -219,29 +230,49 @@ function delayedCloseOnOutsideClick(overlay, trigger) {
 }
 
 /**
- * Adds outside click handler to close overlays.
+ * Registers a document-level click handler to close the given overlay on outside clicks.
  */
 function closeOnOutsideClick(overlay, trigger) {
-  document.addEventListener("click", (e) => {
-    if (
-      !overlay.contains(e.target) &&
-      !overlay.classList.contains("hidden") &&
-      e.target !== trigger
-    ) {
-      hideOverlay(overlay);
+  document.addEventListener("click", (e) =>
+    handleDocumentClickForOverlay(e, overlay, trigger)
+  );
+}
 
-      if (overlay.id === "gameOverOverlay") {
-        hide("canvasWrapper");
-        show("startScreenWrapper");
-        gameStarted = false;
-        return;
-      }
+/**
+ * Handles the document click and delegates if the overlay should close.
+ */
+function handleDocumentClickForOverlay(e, overlay, trigger) {
+  if (!shouldCloseOverlayOnClick(e, overlay, trigger)) return;
+  processOverlayClose(overlay);
+}
 
-      if (gameStarted && !isLoadingScreenActive) {
-        resumeGameAfterDelay(3000);
-      }
-    }
-  });
+/**
+ * Returns true if the click happened outside the overlay while it is visible.
+ */
+function shouldCloseOverlayOnClick(e, overlay, trigger) {
+  return (
+    !overlay.contains(e.target) &&
+    !overlay.classList.contains("hidden") &&
+    e.target !== trigger
+  );
+}
+
+/**
+ * Closes the overlay and handles special cases and resume logic.
+ */
+function processOverlayClose(overlay) {
+  hideOverlay(overlay);
+
+  if (overlay.id === "gameOverOverlay") {
+    hide("canvasWrapper");
+    show("startScreenWrapper");
+    gameStarted = false;
+    return;
+  }
+
+  if (gameStarted && !isLoadingScreenActive) {
+    resumeGameAfterDelay(3000);
+  }
 }
 
 /**
@@ -260,34 +291,56 @@ function attachCloseButtonListener(overlay, closeId) {
 }
 
 /**
- * Pauses/resumes game based on overlay logic.
+ * Wires overlay pause/resume behavior by delegating to helper binders.
  */
 function setupPauseResumeOnOverlay(openIds, id, closeId, overlay) {
+  bindOpenButtonsForPause(openIds, overlay);
+  bindCloseButtonForResume(closeId, id, overlay);
+}
+
+/**
+ * Binds click listeners to all open buttons so they pause and show the overlay.
+ */
+function bindOpenButtonsForPause(openIds, overlay) {
   const btns = Array.isArray(openIds) ? openIds : [openIds];
-
   btns?.forEach((btnId) => {
-    document.getElementById(btnId)?.addEventListener("click", () => {
-      if (gameStarted && !isLoadingScreenActive) {
-        pauseGame();
-      }
-      showOverlay(overlay);
-      delayedCloseOnOutsideClick(overlay, document.getElementById(btnId));
-    });
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.addEventListener("click", () => handleOpenButtonClick(btnId, overlay));
   });
+}
 
-  if (closeId) {
-    document.getElementById(closeId)?.addEventListener("click", () => {
-      const exclude = [
-        "gameOverOverlay",
-        "levelUpOverlay",
-        "gameFinishedOverlay",
-      ];
-      if (!exclude.includes(id) && gameStarted && !isLoadingScreenActive) {
-        resumeGameAfterDelay(3000);
-      }
-      hideOverlay(overlay);
-    });
+/**
+ * Handles a single open-button click: pauses game, shows overlay, wires outside-close delay.
+ */
+function handleOpenButtonClick(btnId, overlay) {
+  if (gameStarted && !isLoadingScreenActive) {
+    pauseGame();
   }
+  showOverlay(overlay);
+  delayedCloseOnOutsideClick(overlay, document.getElementById(btnId));
+}
+
+/**
+ * Binds the close button so that it resumes the game with countdown (if applicable) and hides the overlay.
+ */
+function bindCloseButtonForResume(closeId, id, overlay) {
+  if (!closeId) return;
+
+  const btn = document.getElementById(closeId);
+  if (!btn) return;
+
+  btn.addEventListener("click", () => {
+    const exclude = [
+      "gameOverOverlay",
+      "levelUpOverlay",
+      "gameFinishedOverlay",
+    ];
+    if (!exclude.includes(id) && gameStarted && !isLoadingScreenActive) {
+      resumeGameAfterDelay(3000);
+    }
+    hideOverlay(overlay);
+  });
 }
 
 /**
@@ -337,25 +390,31 @@ document
   ?.addEventListener("click", continueToNextLevel);
 
 /**
- * Shows game over overlay with sound.
+ * Shows the game over overlay and handles UI and audio effects.
  */
 function showGameOverOverlay() {
+  stopGameOverUIAndMusic();
+  show("gameOverOverlay");
+  setTimeout(() => {
+    hide("gameOverOverlay");
+    showStartScreen();
+  }, 3000);
+}
+
+/**
+ * Stops background music, hides UI, and plays game over sound if enabled.
+ */
+function stopGameOverUIAndMusic() {
   backgroundMusic.pause();
   backgroundMusic.currentTime = 0;
   document.getElementById("backToStartBtn")?.classList.add("hidden");
   document.querySelector("#mobile-controls")?.classList.add("hidden");
+
   if (soundEnabled) {
     const sound = new Audio("audio/GameOver.mp3");
     sound.volume = 0.8;
     sound.play();
   }
-
-  show("gameOverOverlay");
-
-  setTimeout(() => {
-    hide("gameOverOverlay");
-    showStartScreen();
-  }, 3000);
 }
 
 /**
@@ -374,98 +433,6 @@ function showStartScreen() {
 }
 
 /**
- * Shows element by ID.
- */
-function show(id) {
-  document.getElementById(id)?.classList.remove("hidden");
-}
-
-/**
- * Hides element by ID.
- */
-function hide(id) {
-  document.getElementById(id)?.classList.add("hidden");
-}
-
-/**
- * Pauses game rendering and updates.
- */
-function pauseGame() {
-  gamePaused = true;
-}
-
-/**
- * Resumes game immediately.
- */
-function resumeGame() {
-  gamePaused = false;
-}
-
-/**
- * Resumes game after delay with visual countdown.
- * @param {number} delay
- */
-function resumeGameAfterDelay(delay = 3000) {
-  if (!gameStarted) return;
-  createCountdownElementIfNeeded();
-
-  startCountdown(3, delay / 3, () => {
-    hideCountdownElement();
-    resumeGame();
-  });
-}
-
-/**
- * Starts countdown animation.
- */
-function startCountdown(start, step, done) {
-  let count = start;
-  countdownElement.textContent = count;
-  countdownElement.style.display = "block";
-
-  const interval = setInterval(() => {
-    count--;
-    if (count <= 0) {
-      clearInterval(interval);
-      done();
-    } else {
-      countdownElement.textContent = count;
-    }
-  }, step);
-}
-
-/**
- * Creates countdown DOM element if not present.
- */
-function createCountdownElementIfNeeded() {
-  countdownElement = document.getElementById("resumeCountdown");
-
-  if (!countdownElement) {
-    countdownElement = document.createElement("div");
-    countdownElement.id = "resumeCountdown";
-    Object.assign(countdownElement.style, {
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      fontSize: "100px",
-      color: "white",
-      fontFamily: "Press Start 2P",
-      zIndex: "9999",
-      display: "none",
-    });
-    document.body.appendChild(countdownElement);
-  }
-}
-
-/**
- * Hides countdown DOM element.
- */
-function hideCountdownElement() {
-  if (countdownElement) countdownElement.style.display = "none";
-}
-
-/**
  * Toggles rotate overlay for portrait mobile mode.
  */
 function checkOrientationAndToggleOverlay() {
@@ -473,20 +440,6 @@ function checkOrientationAndToggleOverlay() {
   const portrait = window.matchMedia("(orientation: portrait)").matches;
   const mobile = window.innerWidth <= 1060;
   overlay.classList.toggle("hidden", !(mobile && portrait));
-}
-
-/**
- * Toggles the mobile menu panel.
- */
-function setupMobileMenu() {
-  const toggle = document.getElementById("mobileMenuToggle");
-  const menu = document.getElementById("mobileMenu");
-  const buttons = menu?.querySelectorAll("button") || [];
-
-  toggle?.addEventListener("click", () => menu.classList.toggle("visible"));
-  buttons.forEach((btn) =>
-    btn.addEventListener("click", () => menu.classList.remove("visible"))
-  );
 }
 
 /**
@@ -500,11 +453,9 @@ function showGameFinishedOverlay() {
 
   backgroundMusic.pause();
   backgroundMusic.currentTime = 0;
-
   if (soundEnabled) {
     playSound("applause");
   }
-
   setTimeout(() => {
     hide("gameFinishedOverlay");
     stopGameAndReturnToStart();
