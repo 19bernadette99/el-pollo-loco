@@ -118,10 +118,14 @@ function showLoadingScreen(callback) {
   document.querySelector(".mobile-action-bar")?.classList.add("hidden");
   resetProgressBar();
   fillProgressBar();
+
   setTimeout(() => {
     loading.classList.add("hidden");
     document.querySelector("#mobile-controls")?.classList.remove("hidden");
     document.querySelector(".mobile-action-bar")?.classList.remove("hidden");
+
+    isLoadingScreenActive = false;
+
     callback?.();
   }, 5000);
 }
@@ -190,14 +194,20 @@ function setupOverlay(openIds, overlayId, closeId) {
  * Adds click listeners to open buttons for overlays.
  */
 function addOpenButtonListeners(ids, overlay) {
-  if (!ids) return;
+  if (!ids) {
+    return;
+  }
+
   const btns = Array.isArray(ids) ? ids : [ids];
   btns.forEach((id) => {
     const btn = document.getElementById(id);
-    btn?.addEventListener("click", () => {
-      showOverlay(overlay);
-      delayedCloseOnOutsideClick(overlay, btn);
-    });
+    if (!btn) {
+    } else {
+      btn.addEventListener("click", () => {
+        showOverlay(overlay);
+        delayedCloseOnOutsideClick(overlay, btn);
+      });
+    }
   });
 }
 
@@ -219,10 +229,16 @@ function closeOnOutsideClick(overlay, trigger) {
       e.target !== trigger
     ) {
       hideOverlay(overlay);
+
       if (overlay.id === "gameOverOverlay") {
         hide("canvasWrapper");
         show("startScreenWrapper");
         gameStarted = false;
+        return;
+      }
+
+      if (gameStarted && !isLoadingScreenActive) {
+        resumeGameAfterDelay(3000);
       }
     }
   });
@@ -248,19 +264,28 @@ function attachCloseButtonListener(overlay, closeId) {
  */
 function setupPauseResumeOnOverlay(openIds, id, closeId, overlay) {
   const btns = Array.isArray(openIds) ? openIds : [openIds];
-  btns?.forEach((id) =>
-    document.getElementById(id)?.addEventListener("click", () => {
-      if (!isLoadingScreenActive) pauseGame();
-    })
-  );
+
+  btns?.forEach((btnId) => {
+    document.getElementById(btnId)?.addEventListener("click", () => {
+      if (gameStarted && !isLoadingScreenActive) {
+        pauseGame();
+      }
+      showOverlay(overlay);
+      delayedCloseOnOutsideClick(overlay, document.getElementById(btnId));
+    });
+  });
+
   if (closeId) {
     document.getElementById(closeId)?.addEventListener("click", () => {
-      if (
-        !["gameOverOverlay", "levelUpOverlay"].includes(id) &&
-        !isLoadingScreenActive
-      ) {
+      const exclude = [
+        "gameOverOverlay",
+        "levelUpOverlay",
+        "gameFinishedOverlay",
+      ];
+      if (!exclude.includes(id) && gameStarted && !isLoadingScreenActive) {
         resumeGameAfterDelay(3000);
       }
+      hideOverlay(overlay);
     });
   }
 }
@@ -370,15 +395,23 @@ function pauseGame() {
 }
 
 /**
+ * Resumes game immediately.
+ */
+function resumeGame() {
+  gamePaused = false;
+}
+
+/**
  * Resumes game after delay with visual countdown.
+ * @param {number} delay
  */
 function resumeGameAfterDelay(delay = 3000) {
   if (!gameStarted) return;
-
   createCountdownElementIfNeeded();
+
   startCountdown(3, delay / 3, () => {
     hideCountdownElement();
-    gamePaused = false;
+    resumeGame();
   });
 }
 
@@ -389,6 +422,7 @@ function startCountdown(start, step, done) {
   let count = start;
   countdownElement.textContent = count;
   countdownElement.style.display = "block";
+
   const interval = setInterval(() => {
     count--;
     if (count <= 0) {
@@ -404,21 +438,24 @@ function startCountdown(start, step, done) {
  * Creates countdown DOM element if not present.
  */
 function createCountdownElementIfNeeded() {
-  if (countdownElement) return;
-  countdownElement = document.createElement("div");
-  countdownElement.id = "resumeCountdown";
-  Object.assign(countdownElement.style, {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    fontSize: "100px",
-    color: "white",
-    fontFamily: "Press Start 2P",
-    zIndex: "9999",
-    display: "none",
-  });
-  document.body.appendChild(countdownElement);
+  countdownElement = document.getElementById("resumeCountdown");
+
+  if (!countdownElement) {
+    countdownElement = document.createElement("div");
+    countdownElement.id = "resumeCountdown";
+    Object.assign(countdownElement.style, {
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      fontSize: "100px",
+      color: "white",
+      fontFamily: "Press Start 2P",
+      zIndex: "9999",
+      display: "none",
+    });
+    document.body.appendChild(countdownElement);
+  }
 }
 
 /**

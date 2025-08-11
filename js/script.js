@@ -7,12 +7,12 @@ function gameLoop() {
   if (!gamePaused && world) {
     world.update?.();
     world.draw?.();
-
     checkAndSwitchLevel(world);
   }
 
   animationFrameId = requestAnimationFrame(gameLoop);
 }
+
 
 /**
  * Initializes the game world and starts the loop.
