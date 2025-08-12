@@ -25,10 +25,9 @@ class Chicken extends MoveableObject {
     this.otherDirection = false;
     this.x = Math.max(this.x, 450);
     this.speed = 0.15 + Math.random() * 0.5;
-if (!this.walkInterval && !this.animationInterval) {
-  this.animate();
-}
-
+    if (!this.walkInterval && !this.animationInterval) {
+      this.animate();
+    }
   }
 
   /**
@@ -89,19 +88,16 @@ if (!this.walkInterval && !this.animationInterval) {
     }, 1000 / 60);
   }
 
+  /**
+   * Plays walk animation if chicken is alive and moving.
+   */
+  walkLoop() {
+    this.animationInterval = setInterval(() => {
+      if (window.gamePaused || this.hasDied) return;
 
-/**
- * Plays walk animation if chicken is alive and moving.
- */
-walkLoop() {
-  this.animationInterval = setInterval(() => {
-    if (window.gamePaused || this.hasDied) return;
-
-
-    this.playAnimation(this.currentWalkingImages);
-  }, 250);
-}
-
+      this.playAnimation(this.currentWalkingImages);
+    }, 250);
+  }
 
   /**
    * Stops movement/animation and triggers death image + removal.

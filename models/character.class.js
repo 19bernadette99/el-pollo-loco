@@ -428,16 +428,38 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Throws a collected bottle if available.
-   */
-  throwBottle() {
-    const bottlesLeft = this.world.statusBarBottle.collected;
-    if (bottlesLeft > 0) {
-      let bottle = new ThrowableObject(this.x, this.y, this.otherDirection);
-      this.world.throwableObjects.push(bottle);
-      this.world.statusBarBottle.setCollected(bottlesLeft - 1);
+ * Detects collisions between thrown bottles and the Endboss and
+ * routes the hit through Endboss.onBottleCollision() to mute bottle SFX.
+ */
+checkBottleHitsEndboss() {
+  const enemies = this.world?.level?.enemies || [];
+  const boss = enemies.find(e => e instanceof Endboss && e.isActive && !e.isDead);
+  if (!boss) return;
+
+  const bottles = this.world?.throwableObjects || [];
+  bottles.forEach((bottle) => {
+    if (!bottle || bottle.hasSplashed) return;
+    if (bottle.isColliding?.(boss)) {
+      boss.onBottleCollision?.(bottle, 20);
     }
+  });
+}
+
+/**
+ * Throws a collected bottle if available.
+ */
+throwBottle() {
+  const bottlesLeft = this.world.statusBarBottle.collected;
+  if (bottlesLeft > 0) {
+    let bottle = new ThrowableObject(this.x, this.y, this.otherDirection);
+
+    this.world.throwableObjects = this.world.throwableObjects || [];
+
+    this.world.throwableObjects.push(bottle);
+
+    this.world.statusBarBottle.setCollected(bottlesLeft - 1);
   }
+}
 
   /**
    * Bounces the character upwards (e.g. after jumping on enemy).
@@ -452,7 +474,6 @@ class Character extends MoveableObject {
   die() {
     this.hasDied = true;
     this.speed = 0;
-
     let i = 0;
     const interval = setInterval(() => {
       if (i < this.IMAGES_DEAD.length) {
@@ -470,15 +491,12 @@ class Character extends MoveableObject {
   removeCharacter() {
     this.speed = 0;
     this.y = 1000;
-
     this.img = this.imageCache[this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]];
-
     showGameOverOverlay();
   }
 
   playWalkSound() {
     if (!soundEnabled) return;
-
     if (!this.lastWalkSoundTime || Date.now() - this.lastWalkSoundTime > 400) {
       const sound = this.walkSound.cloneNode();
       sound.volume = 0.4;

@@ -341,13 +341,12 @@ class World {
   /**
    * Loads the next level from the level list.
    */
-loadNextLevel() {
-  if (currentLevelIndex + 1 < levelConfigs.length) {
-    currentLevelIndex++;
-    this.setLevel(generateLevel(levelConfigs[currentLevelIndex])); 
-    this.levelUpTriggered = false;
+  loadNextLevel() {
+    if (currentLevelIndex + 1 < levelConfigs.length) {
+      currentLevelIndex++;
+      this.setLevel(generateLevel(levelConfigs[currentLevelIndex]));
+      this.levelUpTriggered = false;
     } else {
-      console.log("🎉 All levels completed!");
       show("gameOverOverlay");
     }
   }
@@ -398,7 +397,6 @@ loadNextLevel() {
     this.character.isJumping = false;
     this.character.lastActionTime = Date.now();
     this.camera_x = 0;
-
   }
 
   /**
@@ -422,6 +420,8 @@ loadNextLevel() {
     this.checkThrowObjects?.();
     this.checkCoinCollisions?.();
     this.checkLevelProgress?.();
+    this.character.checkBottleHitsEndboss();
+    this.checkBottleChickenCollisions();
 
     this.updateEnemies?.();
     this.updateThrowableObjects?.();
@@ -432,64 +432,90 @@ loadNextLevel() {
     this.animationFrameId = requestAnimationFrame(() => this.draw());
   }
 
-/**
- * Stops the game and resets all game state.
- */
-stop() {
-  this.resetGameFlags();
-  this.stopGameLoops();
-  this.stopCharacterAndEnemies();
-  this.resetAudio();
-  this.clearGameObjects();
+  /**
+   * Kills chickens that are hit by a flying salsa bottle.
+   * Bottles splash on impact (no ground sound).
+   */
+checkBottleChickenCollisions() {
+  const bottles = (this.throwableObjects || []).filter(b => !b.hasSplashed);
+  const chickens = (this.level?.enemies || []).filter(e => e instanceof Chicken && !e.hasDied);
+
+  bottles.forEach((bottle) => {
+    chickens.forEach((chicken) => {
+      if (this.aabb(bottle, chicken)) {
+        chicken.die();
+        bottle.onChickenHit?.(chicken);
+      }
+    });
+  });
 }
 
-/**
- * Resets game state flags.
- */
-resetGameFlags() {
-  this.gameStarted = false;
-  this.levelUpTriggered = false;
-}
-
-/**
- * Stops all active animation and update loops.
- */
-stopGameLoops() {
-  cancelAnimationFrame(this.animationFrameId);
-  this.animationFrameId = null;
-
-  clearInterval(this.intervalId);
-  clearInterval(this.cloudSpawnInterval);
-
-  if (this.character?.gravityInterval) {
-    clearInterval(this.character.gravityInterval);
-    this.character.gravityInterval = null;
+  aabb(a, b) {
+    return (
+      a.x < b.x + b.width &&
+      a.x + a.width > b.x &&
+      a.y < b.y + b.height &&
+      a.y + a.height > b.y
+    );
   }
-}
+  /**
+   * Stops the game and resets all game state.
+   */
+  stop() {
+    this.resetGameFlags();
+    this.stopGameLoops();
+    this.stopCharacterAndEnemies();
+    this.resetAudio();
+    this.clearGameObjects();
+  }
 
-/**
- * Stops character movement and enemy animations.
- */
-stopCharacterAndEnemies() {
-  this.character?.stopMovementLoop?.();
-  this.level?.enemies?.forEach((enemy) => enemy?.stopAnimation?.());
-  this.throwableObjects?.forEach((obj) => clearInterval(obj?.moveInterval));
-}
+  /**
+   * Resets game state flags.
+   */
+  resetGameFlags() {
+    this.gameStarted = false;
+    this.levelUpTriggered = false;
+  }
 
-/**
- * Pauses and resets background music.
- */
-resetAudio() {
-  backgroundMusic.pause();
-  backgroundMusic.currentTime = 0;
-}
+  /**
+   * Stops all active animation and update loops.
+   */
+  stopGameLoops() {
+    cancelAnimationFrame(this.animationFrameId);
+    this.animationFrameId = null;
 
-/**
- * Clears all remaining game objects from memory.
- */
-clearGameObjects() {
-  this.throwableObjects = [];
-  this.level = null;
-  this.character = null;
-}
+    clearInterval(this.intervalId);
+    clearInterval(this.cloudSpawnInterval);
+
+    if (this.character?.gravityInterval) {
+      clearInterval(this.character.gravityInterval);
+      this.character.gravityInterval = null;
+    }
+  }
+
+  /**
+   * Stops character movement and enemy animations.
+   */
+  stopCharacterAndEnemies() {
+    this.character?.stopMovementLoop?.();
+    this.level?.enemies?.forEach((enemy) => enemy?.stopAnimation?.());
+    this.throwableObjects?.forEach((obj) => clearInterval(obj?.moveInterval));
+  }
+
+  /**
+   * Pauses and resets background music.
+   */
+  resetAudio() {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+  }
+
+  /**
+   * Clears all remaining game objects from memory.
+   */
+  clearGameObjects() {
+    this.throwableObjects = [];
+    this.level = null;
+    this.character = null;
+  }
 }

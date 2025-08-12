@@ -142,7 +142,6 @@ class Endboss extends MoveableObject {
       hurt: "currentHurtImage",
       dead: "currentDeadImage",
     };
-
     let index = map[type];
     this.img = this.imageCache[images[this[index]]];
     this[index]++;
@@ -234,7 +233,6 @@ class Endboss extends MoveableObject {
       let t = Math.min(1, elapsed / this.shrinkDuration);
       this.rotation = 360 * t;
       this.scale = 1 - t;
-
       if (t < 1) {
         requestAnimationFrame(animate);
       } else {
@@ -297,5 +295,16 @@ class Endboss extends MoveableObject {
         this.world.level.enemies.splice(idx, 1);
       }
     }
+  }
+
+  /**
+   * Called when a thrown bottle collides with the Endboss.
+   * Mutes bottle splash SFX and applies damage.
+   */
+  onBottleCollision(bottle, damage = 20) {
+    if (!bottle?.hasSplashed) {
+      bottle.onEndbossHit?.();
+    }
+    this.hit(damage);
   }
 }
