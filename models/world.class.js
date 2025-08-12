@@ -415,7 +415,7 @@ class World {
    */
   update() {
     if (!this.character) return;
-
+    this.level?.enemies?.forEach((e) => e.tryAutoActivate?.(this));
     this.character.checkEnemyCollisions?.();
     this.checkThrowObjects?.();
     this.checkCoinCollisions?.();
@@ -436,19 +436,21 @@ class World {
    * Kills chickens that are hit by a flying salsa bottle.
    * Bottles splash on impact (no ground sound).
    */
-checkBottleChickenCollisions() {
-  const bottles = (this.throwableObjects || []).filter(b => !b.hasSplashed);
-  const chickens = (this.level?.enemies || []).filter(e => e instanceof Chicken && !e.hasDied);
+  checkBottleChickenCollisions() {
+    const bottles = (this.throwableObjects || []).filter((b) => !b.hasSplashed);
+    const chickens = (this.level?.enemies || []).filter(
+      (e) => e instanceof Chicken && !e.hasDied
+    );
 
-  bottles.forEach((bottle) => {
-    chickens.forEach((chicken) => {
-      if (this.aabb(bottle, chicken)) {
-        chicken.die();
-        bottle.onChickenHit?.(chicken);
-      }
+    bottles.forEach((bottle) => {
+      chickens.forEach((chicken) => {
+        if (this.aabb(bottle, chicken)) {
+          chicken.die();
+          bottle.onChickenHit?.(chicken);
+        }
+      });
     });
-  });
-}
+  }
 
   aabb(a, b) {
     return (

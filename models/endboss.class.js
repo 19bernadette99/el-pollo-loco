@@ -8,6 +8,7 @@ class Endboss extends MoveableObject {
   isAlert = true;
   isWalkingToPepe = false;
   isActive = false;
+  activateDistance = 1000; 
 
   hasStartedAttack = false;
   scale = 1;
@@ -77,6 +78,15 @@ class Endboss extends MoveableObject {
   }
 
   /**
+   * Quick proximity check to switch from alert to walking.
+   */
+  isPepeInRange(range = 900) {
+    const pepe = this.world?.character;
+    if (!pepe) return false;
+    return Math.abs(this.x - pepe.x) <= range;
+  }
+
+  /**
    * Activates the boss and starts its animation logic.
    */
   activate() {
@@ -88,20 +98,27 @@ class Endboss extends MoveableObject {
   /**
    * Starts main animation loop if boss is alive and active.
    */
-  animate() {
-    if (!this.isActive || this.isDead) return;
-    this.animationInterval = setInterval(() => this.handleState(), 200);
-  }
+animate() {
+  if (!this.isActive || this.isDead) return;
+  this.animationInterval = setInterval(() => this.handleState(), 120);
+}
 
   /**
    * Handles animation based on current state flags.
+   * Walking is prioritized over alert to avoid sliding.
    */
   handleState() {
+    // auto-switch from alert to walking if Pepe is close enough
+    if (!this.isDead && !this.hasStartedAttack && this.isPepeInRange()) {
+      this.isAlert = false;
+      this.isWalkingToPepe = true;
+    }
     if (this.isDead) return this.playAnimation(this.IMAGES_DEAD, "dead");
     if (this.isHurt) return this.playAnimation(this.IMAGES_HURT, "hurt");
-    if (this.isAlert) return this.playAnimation(this.IMAGES_ALERT, "alert");
     if (this.isWalkingToPepe) return this.walkTowardsPepe();
+    if (this.isAlert) return this.playAnimation(this.IMAGES_ALERT, "alert");
     if (this.hasStartedAttack) return this.playAttackAnimation();
+
     this.playAnimation(this.IMAGES_WALKING, "walking");
   }
 
@@ -109,7 +126,7 @@ class Endboss extends MoveableObject {
    * Moves boss toward Pepe and switches to attack if close.
    */
   walkTowardsPepe() {
-    let pepe = this.world.character;
+    const pepe = this.world.character;
     this.otherDirection = pepe.x > this.x;
     this.x += this.otherDirection ? this.speed : -this.speed;
 
@@ -118,6 +135,7 @@ class Endboss extends MoveableObject {
     if (Math.abs(this.x - pepe.x) < 150) {
       this.isWalkingToPepe = false;
       this.startAttack();
+      this.currentWalkingImage = 0; 
     }
   }
 
@@ -130,9 +148,7 @@ class Endboss extends MoveableObject {
   }
 
   /**
-   * Plays animation for the given type using the correct frame index.
-   * @param {string[]} images - Animation frames.
-   * @param {string} type - Animation type.
+   * Plays animation for the given type using the correct frame index..
    */
   playAnimation(images, type) {
     const map = {
@@ -142,17 +158,14 @@ class Endboss extends MoveableObject {
       hurt: "currentHurtImage",
       dead: "currentDeadImage",
     };
-    let index = map[type];
-    this.img = this.imageCache[images[this[index]]];
-    this[index]++;
-    this.limitFrameIndex(index, images.length, type);
+    const indexName = map[type];
+    this.img = this.imageCache[images[this[indexName]]];
+    this[indexName]++;
+    this.limitFrameIndex(indexName, images.length, type);
   }
 
   /**
    * Limits animation index to avoid out-of-bounds errors.
-   * @param {string} indexName - Name of the counter variable.
-   * @param {number} max - Number of frames.
-   * @param {string} type - Type of animation.
    */
   limitFrameIndex(indexName, max, type) {
     if (this[indexName] >= max) {
@@ -229,8 +242,8 @@ class Endboss extends MoveableObject {
    */
   animateShrink() {
     const animate = () => {
-      let elapsed = Date.now() - this.shrinkStart;
-      let t = Math.min(1, elapsed / this.shrinkDuration);
+      const elapsed = Date.now() - this.shrinkStart;
+      const t = Math.min(1, elapsed / this.shrinkDuration);
       this.rotation = 360 * t;
       this.scale = 1 - t;
       if (t < 1) {
@@ -307,4 +320,24 @@ class Endboss extends MoveableObject {
     }
     this.hit(damage);
   }
+
+  /**
+ * Auto-activates this boss when the player gets close.
+ */
+tryAutoActivate(world) {
+  if (this.isDead || this.isActive) return;
+  if (!world?.character) return;
+  const enemies = world.level?.enemies || [];
+  const anotherActive = enemies.some(
+    (e) => e instanceof Endboss && e !== this && e.isActive && !e.isDead
+  );
+  if (anotherActive) return;
+  const dist = Math.abs(this.x - world.character.x);
+  if (dist <= (this.activateDistance ?? 1000)) {
+    this.world = this.world || world;
+    this.activate();
+    this.isAlert = false;
+    this.isWalkingToPepe = true;
+  }
+}
 }
