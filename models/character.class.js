@@ -82,7 +82,6 @@ class Character extends MoveableObject {
   collectedBottles = 0;
   energy = 100;
 
-
   _moveLoopId = null;
   _animLoopId = null;
   _soundLoopId = null;
@@ -91,6 +90,7 @@ class Character extends MoveableObject {
   jumpSound = new Audio("audio/jumpSound.mp3");
   bottleClinkSound = new Audio("audio/bottleClink.mp3");
   collectCoinSound = new Audio("audio/collectingCoinsSound.mp3");
+  snoreSound = new Audio("audio/snore.mp3");
 
   /**
    * Creates the character, loads images, applies gravity, and starts animation.
@@ -122,12 +122,13 @@ class Character extends MoveableObject {
    * Handles keyboard inputs and movement at 60 FPS.
    */
   startMovementLoop() {
-    if (this._moveLoopId) return; 
+    if (this._moveLoopId) return;
     this._moveLoopId = setInterval(() => {
       if (gamePaused) return;
       this.handleMovementInput();
       this.world.camera_x = -this.x + 100;
-      this.checkEnemyCollisions();
+      this.checkEndbossCollisionSpecial();
+      this.checkEnemyCollisionsExceptBoss();
       this.checkBottleCollisions();
     }, 1000 / 60);
   }
@@ -136,9 +137,12 @@ class Character extends MoveableObject {
    * Triggers animations based on state every 50ms.
    */
   startAnimationLoop() {
-    if (this._animLoopId) return; // Guard
+    if (this._animLoopId) return;
     this._animLoopId = setInterval(() => {
-      if (gamePaused || this.hasDied) return;
+      if (gamePaused || this.hasDied) {
+        this.stopSnore();
+        return;
+      }
       if (this.energy <= 0) return this.die();
 
       const idleTime = Date.now() - this.lastActionTime;
@@ -166,19 +170,41 @@ class Character extends MoveableObject {
     }
   }
 
+  stopSnore() {
+    if (!this.snoreSound.paused) {
+      this.snoreSound.pause();
+      this.snoreSound.currentTime = 0;
+    }
+  }
+
+  playSnoreIfNeeded() {
+    if (soundEnabled && this.snoreSound.paused) {
+      this.snoreSound.loop = true;
+      this.snoreSound.volume = 0.5;
+      this.snoreSound.play().catch(() => {});
+    }
+  }
+
   /**
    * Chooses and plays the appropriate animation.
    * @param {number} idleTime - Time since last user action in ms.
    */
   handleAnimations(idleTime) {
+    const isWalking = this.world.keyboard.RIGHT || this.world.keyboard.LEFT;
+    const isSleeping =
+      idleTime > 5000 && !this.isAboveGround() && !isWalking && !this.isHurt();
+    if (isSleeping) {
+      this.playSnoreIfNeeded();
+      this.animateSleeping();
+      return;
+    }
+    this.stopSnore();
     if (this.isHurt()) {
       this.playAnimation(this.IMAGES_HURT);
     } else if (this.isAboveGround()) {
       this.animateJump();
-    } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+    } else if (isWalking) {
       this.playAnimation(this.IMAGES_WALKING);
-    } else if (idleTime > 5000) {
-      this.animateSleeping();
     } else if (idleTime > 2000) {
       this.animateIdle();
     } else {
@@ -190,11 +216,19 @@ class Character extends MoveableObject {
    * Stops all character-owned loops.
    */
   stopMovementLoop() {
-    if (this._moveLoopId) { clearInterval(this._moveLoopId); this._moveLoopId = null; }
-    if (this._animLoopId) { clearInterval(this._animLoopId); this._animLoopId = null; }
-    if (this._soundLoopId) { clearInterval(this._soundLoopId); this._soundLoopId = null; }
+    if (this._moveLoopId) {
+      clearInterval(this._moveLoopId);
+      this._moveLoopId = null;
+    }
+    if (this._animLoopId) {
+      clearInterval(this._animLoopId);
+      this._animLoopId = null;
+    }
+    if (this._soundLoopId) {
+      clearInterval(this._soundLoopId);
+      this._soundLoopId = null;
+    }
   }
-
 
   /**
    * Starts sound loop for walking and jumping (60 FPS).
@@ -269,6 +303,11 @@ class Character extends MoveableObject {
    * Plays the sleeping animation after long inactivity.
    */
   animateSleeping() {
+    if (soundEnabled && this.snoreSound.paused) {
+      this.snoreSound.loop = true;
+      this.snoreSound.volume = 0.5;
+      this.snoreSound.play();
+    }
     let now = Date.now();
     if (now - this.lastSleepFrameTime > this.sleepFrameDelay) {
       this.img = this.imageCache[this.IMAGES_SLEEPING[this.currentSleepImage]];
@@ -279,7 +318,7 @@ class Character extends MoveableObject {
       this.lastSleepFrameTime = now;
     }
   }
-
+  
   /**
    * Makes the character jump if grounded.
    */
@@ -376,14 +415,29 @@ class Character extends MoveableObject {
     );
   }
 
-  /**
-   * Detects and reacts to collisions with enemies.
-   */
-  checkEnemyCollisions() {
-    this.world.level.enemies.forEach((enemy) => {
+  checkEndbossCollisionSpecial() {
+    const enemies = this.world?.level?.enemies || [];
+    const boss = enemies.find(
+      (e) => e instanceof Endboss && !e.isDead && !e.hasDied
+    );
+    if (!boss) return;
+    if (!this.isColliding(boss)) return;
+
+    if (this.isJumpingOn(boss)) {
+      this.bounce(); // Boss bleibt am Leben
+    } else if (!this.isBeingHit) {
+      this.hit();
+    }
+  }
+
+  checkEnemyCollisionsExceptBoss() {
+    const enemies = (this.world?.level?.enemies || []).filter(
+      (e) => !(e instanceof Endboss)
+    );
+    enemies.forEach((enemy) => {
       if (this.isColliding(enemy) && !enemy.hasDied) {
         if (this.isJumpingOn(enemy)) {
-          enemy.die();
+          enemy.die?.();
           this.bounce();
         } else if (!this.isBeingHit) {
           this.hit();
@@ -428,38 +482,40 @@ class Character extends MoveableObject {
   }
 
   /**
- * Detects collisions between thrown bottles and the Endboss and
- * routes the hit through Endboss.onBottleCollision() to mute bottle SFX.
- */
-checkBottleHitsEndboss() {
-  const enemies = this.world?.level?.enemies || [];
-  const boss = enemies.find(e => e instanceof Endboss && e.isActive && !e.isDead);
-  if (!boss) return;
+   * Detects collisions between thrown bottles and the Endboss and
+   * routes the hit through Endboss.onBottleCollision() to mute bottle SFX.
+   */
+  checkBottleHitsEndboss() {
+    const enemies = this.world?.level?.enemies || [];
+    const boss = enemies.find(
+      (e) => e instanceof Endboss && e.isActive && !e.isDead
+    );
+    if (!boss) return;
 
-  const bottles = this.world?.throwableObjects || [];
-  bottles.forEach((bottle) => {
-    if (!bottle || bottle.hasSplashed) return;
-    if (bottle.isColliding?.(boss)) {
-      boss.onBottleCollision?.(bottle, 20);
-    }
-  });
-}
-
-/**
- * Throws a collected bottle if available.
- */
-throwBottle() {
-  const bottlesLeft = this.world.statusBarBottle.collected;
-  if (bottlesLeft > 0) {
-    let bottle = new ThrowableObject(this.x, this.y, this.otherDirection);
-
-    this.world.throwableObjects = this.world.throwableObjects || [];
-
-    this.world.throwableObjects.push(bottle);
-
-    this.world.statusBarBottle.setCollected(bottlesLeft - 1);
+    const bottles = this.world?.throwableObjects || [];
+    bottles.forEach((bottle) => {
+      if (!bottle || bottle.hasSplashed) return;
+      if (bottle.isColliding?.(boss)) {
+        boss.onBottleCollision?.(bottle, 20);
+      }
+    });
   }
-}
+
+  /**
+   * Throws a collected bottle if available.
+   */
+  throwBottle() {
+    const bottlesLeft = this.world.statusBarBottle.collected;
+    if (bottlesLeft > 0) {
+      let bottle = new ThrowableObject(this.x, this.y, this.otherDirection);
+
+      this.world.throwableObjects = this.world.throwableObjects || [];
+
+      this.world.throwableObjects.push(bottle);
+
+      this.world.statusBarBottle.setCollected(bottlesLeft - 1);
+    }
+  }
 
   /**
    * Bounces the character upwards (e.g. after jumping on enemy).

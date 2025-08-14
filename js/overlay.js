@@ -14,22 +14,10 @@ window.addEventListener("DOMContentLoaded", () => {
   initOverlays();
   initStartGame();
   setupFullscreenConfirm();
-  setupMobileMenu();
-  checkOrientationAndToggleOverlay();
-  setupResizeListeners();
+  setupMobileMenu();      
   setupMobileControls();
+  checkOrientationAndToggleOverlay();
 });
-
-/**
- * Sets up resize and orientation change listeners.
- */
-function setupResizeListeners() {
-  window.addEventListener("resize", checkOrientationAndToggleOverlay);
-  window.addEventListener(
-    "orientationchange",
-    checkOrientationAndToggleOverlay
-  );
-}
 
 /**
  * Sets up fullscreen request when device is rotated.
@@ -69,21 +57,10 @@ function initStartGame() {
  */
 function startGameSequence() {
   if (gameStarted) return;
-
   gameStarted = true;
   hide("startScreenWrapper");
   startGame();
   showMobileUI();
-}
-
-/**
- * Shows mobile action bar and controls on small screens.
- */
-function showMobileUI() {
-  if (window.innerWidth <= 1050) {
-    document.querySelector(".mobile-action-bar")?.classList.add("visible");
-    document.querySelector("#mobile-controls")?.classList.add("visible");
-  }
 }
 
 /**
@@ -198,7 +175,9 @@ function setupOverlay(openIds, overlayId, closeId) {
   if (!overlay) return;
   addOpenButtonListeners(openIds, overlay);
   attachCloseButtonListener(overlay, closeId);
-  if (!openIds) closeOnOutsideClick(overlay, null);
+  if (!openIds && overlayId !== "levelUpOverlay") {
+    closeOnOutsideClick(overlay, null);
+  }
   setupPauseResumeOnOverlay(openIds, overlayId, closeId, overlay);
 }
 
@@ -262,14 +241,12 @@ function shouldCloseOverlayOnClick(e, overlay, trigger) {
  */
 function processOverlayClose(overlay) {
   hideOverlay(overlay);
-
   if (overlay.id === "gameOverOverlay") {
     hide("canvasWrapper");
     show("startScreenWrapper");
     gameStarted = false;
     return;
   }
-
   if (gameStarted && !isLoadingScreenActive) {
     resumeGameAfterDelay(3000);
   }
@@ -326,10 +303,8 @@ function handleOpenButtonClick(btnId, overlay) {
  */
 function bindCloseButtonForResume(closeId, id, overlay) {
   if (!closeId) return;
-
   const btn = document.getElementById(closeId);
   if (!btn) return;
-
   btn.addEventListener("click", () => {
     const exclude = [
       "gameOverOverlay",
@@ -373,6 +348,9 @@ function closeAllOverlays() {
  */
 function showLevelUpOverlay(callback) {
   nextLevelCallback = callback;
+  pauseGame();
+  stopGameLoop();
+  clearInputState();
   show("levelUpOverlay");
 }
 
@@ -409,7 +387,6 @@ function stopGameOverUIAndMusic() {
   backgroundMusic.currentTime = 0;
   document.getElementById("backToStartBtn")?.classList.add("hidden");
   document.querySelector("#mobile-controls")?.classList.add("hidden");
-
   if (soundEnabled) {
     const sound = new Audio("audio/GameOver.mp3");
     sound.volume = 0.8;
@@ -427,19 +404,11 @@ function showStartScreen() {
   backgroundMusic.pause();
   backgroundMusic.currentTime = 0;
   startScreenMusic.currentTime = 0;
+  toggleSound(false);
+  toggleMusic(musicEnabled);
   if (musicEnabled) {
     startScreenMusic.play().catch(() => {});
   }
-}
-
-/**
- * Toggles rotate overlay for portrait mobile mode.
- */
-function checkOrientationAndToggleOverlay() {
-  const overlay = document.getElementById("rotateOverlay");
-  const portrait = window.matchMedia("(orientation: portrait)").matches;
-  const mobile = window.innerWidth <= 1060;
-  overlay.classList.toggle("hidden", !(mobile && portrait));
 }
 
 /**
@@ -450,7 +419,6 @@ function showGameFinishedOverlay() {
   document.getElementById("backToStartBtn")?.classList.add("hidden");
   document.querySelector("#mobile-controls")?.classList.add("hidden");
   show("gameFinishedOverlay");
-
   backgroundMusic.pause();
   backgroundMusic.currentTime = 0;
   if (soundEnabled) {

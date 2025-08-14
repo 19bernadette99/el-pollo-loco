@@ -44,9 +44,11 @@ function checkAndSwitchLevel(world) {
  */
 function initNewLevel(index) {
   const canvas = document.getElementById("canvas");
-  const keyboard = new Keyboard();
-
+  if (keyboard?.reset) keyboard.reset();
   world = new World(canvas, keyboard, levels[index]);
-  resizeCanvasToWrapper();   
-  gameLoop();                
+  resizeCanvasToWrapper();
+  gamePaused = false;
+  gameStarted = true;
+  stopGameLoop();
+  startGameLoop();
 }

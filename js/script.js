@@ -6,7 +6,6 @@ let keyboard = new Keyboard();
 function startGameLoop() {
   if (loopActive) return;
   loopActive = true;
-
   function loop() {
     if (!gamePaused && world) {
       world.update?.();
@@ -15,7 +14,6 @@ function startGameLoop() {
     }
     animationFrameId = requestAnimationFrame(loop);
   }
-
   animationFrameId = requestAnimationFrame(loop);
 }
 
@@ -26,11 +24,9 @@ function startGame() {
   showLoadingScreen(() => {
     prepareStartAudio();
     prepareControlsAndMusic();
-
     const canvas = getCanvas();
     ensureKeyboardReady();
     createWorldWithFreshLevel(canvas);
-
     applySpawnProtection(world?.character, 2000);
     revealGameUI();
     finalizeStateAndLoop();
@@ -97,7 +93,7 @@ function revealGameUI() {
   show("canvas");
   document.getElementById("backToStartBtn")?.classList.remove("hidden");
   showMobileUI();
-  resizeCanvasToWrapper();
+  fitCanvas();
 }
 
 /**
@@ -134,7 +130,7 @@ function clearInputState() {
  */
 function init() {
   const canvas = document.getElementById("canvas");
-  resizeCanvasToWrapper();
+  fitCanvas();
 }
 
 /**
@@ -147,7 +143,6 @@ function stopGameAndReturnToStart() {
   clearInputState();
   clearAllIntervals();
   clearAllTimeouts();
-
   showStartScreen();
   hide("canvas");
   hide("backToStartBtn");
@@ -185,16 +180,16 @@ function clearAllTimeouts() {
 }
 
 /**
- * Resizes canvas to match wrapper dimensions.
+ * Scale canvas visually to match the screenContainer,
+ * but keep internal buffer at 720x480.
  */
-function resizeCanvasToWrapper() {
+function fitCanvas() {
   const canvas = document.querySelector("canvas");
-  const wrapper = document.getElementById("canvasWrapper");
-  const rect = wrapper.getBoundingClientRect();
+  const container = document.getElementById("screenContainer");
+  if (!canvas || !container) return;
+  const rect = container.getBoundingClientRect();
   canvas.style.width = rect.width + "px";
   canvas.style.height = rect.height + "px";
-  canvas.width = rect.width;
-  canvas.height = rect.height;
 }
 
 /**
@@ -216,7 +211,6 @@ function setupMobileMenu() {
   const toggle = document.getElementById("mobileMenuToggle");
   const menu = document.getElementById("mobileMenu");
   const buttons = menu?.querySelectorAll("button") || [];
-
   toggle?.addEventListener("click", () => menu.classList.toggle("visible"));
   buttons.forEach((btn) =>
     btn.addEventListener("click", () => menu.classList.remove("visible"))

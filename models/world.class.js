@@ -71,7 +71,9 @@ class World {
   run() {
     this.intervalId = setInterval(() => {
       if (!this.character) return;
-      this.character.checkEnemyCollisions();
+      this.character.checkEndbossCollisionSpecial?.();
+      this.character.checkEnemyCollisionsExceptBoss?.();
+
       this.checkThrowObjects();
       this.checkCoinCollisions();
       this.checkLevelProgress();
@@ -312,17 +314,12 @@ class World {
    * Checks if the level is finished and triggers level-up.
    */
   checkLevelProgress() {
-    const remainingEndbosses = this.level.enemies.filter(
-      (enemy) => enemy instanceof Endboss && !enemy.isDead
-    );
+    if (!this.level || this.levelUpTriggered) return;
 
-    if (remainingEndbosses.length === 0 && !this.levelUpTriggered) {
-      this.levelUpTriggered = true;
-      this.triggerLevelUp();
-    }
-    if (!this.level || !this.level.enemies || this.level.enemies.length === 0) {
-      return;
-    }
+    if (!this.level.checkLevelCompletion()) return;
+
+    this.levelUpTriggered = true;
+    this.triggerLevelUp();
   }
 
   /**
@@ -333,7 +330,7 @@ class World {
       if (currentLevelIndex + 1 < levels.length) {
         this.loadNextLevel();
       } else {
-        show("gameOverOverlay");
+        showGameFinishedOverlay();
       }
     });
   }
@@ -347,7 +344,7 @@ class World {
       this.setLevel(generateLevel(levelConfigs[currentLevelIndex]));
       this.levelUpTriggered = false;
     } else {
-      show("gameOverOverlay");
+      showGameFinishedOverlay();
     }
   }
 
@@ -416,7 +413,9 @@ class World {
   update() {
     if (!this.character) return;
     this.level?.enemies?.forEach((e) => e.tryAutoActivate?.(this));
-    this.character.checkEnemyCollisions?.();
+    this.character.checkEndbossCollisionSpecial?.();
+    this.character.checkEnemyCollisionsExceptBoss?.();
+
     this.checkThrowObjects?.();
     this.checkCoinCollisions?.();
     this.checkLevelProgress?.();

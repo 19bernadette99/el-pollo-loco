@@ -8,7 +8,7 @@ class Endboss extends MoveableObject {
   isAlert = true;
   isWalkingToPepe = false;
   isActive = false;
-  activateDistance = 1000; 
+  activateDistance = 1000;
 
   hasStartedAttack = false;
   scale = 1;
@@ -98,10 +98,10 @@ class Endboss extends MoveableObject {
   /**
    * Starts main animation loop if boss is alive and active.
    */
-animate() {
-  if (!this.isActive || this.isDead) return;
-  this.animationInterval = setInterval(() => this.handleState(), 120);
-}
+  animate() {
+    if (!this.isActive || this.isDead) return;
+    this.animationInterval = setInterval(() => this.handleState(), 120);
+  }
 
   /**
    * Handles animation based on current state flags.
@@ -135,7 +135,7 @@ animate() {
     if (Math.abs(this.x - pepe.x) < 150) {
       this.isWalkingToPepe = false;
       this.startAttack();
-      this.currentWalkingImage = 0; 
+      this.currentWalkingImage = 0;
     }
   }
 
@@ -144,6 +144,11 @@ animate() {
    */
   playAttackAnimation() {
     this.otherDirection = this.world.character.x > this.x;
+
+    if (!this._lastAttackFrameAt) this._lastAttackFrameAt = 0;
+    if (Date.now() - this._lastAttackFrameAt < 200) return;
+    this._lastAttackFrameAt = Date.now();
+
     this.playAnimation(this.IMAGES_ATTACKING, "attacking");
   }
 
@@ -322,22 +327,22 @@ animate() {
   }
 
   /**
- * Auto-activates this boss when the player gets close.
- */
-tryAutoActivate(world) {
-  if (this.isDead || this.isActive) return;
-  if (!world?.character) return;
-  const enemies = world.level?.enemies || [];
-  const anotherActive = enemies.some(
-    (e) => e instanceof Endboss && e !== this && e.isActive && !e.isDead
-  );
-  if (anotherActive) return;
-  const dist = Math.abs(this.x - world.character.x);
-  if (dist <= (this.activateDistance ?? 1000)) {
-    this.world = this.world || world;
-    this.activate();
-    this.isAlert = false;
-    this.isWalkingToPepe = true;
+   * Auto-activates this boss when the player gets close.
+   */
+  tryAutoActivate(world) {
+    if (this.isDead || this.isActive) return;
+    if (!world?.character) return;
+    const enemies = world.level?.enemies || [];
+    const anotherActive = enemies.some(
+      (e) => e instanceof Endboss && e !== this && e.isActive && !e.isDead
+    );
+    if (anotherActive) return;
+    const dist = Math.abs(this.x - world.character.x);
+    if (dist <= (this.activateDistance ?? 1000)) {
+      this.world = this.world || world;
+      this.activate();
+      this.isAlert = false;
+      this.isWalkingToPepe = true;
+    }
   }
-}
 }

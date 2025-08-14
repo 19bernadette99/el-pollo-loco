@@ -33,14 +33,13 @@ class Level {
   }
 
   /**
-   * Checks if all endbosses in the level have been defeated.
-   * @returns {boolean} True if level is complete.
+   * Checks if the level is completed: only when at least one Endboss exists
+   * and all Endbosses are dead.
    */
   checkLevelCompletion() {
-    const endbossesAlive = this.enemies.filter(
-      (e) => e instanceof Endboss && !e.isDead
-    );
-    return endbossesAlive.length === 0;
+    const bosses = this.enemies.filter((e) => e instanceof Endboss);
+    if (bosses.length === 0) return false;
+    return bosses.every((b) => b.isDead === true);
   }
 
   /**
