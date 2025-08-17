@@ -1,4 +1,49 @@
 /**
+ * Global audio pool to track all created Audio instances.
+ * @type {Set<HTMLAudioElement>}
+ */
+window.__AUDIO_POOL__ = window.__AUDIO_POOL__ || new Set();
+
+(function () {
+  /**
+   * Preserve native Audio constructor.
+   * @type {typeof Audio}
+   */
+  const NativeAudio = window.Audio;
+  /**
+   * Override the global Audio constructor.
+   * Ensures every created Audio element is stored in `window.__AUDIO_POOL__`.
+   */
+  window.Audio = function (...args) {
+    const a = new NativeAudio(...args);
+    try {
+      window.__AUDIO_POOL__.add(a);
+    } catch {}
+    return a;
+  };
+  window.Audio.prototype = NativeAudio.prototype; 
+})();
+
+/**
+ * hardKillFunction for stop snoring
+ */
+function hardKillSnore() {
+  try { window.world?.character?.stopSnore?.(); } catch {}
+  try {
+    for (const a of (window.__AUDIO_POOL__ || [])) {
+      if (!a) continue;
+      const src = (a.src || "").toLowerCase();
+      if (src.includes("audio/snore.mp3")) {
+        a.pause();
+        a.currentTime = 0;
+        a.loop = false;
+        a.muted = true; 
+      }
+    }
+  } catch {}
+}
+
+/**
  * Chill background music for the start screen.
  * @type {HTMLAudioElement}
  */
@@ -41,7 +86,6 @@ const soundEffects = {
   walking: new Audio("audio/walkingSound.mp3"),
   chickenAlarm: new Audio("audio/chickenAlarm.mp3"),
   applause: new Audio("audio/applauseSound.mp3"),
-  snore: new Audio("audio/snore.mp3")
 };
 
 /**
@@ -81,10 +125,11 @@ function toggleSound(enabled) {
  * @param {string} effectName - The key of the sound to play.
  */
 function playSound(effectName) {
+  if (effectName === "snore") return; 
   if (soundEnabled && soundEffects[effectName]) {
     const clone = soundEffects[effectName].cloneNode();
     clone.volume = 0.5;
-    clone.play().catch(e => console.error("Playback failed:", e));
+    clone.play().catch(() => {});
   }
 }
 
@@ -93,7 +138,6 @@ function playSound(effectName) {
  */
 function playJumpSound() {
   if (!soundEnabled) return;
-
   const jumpSound = new Audio("audio/jump.mp3");
   jumpSound.volume = 0.5;
   jumpSound.play();
@@ -104,7 +148,6 @@ function playJumpSound() {
  */
 function playButtonClickSound() {
   if (!soundEnabled) return;
-
   const clickSound = new Audio("audio/toggleBtnSound.mp3");
   clickSound.volume = 0.5;
   clickSound.play();
@@ -126,13 +169,10 @@ function registerButtonClickSounds() {
 function restoreAudioSettings() {
   const music = JSON.parse(localStorage.getItem("musicEnabled"));
   const sound = JSON.parse(localStorage.getItem("soundEnabled"));
-
   toggleMusic(music !== null ? music : true);
   toggleSound(sound !== null ? sound : true);
-
   const musicToggle = document.getElementById("musicToggle");
   const soundToggle = document.getElementById("soundToggle");
-
   if (musicToggle) musicToggle.checked = music !== null ? music : true;
   if (soundToggle) soundToggle.checked = sound !== null ? sound : true;
 }
@@ -143,11 +183,9 @@ function restoreAudioSettings() {
 document.addEventListener("DOMContentLoaded", () => {
   registerButtonClickSounds();
   restoreAudioSettings();
-
   document.getElementById("musicToggle")?.addEventListener("change", function () {
     toggleMusic(this.checked);
   });
-
   document.getElementById("soundToggle")?.addEventListener("change", function () {
     toggleSound(this.checked);
   });

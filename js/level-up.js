@@ -1,4 +1,3 @@
-// Generate all levels from config definitions
 const levels = levelConfigs.map(config => generateLevel(config));
 
 /**
@@ -30,7 +29,7 @@ function checkAndSwitchLevel(world) {
         initNewLevel(currentLevelIndex);
         levelTransitionInProgress = false;
       } else {
-        showGameFinishedOverlay
+        showGameFinishedOverlay();
       }
     });
   }
@@ -46,7 +45,6 @@ function initNewLevel(index) {
   const canvas = document.getElementById("canvas");
   if (keyboard?.reset) keyboard.reset();
   world = new World(canvas, keyboard, levels[index]);
-  resizeCanvasToWrapper();
   gamePaused = false;
   gameStarted = true;
   stopGameLoop();

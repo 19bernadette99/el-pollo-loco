@@ -137,6 +137,9 @@ function init() {
  * Stops the game and returns to the start screen.
  */
 function stopGameAndReturnToStart() {
+  window.world?.character?.wakeUpPepe?.();
+  hardKillSnore(); 
+  window.world?.stop?.();
   gamePaused = true;
   gameStarted = false;
   stopGameLoop();
@@ -148,10 +151,9 @@ function stopGameAndReturnToStart() {
   hide("backToStartBtn");
   document.querySelector("#mobile-controls")?.classList.remove("visible");
   resetWorldState();
-  if (keyboard?.reset) {
-    keyboard.reset();
-  }
+  keyboard?.reset?.();
 }
+
 
 /**
  * Resets global variables to initial state.
@@ -199,6 +201,8 @@ window.addEventListener("DOMContentLoaded", () => {
   const backBtn = document.getElementById("backToStartBtn");
   if (backBtn) {
     backBtn.addEventListener("click", () => {
+  window.world?.character?.wakeUpPepe?.();
+    hardKillSnore(); 
       stopGameAndReturnToStart();
     });
   }
@@ -266,7 +270,6 @@ function startCountdown(start, step, done) {
   let count = start;
   countdownElement.textContent = count;
   countdownElement.style.display = "block";
-
   const interval = setInterval(() => {
     count--;
     if (count <= 0) {

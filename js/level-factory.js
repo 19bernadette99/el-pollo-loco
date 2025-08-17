@@ -1,3 +1,5 @@
+const MIN_ENEMY_SPAWN_X = 500;
+
 /**
  * Generates a new level with enemies, background, and items.
  */
@@ -81,8 +83,32 @@ function createSalsaBottles(count, endX) {
  */
 function createChickens(enemies = [], endX) {
   const count = enemies.filter((e) => e === "C" || e === "CB").length;
+  const usableSpan = Math.max(0, endX - MIN_ENEMY_SPAWN_X - 200);
+  const spacing = Math.max(200, Math.floor(usableSpan / Math.max(1, count)));
   const world = { level: { level_end_x: endX } };
-  return createSpacedChickens(count, world);
+  const chickens = createSpacedChickens(count, world, MIN_ENEMY_SPAWN_X, spacing);
+  return chickens.map((c, i) => {
+    c.x = Math.max(c.x, MIN_ENEMY_SPAWN_X + i * 0); 
+    return c;
+  });
+}
+
+/**
+ * Places chickens at spaced intervals with slight randomness.
+ */
+function createSpacedChickens(count, world, startX = MIN_ENEMY_SPAWN_X, spacing = 200) {
+  const chickens = [];
+  for (let i = 0; i < count; i++) {
+    const isLittle = i % 3 === 0;
+    const chicken = new Chicken(isLittle);
+
+    const base = startX + i * spacing;
+    chicken.x = Math.max(base + Math.random() * 50, startX);
+
+    chicken.world = world;
+    chickens.push(chicken);
+  }
+  return chickens;
 }
 
 /**
@@ -90,23 +116,6 @@ function createChickens(enemies = [], endX) {
  */
 function createEndbosses(enemies = []) {
   return enemies.filter((e) => e === "E").map(() => new Endboss());
-}
-
-/**
- * Places chickens at spaced intervals with slight randomness.
- */
-function createSpacedChickens(count, world, startX = 500, spacing = 200) {
-  const chickens = [];
-  const minX = 500;
-  startX = Math.max(startX, minX);
-  for (let i = 0; i < count; i++) {
-    const isLittle = i % 3 === 0;
-    const chicken = new Chicken(isLittle);
-    chicken.x = Math.max(startX + i * spacing + Math.random() * 50, minX);
-    chicken.world = world;
-    chickens.push(chicken);
-  }
-  return chickens;
 }
 
 /**

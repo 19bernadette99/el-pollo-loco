@@ -107,6 +107,7 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_SLEEPING);
     this.applyGravity();
     this.animate();
+    this.stopSnore();
     this.playSounds();
   }
 
@@ -177,8 +178,29 @@ class Character extends MoveableObject {
     }
   }
 
+  wakeUpPepe(reason = "manual") {
+    this.stopSnore();
+    this.lastActionTime = Date.now();
+    this.currentSleepImage = 0;
+    this.showStandingImage();
+  }
+
+  get isSleeping() {
+    const idleTime = Date.now() - this.lastActionTime;
+    const isWalking = this.world?.keyboard?.RIGHT || this.world?.keyboard?.LEFT;
+    return (
+      idleTime > 6000 &&
+      !this.isAboveGround() &&
+      !isWalking &&
+      !this.isHurt() &&
+      !this.hasDied &&
+      !gamePaused
+    );
+  }
+
   playSnoreIfNeeded() {
-    if (soundEnabled && this.snoreSound.paused) {
+    if (!soundEnabled || !this.isSleeping) return;
+    if (this.snoreSound.paused) {
       this.snoreSound.loop = true;
       this.snoreSound.volume = 0.5;
       this.snoreSound.play().catch(() => {});
@@ -190,20 +212,18 @@ class Character extends MoveableObject {
    * @param {number} idleTime - Time since last user action in ms.
    */
   handleAnimations(idleTime) {
-    const isWalking = this.world.keyboard.RIGHT || this.world.keyboard.LEFT;
-    const isSleeping =
-      idleTime > 5000 && !this.isAboveGround() && !isWalking && !this.isHurt();
-    if (isSleeping) {
+    if (this.isSleeping) {
       this.playSnoreIfNeeded();
       this.animateSleeping();
       return;
     }
     this.stopSnore();
+
     if (this.isHurt()) {
       this.playAnimation(this.IMAGES_HURT);
     } else if (this.isAboveGround()) {
       this.animateJump();
-    } else if (isWalking) {
+    } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
       this.playAnimation(this.IMAGES_WALKING);
     } else if (idleTime > 2000) {
       this.animateIdle();
@@ -228,6 +248,7 @@ class Character extends MoveableObject {
       clearInterval(this._soundLoopId);
       this._soundLoopId = null;
     }
+    this.stopSnore();
   }
 
   /**
@@ -303,22 +324,15 @@ class Character extends MoveableObject {
    * Plays the sleeping animation after long inactivity.
    */
   animateSleeping() {
-    if (soundEnabled && this.snoreSound.paused) {
-      this.snoreSound.loop = true;
-      this.snoreSound.volume = 0.5;
-      this.snoreSound.play();
-    }
     let now = Date.now();
     if (now - this.lastSleepFrameTime > this.sleepFrameDelay) {
       this.img = this.imageCache[this.IMAGES_SLEEPING[this.currentSleepImage]];
-      this.currentSleepImage++;
-      if (this.currentSleepImage >= this.IMAGES_SLEEPING.length) {
-        this.currentSleepImage = 0;
-      }
+      this.currentSleepImage =
+        (this.currentSleepImage + 1) % this.IMAGES_SLEEPING.length;
       this.lastSleepFrameTime = now;
     }
   }
-  
+
   /**
    * Makes the character jump if grounded.
    */
@@ -424,7 +438,7 @@ class Character extends MoveableObject {
     if (!this.isColliding(boss)) return;
 
     if (this.isJumpingOn(boss)) {
-      this.bounce(); // Boss bleibt am Leben
+      this.bounce();
     } else if (!this.isBeingHit) {
       this.hit();
     }
@@ -528,6 +542,7 @@ class Character extends MoveableObject {
    * Starts death animation and removes character.
    */
   die() {
+    this.stopSnore();
     this.hasDied = true;
     this.speed = 0;
     let i = 0;
@@ -545,6 +560,7 @@ class Character extends MoveableObject {
    * Removes Pepe from the world and shows the game over overlay.
    */
   removeCharacter() {
+    this.stopSnore();
     this.speed = 0;
     this.y = 1000;
     this.img = this.imageCache[this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]];

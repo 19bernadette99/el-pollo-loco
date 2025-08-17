@@ -108,7 +108,6 @@ class Endboss extends MoveableObject {
    * Walking is prioritized over alert to avoid sliding.
    */
   handleState() {
-    // auto-switch from alert to walking if Pepe is close enough
     if (!this.isDead && !this.hasStartedAttack && this.isPepeInRange()) {
       this.isAlert = false;
       this.isWalkingToPepe = true;
@@ -118,7 +117,6 @@ class Endboss extends MoveableObject {
     if (this.isWalkingToPepe) return this.walkTowardsPepe();
     if (this.isAlert) return this.playAnimation(this.IMAGES_ALERT, "alert");
     if (this.hasStartedAttack) return this.playAttackAnimation();
-
     this.playAnimation(this.IMAGES_WALKING, "walking");
   }
 
@@ -129,9 +127,7 @@ class Endboss extends MoveableObject {
     const pepe = this.world.character;
     this.otherDirection = pepe.x > this.x;
     this.x += this.otherDirection ? this.speed : -this.speed;
-
     this.playAnimation(this.IMAGES_WALKING, "walking");
-
     if (Math.abs(this.x - pepe.x) < 150) {
       this.isWalkingToPepe = false;
       this.startAttack();
@@ -144,11 +140,9 @@ class Endboss extends MoveableObject {
    */
   playAttackAnimation() {
     this.otherDirection = this.world.character.x > this.x;
-
     if (!this._lastAttackFrameAt) this._lastAttackFrameAt = 0;
     if (Date.now() - this._lastAttackFrameAt < 200) return;
     this._lastAttackFrameAt = Date.now();
-
     this.playAnimation(this.IMAGES_ATTACKING, "attacking");
   }
 
@@ -194,10 +188,8 @@ class Endboss extends MoveableObject {
    */
   hit(damage) {
     if (this.isDead) return;
-
     this.triggerBehavior();
     this.percentage -= damage;
-
     if (this.percentage <= 0) {
       this.percentage = 0;
       this.die();
@@ -234,11 +226,14 @@ class Endboss extends MoveableObject {
     this.isDead = true;
     this.isShrinking = true;
     this.shrinkStart = Date.now();
-
     if (this.animationInterval) {
       clearInterval(this.animationInterval);
+      this.animationInterval = null;
     }
-
+    this._deadAnimInterval = setInterval(() => {
+      this.playAnimation(this.IMAGES_DEAD, "dead");
+    }, 120);
+    this.isActive = true;
     this.animateShrink();
   }
 
@@ -246,24 +241,27 @@ class Endboss extends MoveableObject {
    * Shrinks and rotates the boss before removing it from the world.
    */
   animateShrink() {
-    const animate = () => {
+    const step = () => {
       const elapsed = Date.now() - this.shrinkStart;
       const t = Math.min(1, elapsed / this.shrinkDuration);
       this.rotation = 360 * t;
       this.scale = 1 - t;
       if (t < 1) {
-        requestAnimationFrame(animate);
+        requestAnimationFrame(step);
       } else {
+        if (this._deadAnimInterval) {
+          clearInterval(this._deadAnimInterval);
+          this._deadAnimInterval = null;
+        }
         this.removeFromWorld();
         this.triggerNextEndboss();
       }
     };
-    requestAnimationFrame(animate);
+    requestAnimationFrame(step);
   }
 
   triggerNextEndboss() {
     if (!this.world) return;
-
     const next = this.world.level.enemies.find(
       (e) => e instanceof Endboss && !e.isDead && !e.isActive
     );
@@ -277,7 +275,6 @@ class Endboss extends MoveableObject {
    */
   draw(ctx) {
     if (!this.isActive) return;
-
     if (this.isShrinking) {
       this.drawShrinking(ctx);
     } else {

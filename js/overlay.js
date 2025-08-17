@@ -69,7 +69,6 @@ function startGameSequence() {
 function showLoadingScreen(callback) {
   activateLoadingUI();
   runLoadingAnimation();
-
   setTimeout(() => {
     deactivateLoadingUI();
     callback?.();
@@ -398,14 +397,13 @@ function stopGameOverUIAndMusic() {
  * Displays the start screen.
  */
 function showStartScreen() {
+  window.world?.character?.wakeUpPepe?.(); 
   hide("canvas");
   show("startScreenWrapper");
   gameStarted = false;
   backgroundMusic.pause();
   backgroundMusic.currentTime = 0;
   startScreenMusic.currentTime = 0;
-  toggleSound(false);
-  toggleMusic(musicEnabled);
   if (musicEnabled) {
     startScreenMusic.play().catch(() => {});
   }

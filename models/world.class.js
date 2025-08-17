@@ -229,13 +229,11 @@ class World {
    */
   addToMap(mo) {
     if (!mo) return;
-
     if (mo.otherDirection) {
       this.flipImage(mo);
     } else {
       mo.draw(this.ctx);
     }
-
     if (mo.otherDirection) {
       this.flipImageBack(mo);
     }
@@ -315,9 +313,7 @@ class World {
    */
   checkLevelProgress() {
     if (!this.level || this.levelUpTriggered) return;
-
     if (!this.level.checkLevelCompletion()) return;
-
     this.levelUpTriggered = true;
     this.triggerLevelUp();
   }
@@ -415,13 +411,11 @@ class World {
     this.level?.enemies?.forEach((e) => e.tryAutoActivate?.(this));
     this.character.checkEndbossCollisionSpecial?.();
     this.character.checkEnemyCollisionsExceptBoss?.();
-
     this.checkThrowObjects?.();
     this.checkCoinCollisions?.();
     this.checkLevelProgress?.();
     this.character.checkBottleHitsEndboss();
     this.checkBottleChickenCollisions();
-
     this.updateEnemies?.();
     this.updateThrowableObjects?.();
   }
@@ -451,6 +445,12 @@ class World {
     });
   }
 
+  /**
+   * Checks whether two axis-aligned bounding boxes (AABB) overlap.
+   * This function compares the x/y positions and widths/heights of two objects
+   * to determine if their rectangular areas intersect.
+   * Typical use case: collision detection in 2D games.
+   */
   aabb(a, b) {
     return (
       a.x < b.x + b.width &&
@@ -459,10 +459,12 @@ class World {
       a.y + a.height > b.y
     );
   }
+
   /**
    * Stops the game and resets all game state.
    */
   stop() {
+    this.character?.wakeUpPepe?.();
     this.resetGameFlags();
     this.stopGameLoops();
     this.stopCharacterAndEnemies();
