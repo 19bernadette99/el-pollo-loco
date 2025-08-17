@@ -106,10 +106,6 @@ function checkOrientationAndToggleOverlay() {
 }
 
 /**
- * Tablet mode helper functions
- */
-
-/**
  * Builds a device profile using touch, hover, iPadOS fixes and viewport width.
  * @returns {Object} Profile flags and screen dimensions.
  */
@@ -138,17 +134,29 @@ function showMobileUI() {
   ctr?.classList.toggle("visible", useMobile);
 }
 
+/** Timer handle for rotate overlay auto-hide. */
+let rotateOverlayTimer = null;
+
+
 /**
- * Toggles the rotate overlay only on phones and tablets in portrait orientation.
- * Overlay is hidden for desktop or landscape orientation.
+ * On phone/tablet in portrait: show overlay for 3s, then hide.
+ * Otherwise keep it hidden.
  */
 function checkOrientationAndToggleOverlay() {
   const p = getDeviceProfile();
   const overlay = document.getElementById("rotateOverlay");
   if (!overlay) return;
+
   const portrait = matchMedia("(orientation: portrait)").matches;
   const mobileLike = p.isPhone || p.isTablet;
-  overlay.classList.toggle("hidden", !(mobileLike && portrait));
+
+  if (mobileLike && portrait) {
+    overlay.classList.remove("hidden");
+    clearTimeout(rotateOverlayTimer);
+    rotateOverlayTimer = setTimeout(() => overlay.classList.add("hidden"), 3000);
+  } else {
+    overlay.classList.add("hidden");
+  }
 }
 
 /**
