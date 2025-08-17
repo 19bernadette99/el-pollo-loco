@@ -347,6 +347,7 @@ function closeAllOverlays() {
  */
 function showLevelUpOverlay(callback) {
   nextLevelCallback = callback;
+  overlayOpen = true; 
   pauseGame();
   stopGameLoop();
   clearInputState();

@@ -131,3 +131,20 @@ document.addEventListener("keyup", (e) => {
   }
 });
 
+/** Global overlay flag; set true while any overlay is open. */
+let overlayOpen = false;
+
+/** Block all keyboard input while an overlay is open. Call once. */
+function initOverlayKeyBlocker() {
+  /** Stops key events when `overlayOpen` is true. */
+  const block = (e) => {
+    if (!overlayOpen) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    return false;
+  };
+  window.addEventListener('keydown', block, true);
+  window.addEventListener('keyup', block, true);
+}
+
+window.addEventListener('DOMContentLoaded', initOverlayKeyBlocker);

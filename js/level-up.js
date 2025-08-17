@@ -17,6 +17,7 @@ let currentLevel = levels[currentLevelIndex];
 let levelTransitionInProgress = false;
 
 function checkAndSwitchLevel(world) {
+  overlayOpen = false; 
   const level = world.level;
 
   if (!levelTransitionInProgress && level.checkLevelCompletion()) {
