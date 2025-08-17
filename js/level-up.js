@@ -1,51 +1,82 @@
-const levels = levelConfigs.map(config => generateLevel(config));
+/** Build all levels from config. */
+const levels = levelConfigs.map((c) => generateLevel(c));
 
-/**
- * Index of the currently active level within the `levels` array.
- * 
- * @type {number}
- */
+/** Health carried across level switches (default 100). */
+window.carriedHealth ??= 100;
+
+/** Index of the currently active level in `levels`. */
 let currentLevelIndex = 0;
+
+/** Convenience pointer to the current level. */
 let currentLevel = levels[currentLevelIndex];
 
-/**
- * Checks if the current level is completed and switches to the next level.
- * If it's the last level, the game shows a "Game Finished" overlay.
- * 
- * @param {World} world - The current game world instance
- */
+/** True while a level transition is running. */
 let levelTransitionInProgress = false;
 
-function checkAndSwitchLevel(world) {
-  overlayOpen = false; 
-  const level = world.level;
+/** Clamp health to [0,100] without upward rounding. */
+const clampHealth = (v) => Math.max(0, Math.min(100, Math.floor(v)));
 
-  if (!levelTransitionInProgress && level.checkLevelCompletion()) {
-    levelTransitionInProgress = true;
+/**
+ * Decide if a level switch should occur now.
+ */
+function shouldSwitch(level) {
+  return !levelTransitionInProgress && level?.checkLevelCompletion?.();
+}
 
-    showLevelUpOverlay(() => {
-      currentLevelIndex++;
+/**
+ * Read current health from world (character preferred).
+ */
+function readCurrentHealth(world) {
+  return (
+    world?.character?.energy ??
+    world?.statusBar?.percentage ??
+    world?.statusBarHealth?.percentage ??
+    null
+  );
+}
 
-      if (currentLevelIndex < levels.length) {
-        initNewLevel(currentLevelIndex);
-        levelTransitionInProgress = false;
-      } else {
-        showGameFinishedOverlay();
-      }
-    });
+/**
+ * Update global carried health from world state.
+ */
+function updateCarriedHealth(world) {
+  const h = readCurrentHealth(world);
+  if (typeof h === "number") window.carriedHealth = clampHealth(h);
+}
+
+/**
+ * Advance level index and continue or finish.
+ */
+function proceedAfterOverlay() {
+  currentLevelIndex++;
+  if (currentLevelIndex < levels.length) {
+    initNewLevel(currentLevelIndex);
+    levelTransitionInProgress = false;
+  } else {
+    showGameFinishedOverlay();
   }
 }
 
 /**
- * Initializes a new World with the level at the given index.
- * Resets canvas, keyboard, world and character.
- * 
- * @param {number} index - Index of the level to load
+ * Check completion and trigger level switch overlay.
+ */
+function checkAndSwitchLevel(world) {
+  overlayOpen = false;
+  if (!shouldSwitch(world.level)) return;
+  levelTransitionInProgress = true;
+  updateCarriedHealth(world);
+  showLevelUpOverlay(proceedAfterOverlay);
+}
+
+/**
+ * Initialize a new World for the given level index.
  */
 function initNewLevel(index) {
   const canvas = document.getElementById("canvas");
-  if (keyboard?.reset) keyboard.reset();
-  world = new World(canvas, keyboard, levels[index]);
+  keyboard?.reset?.();
+  world = new World(canvas, keyboard, levels[index], {
+    initialHealth: window.carriedHealth,
+  });
+  currentLevel = levels[index];
   gamePaused = false;
   gameStarted = true;
   stopGameLoop();

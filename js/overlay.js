@@ -371,13 +371,19 @@ document
  * Shows the game over overlay and handles UI and audio effects.
  */
 function showGameOverOverlay() {
+  overlayOpen = true;     
+  pauseGame();
+  stopGameLoop();            
   stopGameOverUIAndMusic();
+  clearInputState?.();                
   show("gameOverOverlay");
   setTimeout(() => {
     hide("gameOverOverlay");
+    overlayOpen = false;             
     showStartScreen();
   }, 3000);
 }
+
 
 /**
  * Stops background music, hides UI, and plays game over sound if enabled.

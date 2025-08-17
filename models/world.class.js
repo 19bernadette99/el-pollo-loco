@@ -24,33 +24,37 @@ class World {
    * @param {Keyboard} keyboard - Keyboard input handler.
    * @param {Level} level - The level to load.
    */
-  constructor(canvas, keyboard, level) {
-    this.ctx = canvas.getContext("2d");
-    this.canvas = canvas;
-    this.keyboard = keyboard;
-    this.level = level;
+constructor(canvas, keyboard, level, options = {}) {
+  this.ctx = canvas.getContext("2d");
+  this.canvas = canvas;
+  this.keyboard = keyboard;
+  this.level = level;
 
-    this.statusBar = new StatusBar();
-    this.statusBarEndboss = new StatusBarEndboss();
-    this.throwableObjects = [];
+  this.throwableObjects = [];
 
-    this.setCharacter();
+  this.setCharacter();
 
-    this.camera_x = 0;
-    this.gameStarted = false;
-    setTimeout(() => {
-      this.gameStarted = true;
-    }, 500);
-    this.setLevel(level);
-    this.spawnClouds();
-    this.endbossIsVisible();
+  const carried = Math.max(0, Math.min(100, Math.floor(options.initialHealth ?? 100)));
+  this.character.energy = carried;
 
-    const firstEndboss = this.level.enemies.find((e) => e instanceof Endboss);
-    if (firstEndboss) {
-      firstEndboss.world = this;
-      firstEndboss.activate();
-    }
+  this.statusBar = new StatusBar(this.character.energy);
+  this.statusBarEndboss = new StatusBarEndboss();
+
+  this.camera_x = 0;
+  this.gameStarted = false;
+  setTimeout(() => { this.gameStarted = true; }, 500);
+
+  this.setLevel(level);
+  this.spawnClouds();
+  this.endbossIsVisible();
+
+  const firstEndboss = this.level.enemies.find((e) => e instanceof Endboss);
+  if (firstEndboss) {
+    firstEndboss.world = this;
+    firstEndboss.activate();
   }
+}
+
 
   /**
    * Links the character to the current world instance.

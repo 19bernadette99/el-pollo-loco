@@ -8,28 +8,26 @@ class StatusBar extends DrawableObject {
     "img/7_statusbars/1_statusbar/2_statusbar_health/blue/100.png",
   ];
 
-  percentage = 100;
-
   /**
    * Initializes the health status bar at full (100%).
    */
-  constructor() {
+  constructor(initialPercentage = 100) {
     super();
-    this.loadImages(this.IMAGES);
-    this.setPercentage(100);
-  }
+    this.x = 40;
+    this.y = 0;
+    this.width = 200;
+    this.height = 50;
 
+    this.loadImages(this.IMAGES);
+    this.setPercentage(initialPercentage);
+  }
   /**
    * Sets the health percentage and updates the status bar image.
    * @param {number} percentage - Current health value (0–100).
    */
   setPercentage(percentage) {
-    this.percentage = percentage;
-    let path = this.IMAGES[this.resolveImageIndex()];
-    this.x = 40;
-    this.y = 0;
-    this.width = 200;
-    this.height = 50;
+    this.percentage = Math.max(0, Math.min(100, Math.round(percentage)));
+    const path = this.IMAGES[this.resolveImageIndex()];
     this.img = this.imageCache[path];
   }
 
