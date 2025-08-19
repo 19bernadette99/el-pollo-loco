@@ -37,9 +37,12 @@ class Level {
    * and all Endbosses are dead.
    */
   checkLevelCompletion() {
-    const bosses = this.enemies.filter((e) => e instanceof Endboss);
-    if (bosses.length === 0) return false;
-    return bosses.every((b) => b.isDead === true);
+    const bosses = this.enemies.filter(e => e instanceof Endboss);
+    if (bosses.length > 0) {
+      return bosses.every(b => b.deathComplete === true);
+    }
+
+    return false;
   }
 
   /**

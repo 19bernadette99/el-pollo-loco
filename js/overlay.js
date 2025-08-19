@@ -345,13 +345,17 @@ function closeAllOverlays() {
 /**
  * Shows level up overlay with callback.
  */
-function showLevelUpOverlay(callback) {
-  nextLevelCallback = callback;
-  overlayOpen = true; 
-  pauseGame();
-  stopGameLoop();
-  clearInputState();
-  show("levelUpOverlay");
+function showLevelUpOverlay(onContinue) {
+  overlayOpen = true;
+  show('levelUpOverlay'); 
+  const btn = document.getElementById('levelUpContinueBtn');
+  if (btn) {
+    btn.onclick = () => {
+      hide('levelUpOverlay');
+      overlayOpen = false;
+      onContinue?.();
+    };
+  }
 }
 
 /**

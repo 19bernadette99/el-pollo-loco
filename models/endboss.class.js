@@ -16,11 +16,18 @@ class Endboss extends MoveableObject {
   isShrinking = false;
   shrinkStart = 0;
   shrinkDuration = 1000;
+
+  deathComplete = false;
+
   currentWalkingImage = 0;
   currentAttackingImage = 0;
   currentHurtImage = 0;
   currentDeadImage = 0;
   currentAlertImage = 0;
+
+  _walkSpritesLoaded = false;
+  _lastWalkFrameAt = 0;
+  walkFrameDelay = 120; 
 
   IMAGES_WALKING = [
     "img/4_enemie_boss_chicken/1_walk/G1.png",
@@ -63,13 +70,12 @@ class Endboss extends MoveableObject {
     "img/4_enemie_boss_chicken/5_dead/G26.png",
   ];
 
-  /**
-   * Creates the Endboss, loads all animations, and starts animation loop.
-   */
   constructor() {
-    super().loadImage("img/4_enemie_boss_chicken/2_alert/G5.png");
+    super();
+    this.loadImage("img/4_enemie_boss_chicken/2_alert/G5.png");
     this.loadImages(this.IMAGES_ALERT);
     this.loadImages(this.IMAGES_WALKING);
+    this._walkSpritesLoaded = true;
     this.loadImages(this.IMAGES_ATTACKING);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
@@ -77,36 +83,23 @@ class Endboss extends MoveableObject {
     this.speed = 10;
   }
 
-  /**
-   * Quick proximity check to switch from alert to walking.
-   */
   isPepeInRange(range = 900) {
     const pepe = this.world?.character;
     if (!pepe) return false;
     return Math.abs(this.x - pepe.x) <= range;
   }
 
-  /**
-   * Activates the boss and starts its animation logic.
-   */
   activate() {
     this.isActive = true;
     this.isAlert = true;
     this.animate();
   }
 
-  /**
-   * Starts main animation loop if boss is alive and active.
-   */
   animate() {
     if (!this.isActive || this.isDead) return;
     this.animationInterval = setInterval(() => this.handleState(), 120);
   }
 
-  /**
-   * Handles animation based on current state flags.
-   * Walking is prioritized over alert to avoid sliding.
-   */
   handleState() {
     if (!this.isDead && !this.hasStartedAttack && this.isPepeInRange()) {
       this.isAlert = false;
@@ -120,6 +113,22 @@ class Endboss extends MoveableObject {
     this.playAnimation(this.IMAGES_WALKING, "walking");
   }
 
+  ensureWalkingSpritesLoaded() {
+    if (this._walkSpritesLoaded) return;
+    this.loadImages(this.IMAGES_WALKING);
+    this._walkSpritesLoaded = true;
+  }
+
+  stepWalkingAnimation() {
+    this.ensureWalkingSpritesLoaded();
+    const now = performance.now();
+    if (now - this._lastWalkFrameAt < this.walkFrameDelay) return;
+    this.currentWalkingImage =
+      (this.currentWalkingImage + 1) % this.IMAGES_WALKING.length;
+    this.img = this.imageCache[this.IMAGES_WALKING[this.currentWalkingImage]];
+    this._lastWalkFrameAt = now;
+  }
+
   /**
    * Moves boss toward Pepe and switches to attack if close.
    */
@@ -127,17 +136,15 @@ class Endboss extends MoveableObject {
     const pepe = this.world.character;
     this.otherDirection = pepe.x > this.x;
     this.x += this.otherDirection ? this.speed : -this.speed;
-    this.playAnimation(this.IMAGES_WALKING, "walking");
+    this.stepWalkingAnimation();
     if (Math.abs(this.x - pepe.x) < 150) {
       this.isWalkingToPepe = false;
       this.startAttack();
       this.currentWalkingImage = 0;
+      this._lastWalkFrameAt = 0;
     }
   }
 
-  /**
-   * Handles attack animation facing towards Pepe.
-   */
   playAttackAnimation() {
     this.otherDirection = this.world.character.x > this.x;
     if (!this._lastAttackFrameAt) this._lastAttackFrameAt = 0;
@@ -146,9 +153,6 @@ class Endboss extends MoveableObject {
     this.playAnimation(this.IMAGES_ATTACKING, "attacking");
   }
 
-  /**
-   * Plays animation for the given type using the correct frame index..
-   */
   playAnimation(images, type) {
     const map = {
       alert: "currentAlertImage",
@@ -163,18 +167,12 @@ class Endboss extends MoveableObject {
     this.limitFrameIndex(indexName, images.length, type);
   }
 
-  /**
-   * Limits animation index to avoid out-of-bounds errors.
-   */
   limitFrameIndex(indexName, max, type) {
     if (this[indexName] >= max) {
       this[indexName] = type === "dead" ? max - 1 : 0;
     }
   }
 
-  /**
-   * Starts the boss's attack behavior.
-   */
   startAttack() {
     if (!this.hasStartedAttack) {
       this.hasStartedAttack = true;
@@ -183,8 +181,7 @@ class Endboss extends MoveableObject {
   }
 
   /**
-   * Applies damage and triggers boss reaction or death.
-   * @param {number} damage - Amount of damage dealt.
+   * Damage handling
    */
   hit(damage) {
     if (this.isDead) return;
@@ -198,9 +195,6 @@ class Endboss extends MoveableObject {
     }
   }
 
-  /**
-   * Updates boss behavior based on current state.
-   */
   triggerBehavior() {
     if (this.isAlert) {
       this.isAlert = false;
@@ -210,9 +204,6 @@ class Endboss extends MoveableObject {
     }
   }
 
-  /**
-   * Plays hurt reaction and resets hurt state after delay.
-   */
   reactToHit() {
     this.isHurt = true;
     playSound("chickenAlarm");
@@ -220,32 +211,34 @@ class Endboss extends MoveableObject {
   }
 
   /**
-   * Triggers the boss's death sequence and shrink animation.
+   * Death + shrink sequence. Level darf erst NACH shrink weitergehen.
    */
   die() {
     this.isDead = true;
     this.isShrinking = true;
     this.shrinkStart = Date.now();
+
     if (this.animationInterval) {
       clearInterval(this.animationInterval);
       this.animationInterval = null;
     }
+
     this._deadAnimInterval = setInterval(() => {
       this.playAnimation(this.IMAGES_DEAD, "dead");
     }, 120);
+
     this.isActive = true;
+
     this.animateShrink();
   }
 
-  /**
-   * Shrinks and rotates the boss before removing it from the world.
-   */
   animateShrink() {
     const step = () => {
       const elapsed = Date.now() - this.shrinkStart;
       const t = Math.min(1, elapsed / this.shrinkDuration);
       this.rotation = 360 * t;
       this.scale = 1 - t;
+
       if (t < 1) {
         requestAnimationFrame(step);
       } else {
@@ -253,8 +246,10 @@ class Endboss extends MoveableObject {
           clearInterval(this._deadAnimInterval);
           this._deadAnimInterval = null;
         }
+        this.deathComplete = true;
         this.removeFromWorld();
         this.triggerNextEndboss();
+        this.world?.onEndbossDeathComplete?.(this);
       }
     };
     requestAnimationFrame(step);
@@ -270,9 +265,6 @@ class Endboss extends MoveableObject {
     }
   }
 
-  /**
-   * Draws the boss (shrinking if dying).
-   */
   draw(ctx) {
     if (!this.isActive) return;
     if (this.isShrinking) {
@@ -282,9 +274,6 @@ class Endboss extends MoveableObject {
     }
   }
 
-  /**
-   * Draws boss with rotation and scale for shrinking effect.
-   */
   drawShrinking(ctx) {
     ctx.save();
     ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
@@ -300,9 +289,6 @@ class Endboss extends MoveableObject {
     ctx.restore();
   }
 
-  /**
-   * Removes the boss from the world's enemy list.
-   */
   removeFromWorld() {
     if (this.world) {
       const idx = this.world.level.enemies.indexOf(this);
@@ -312,10 +298,6 @@ class Endboss extends MoveableObject {
     }
   }
 
-  /**
-   * Called when a thrown bottle collides with the Endboss.
-   * Mutes bottle splash SFX and applies damage.
-   */
   onBottleCollision(bottle, damage = 20) {
     if (!bottle?.hasSplashed) {
       bottle.onEndbossHit?.();
@@ -323,17 +305,16 @@ class Endboss extends MoveableObject {
     this.hit(damage);
   }
 
-  /**
-   * Auto-activates this boss when the player gets close.
-   */
   tryAutoActivate(world) {
     if (this.isDead || this.isActive) return;
     if (!world?.character) return;
+
     const enemies = world.level?.enemies || [];
     const anotherActive = enemies.some(
       (e) => e instanceof Endboss && e !== this && e.isActive && !e.isDead
     );
     if (anotherActive) return;
+
     const dist = Math.abs(this.x - world.character.x);
     if (dist <= (this.activateDistance ?? 1000)) {
       this.world = this.world || world;

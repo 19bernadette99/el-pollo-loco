@@ -9,52 +9,38 @@ class World {
   statusBarCoin;
   statusBar;
   statusBarEndboss;
-
   collectedCoins = 0;
   intervalId = null;
   cloudSpawnInterval = null;
-
   throwableObjects;
-
   collectCoinSound = new Audio("audio/collectingCoinsSound.mp3");
 
   /**
    * Initializes the world with canvas, keyboard input, and selected level.
-   * @param {HTMLCanvasElement} canvas - The game canvas.
-   * @param {Keyboard} keyboard - Keyboard input handler.
-   * @param {Level} level - The level to load.
    */
 constructor(canvas, keyboard, level, options = {}) {
   this.ctx = canvas.getContext("2d");
   this.canvas = canvas;
   this.keyboard = keyboard;
   this.level = level;
-
   this.throwableObjects = [];
-
   this.setCharacter();
-
   const carried = Math.max(0, Math.min(100, Math.floor(options.initialHealth ?? 100)));
   this.character.energy = carried;
-
   this.statusBar = new StatusBar(this.character.energy);
   this.statusBarEndboss = new StatusBarEndboss();
-
   this.camera_x = 0;
   this.gameStarted = false;
   setTimeout(() => { this.gameStarted = true; }, 500);
-
   this.setLevel(level);
   this.spawnClouds();
   this.endbossIsVisible();
-
   const firstEndboss = this.level.enemies.find((e) => e instanceof Endboss);
   if (firstEndboss) {
     firstEndboss.world = this;
     firstEndboss.activate();
   }
 }
-
 
   /**
    * Links the character to the current world instance.
@@ -77,7 +63,6 @@ constructor(canvas, keyboard, level, options = {}) {
       if (!this.character) return;
       this.character.checkEndbossCollisionSpecial?.();
       this.character.checkEnemyCollisionsExceptBoss?.();
-
       this.checkThrowObjects();
       this.checkCoinCollisions();
       this.checkLevelProgress();
@@ -89,11 +74,9 @@ constructor(canvas, keyboard, level, options = {}) {
    */
   checkThrowObjects() {
     if (!this.canThrowBottle()) return;
-
     this.bottleThrown = true;
     this.spawnThrowable();
     this.updateBottleCount();
-
     setTimeout(() => (this.bottleThrown = false), 500);
   }
 
@@ -150,7 +133,6 @@ constructor(canvas, keyboard, level, options = {}) {
    */
   draw() {
     if (!this.level) return;
-
     this.clearCanvas();
     this.drawBackgroundLayers();
     this.drawUI();
@@ -192,7 +174,6 @@ constructor(canvas, keyboard, level, options = {}) {
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarBottle);
     this.addToMap(this.statusBarCoin);
-
     if (this.endbossIsVisible()) {
       this.addToMap(this.statusBarEndboss);
     }
@@ -256,7 +237,6 @@ constructor(canvas, keyboard, level, options = {}) {
 
   /**
    * Restores flipped image position after drawing.
-   * @param {DrawableObject} mo
    */
   flipImageBack(mo) {
     mo.x = -mo.x * -1;
@@ -269,7 +249,6 @@ constructor(canvas, keyboard, level, options = {}) {
   spawnClouds() {
     this.cloudSpawnInterval = setInterval(() => {
       if (!this.level || !this.level.clouds) return;
-
       const maxClouds = 2;
       if (this.level.clouds.length < maxClouds) {
         let newCloud = new Cloud(this.level.clouds);
@@ -294,7 +273,6 @@ constructor(canvas, keyboard, level, options = {}) {
   checkBottleHitsEndboss() {
     let endboss = this.level.enemies.find((e) => e instanceof Endboss);
     if (!endboss || endboss.isDead) return;
-
     this.throwableObjects.forEach((bottle, index) => {
       if (bottle.isColliding(endboss)) {
         endboss.hit(20);
@@ -315,12 +293,14 @@ constructor(canvas, keyboard, level, options = {}) {
   /**
    * Checks if the level is finished and triggers level-up.
    */
-  checkLevelProgress() {
-    if (!this.level || this.levelUpTriggered) return;
-    if (!this.level.checkLevelCompletion()) return;
-    this.levelUpTriggered = true;
-    this.triggerLevelUp();
-  }
+checkLevelProgress() {
+  if (!this.level || this.levelUpTriggered) return;
+  const bosses = this.level.enemies.filter(e => e instanceof Endboss);
+  const allBossesDone = bosses.length > 0 && bosses.every(b => b.deathComplete === true);
+  if (!allBossesDone) return;
+  this.levelUpTriggered = true;
+  this.triggerLevelUp();
+}
 
   /**
    * Opens the level-up screen and prepares the next level.
@@ -438,7 +418,6 @@ constructor(canvas, keyboard, level, options = {}) {
     const chickens = (this.level?.enemies || []).filter(
       (e) => e instanceof Chicken && !e.hasDied
     );
-
     bottles.forEach((bottle) => {
       chickens.forEach((chicken) => {
         if (this.aabb(bottle, chicken)) {
@@ -452,8 +431,6 @@ constructor(canvas, keyboard, level, options = {}) {
   /**
    * Checks whether two axis-aligned bounding boxes (AABB) overlap.
    * This function compares the x/y positions and widths/heights of two objects
-   * to determine if their rectangular areas intersect.
-   * Typical use case: collision detection in 2D games.
    */
   aabb(a, b) {
     return (
@@ -490,10 +467,8 @@ constructor(canvas, keyboard, level, options = {}) {
   stopGameLoops() {
     cancelAnimationFrame(this.animationFrameId);
     this.animationFrameId = null;
-
     clearInterval(this.intervalId);
     clearInterval(this.cloudSpawnInterval);
-
     if (this.character?.gravityInterval) {
       clearInterval(this.character.gravityInterval);
       this.character.gravityInterval = null;

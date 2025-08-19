@@ -43,6 +43,11 @@ function updateCarriedHealth(world) {
   if (typeof h === "number") window.carriedHealth = clampHealth(h);
 }
 
+function areAllBossesDone(level) {
+  const bosses = level.enemies.filter(e => e instanceof Endboss);
+  return bosses.length > 0 && bosses.every(b => b.deathComplete);
+}
+
 /**
  * Advance level index and continue or finish.
  */
@@ -60,11 +65,13 @@ function proceedAfterOverlay() {
  * Check completion and trigger level switch overlay.
  */
 function checkAndSwitchLevel(world) {
-  overlayOpen = false;
-  if (!shouldSwitch(world.level)) return;
-  levelTransitionInProgress = true;
-  updateCarriedHealth(world);
-  showLevelUpOverlay(proceedAfterOverlay);
+  if (levelTransitionInProgress) return;
+  if (!world?.level) return;
+
+  if (areAllBossesDone(world.level)) {
+    levelTransitionInProgress = true;
+    showLevelUpOverlay(); // hier erst auslösen
+  }
 }
 
 /**

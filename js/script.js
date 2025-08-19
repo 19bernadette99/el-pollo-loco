@@ -10,7 +10,7 @@ function startGameLoop() {
     if (!gamePaused && world) {
       world.update?.();
       world.draw?.();
-      checkAndSwitchLevel(world);
+      world.checkLevelProgress?.();
     }
     animationFrameId = requestAnimationFrame(loop);
   }
