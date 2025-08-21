@@ -225,6 +225,7 @@ function setupMobileMenu() {
  * Shows element by ID.
  */
 function show(id) {
+  if (globalThis.isLoadingScreenActive && /overlay/i.test(String(id))) return;
   document.getElementById(id)?.classList.remove("hidden");
 }
 

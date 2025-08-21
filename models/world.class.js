@@ -23,6 +23,7 @@ constructor(canvas, keyboard, level, options = {}) {
   this.canvas = canvas;
   this.keyboard = keyboard;
   this.level = level;
+  this.level.hadBossesAtStart = this.level.enemies.some(e => e instanceof Endboss);
   this.throwableObjects = [];
   this.setCharacter();
   const carried = Math.max(0, Math.min(100, Math.floor(options.initialHealth ?? 100)));
@@ -295,12 +296,24 @@ constructor(canvas, keyboard, level, options = {}) {
    */
 checkLevelProgress() {
   if (!this.level || this.levelUpTriggered) return;
-  const bosses = this.level.enemies.filter(e => e instanceof Endboss);
-  const allBossesDone = bosses.length > 0 && bosses.every(b => b.deathComplete === true);
-  if (!allBossesDone) return;
+
+  const hadBosses = !!this.level.hadBossesAtStart;
+  if (!hadBosses) return; // Level ohne Boss -> hier kein Level-Up
+
+  // "Nicht fertig" = es existiert noch ein Boss, der NICHT deathComplete ist
+  const anyBossNotDone = this.level.enemies.some(
+    e => e instanceof Endboss && !e.deathComplete
+  );
+
+  if (anyBossNotDone) return;
+
+  // Ab hier: alle Bosse sind fertig ODER entfernt (0 übrig)
   this.levelUpTriggered = true;
-  this.triggerLevelUp();
+
+  // Overlay 3s NACH dem Shrink zeigen (dein Wunsch)
+  setTimeout(() => this.triggerLevelUp(), 50);
 }
+
 
   /**
    * Opens the level-up screen and prepares the next level.

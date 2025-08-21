@@ -4,7 +4,7 @@ let countdownElement = null;
 let gameStarted = false;
 let nextLevelCallback = null;
 let animationFrameId = null;
-let isLoadingScreenActive = false;
+globalThis.isLoadingScreenActive ??= false;
 let loopActive = false;
 
 /**
@@ -14,7 +14,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initOverlays();
   initStartGame();
   setupFullscreenConfirm();
-  setupMobileMenu();      
+  setupMobileMenu();
   setupMobileControls();
   checkOrientationAndToggleOverlay();
 });
@@ -79,7 +79,7 @@ function showLoadingScreen(callback) {
  * Activates loading screen UI and hides controls.
  */
 function activateLoadingUI() {
-  isLoadingScreenActive = true;
+  globalThis.isLoadingScreenActive = true;
   document.getElementById("loadingScreen")?.classList.remove("hidden");
   document.querySelector("#mobile-controls")?.classList.add("hidden");
   document.querySelector(".mobile-action-bar")?.classList.add("hidden");
@@ -100,7 +100,7 @@ function deactivateLoadingUI() {
   document.getElementById("loadingScreen")?.classList.add("hidden");
   document.querySelector("#mobile-controls")?.classList.remove("hidden");
   document.querySelector(".mobile-action-bar")?.classList.remove("hidden");
-  isLoadingScreenActive = false;
+  globalThis.isLoadingScreenActive = false;
 }
 
 /**
@@ -321,6 +321,7 @@ function bindCloseButtonForResume(closeId, id, overlay) {
  * Shows given overlay and hides others.
  */
 function showOverlay(overlay) {
+  if (globalThis.isLoadingScreenActive) return;
   closeAllOverlays();
   overlay.classList.remove("hidden");
 }
@@ -347,47 +348,38 @@ function closeAllOverlays() {
  */
 function showLevelUpOverlay(onContinue) {
   overlayOpen = true;
-  show('levelUpOverlay'); 
-  const btn = document.getElementById('levelUpContinueBtn');
-  if (btn) {
-    btn.onclick = () => {
-      hide('levelUpOverlay');
-      overlayOpen = false;
-      onContinue?.();
-    };
-  }
+  nextLevelCallback = onContinue; // <- merken
+  show("levelUpOverlay");
 }
 
 /**
  * Continues to next level from overlay.
  */
 function continueToNextLevel() {
+  hide("levelUpOverlay");
+  overlayOpen = false;
   setTimeout(() => {
     nextLevelCallback?.();
     nextLevelCallback = null;
-  }, 200);
+  }, 0);
 }
-document
-  .getElementById("nextLevelBtn")
-  ?.addEventListener("click", continueToNextLevel);
 
 /**
  * Shows the game over overlay and handles UI and audio effects.
  */
 function showGameOverOverlay() {
-  overlayOpen = true;     
+  overlayOpen = true;
   pauseGame();
-  stopGameLoop();            
+  stopGameLoop();
   stopGameOverUIAndMusic();
-  clearInputState?.();                
+  clearInputState?.();
   show("gameOverOverlay");
   setTimeout(() => {
     hide("gameOverOverlay");
-    overlayOpen = false;             
+    overlayOpen = false;
     showStartScreen();
   }, 3000);
 }
-
 
 /**
  * Stops background music, hides UI, and plays game over sound if enabled.
@@ -408,7 +400,7 @@ function stopGameOverUIAndMusic() {
  * Displays the start screen.
  */
 function showStartScreen() {
-  window.world?.character?.wakeUpPepe?.(); 
+  window.world?.character?.wakeUpPepe?.();
   hide("canvas");
   show("startScreenWrapper");
   gameStarted = false;
