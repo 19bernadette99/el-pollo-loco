@@ -350,13 +350,21 @@ function closeAllOverlays() {
 }
 
 /**
- * Shows level up overlay with callback.
+ * Shows the level-up overlay and HARD-freezes the game
  */
 function showLevelUpOverlay(onContinue) {
   overlayOpen = true;
-  nextLevelCallback = onContinue; 
+  pauseGame();
+  stopGameLoop();
+  window.world?.stopCharacterAndEnemies?.();
+  window.world?.character?.wakeUpPepe?.();
+  if (window.world?.character) {
+    window.world.character.lastActionTime = Date.now();
+  }
+  nextLevelCallback = onContinue;
   show("levelUpOverlay");
 }
+
 
 /**
  * Continues to next level from overlay.
