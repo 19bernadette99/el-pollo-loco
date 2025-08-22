@@ -38,10 +38,8 @@ function buildLevel(config, enemies, clouds, background, items) {
     enemies,
     clouds,
     backgroundObjects: background,
-    coins: items.coins,
-    salsaBottles: items.salsaBottles,
-    maxCoins: config.coins,
-    maxBottles: config.bottles,
+    coinCount: config.coins,
+    bottleCount: config.bottles,
     level_end_x: config.endX,
   });
 }

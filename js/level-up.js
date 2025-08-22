@@ -62,19 +62,6 @@ function proceedAfterOverlay() {
 }
 
 /**
- * Check completion and trigger level switch overlay.
- */
-function checkAndSwitchLevel(world) {
-  if (levelTransitionInProgress) return;
-  if (!world?.level) return;
-
-  if (areAllBossesDone(world.level)) {
-    levelTransitionInProgress = true;
-    showLevelUpOverlay(); // hier erst auslösen
-  }
-}
-
-/**
  * Initialize a new World for the given level index.
  */
 function initNewLevel(index) {

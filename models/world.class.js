@@ -272,15 +272,18 @@ constructor(canvas, keyboard, level, options = {}) {
    * Detects if a bottle hits the endboss and applies damage.
    */
   checkBottleHitsEndboss() {
-    let endboss = this.level.enemies.find((e) => e instanceof Endboss);
-    if (!endboss || endboss.isDead) return;
-    this.throwableObjects.forEach((bottle, index) => {
-      if (bottle.isColliding(endboss)) {
-        endboss.hit(20);
-        this.statusBarEndboss.setPercentage(endboss.percentage);
-        this.throwableObjects.splice(index, 1);
-      }
-    });
+  const bosses = this.level.enemies.filter(
+    (e) => e instanceof Endboss && !e.deathComplete
+  );
+  if (bosses.length === 0) return;
+  this.throwableObjects.forEach((bottle, index) => {
+    const hitBoss = bosses.find((b) => bottle.isColliding(b));
+    if (hitBoss) {
+      hitBoss.hit(20);
+      this.statusBarEndboss.setPercentage(hitBoss.percentage);
+      this.throwableObjects.splice(index, 1);
+    }
+  });
   }
 
   /**
@@ -296,31 +299,24 @@ constructor(canvas, keyboard, level, options = {}) {
    */
 checkLevelProgress() {
   if (!this.level || this.levelUpTriggered) return;
-
   const hadBosses = !!this.level.hadBossesAtStart;
-  if (!hadBosses) return; // Level ohne Boss -> hier kein Level-Up
-
-  // "Nicht fertig" = es existiert noch ein Boss, der NICHT deathComplete ist
+  if (!hadBosses) return; 
   const anyBossNotDone = this.level.enemies.some(
     e => e instanceof Endboss && !e.deathComplete
   );
 
   if (anyBossNotDone) return;
 
-  // Ab hier: alle Bosse sind fertig ODER entfernt (0 übrig)
   this.levelUpTriggered = true;
-
-  // Overlay 3s NACH dem Shrink zeigen (dein Wunsch)
   setTimeout(() => this.triggerLevelUp(), 50);
 }
-
 
   /**
    * Opens the level-up screen and prepares the next level.
    */
   triggerLevelUp() {
     showLevelUpOverlay(() => {
-      if (currentLevelIndex + 1 < levels.length) {
+   if (currentLevelIndex + 1 < levelConfigs.length) {
         this.loadNextLevel();
       } else {
         showGameFinishedOverlay();
@@ -331,21 +327,30 @@ checkLevelProgress() {
   /**
    * Loads the next level from the level list.
    */
-  loadNextLevel() {
-    if (currentLevelIndex + 1 < levelConfigs.length) {
-      currentLevelIndex++;
-      this.setLevel(generateLevel(levelConfigs[currentLevelIndex]));
-      this.levelUpTriggered = false;
-    } else {
-      showGameFinishedOverlay();
-    }
+loadNextLevel() {
+  if (currentLevelIndex + 1 < levelConfigs.length) {
+    currentLevelIndex++;
+   if (typeof window !== 'undefined') {
+     window.overlayOpen = false;
+     window.gamePaused = false;
+   }
+   this.gamePaused = false;
+    this.setLevel(generateLevel(levelConfigs[currentLevelIndex]));
+    this.levelUpTriggered = false;
+   if (typeof window !== 'undefined' && !window.loopActive) {
+     startGameLoop();
+   }
+  } else {
+    showGameFinishedOverlay();
   }
+}
 
   /**
    * Sets up the current level, enemies, status bars and character.
    */
   setLevel(level) {
     this.level = level;
+    this.level.hadBossesAtStart = this.level.enemies.some(e => e instanceof Endboss);
     this.initializeEnemies();
     this.initializeStatusBars();
     this.initializeCharacter();
@@ -411,7 +416,7 @@ checkLevelProgress() {
     this.checkThrowObjects?.();
     this.checkCoinCollisions?.();
     this.checkLevelProgress?.();
-    this.character.checkBottleHitsEndboss();
+    this.checkBottleHitsEndboss();
     this.checkBottleChickenCollisions();
     this.updateEnemies?.();
     this.updateThrowableObjects?.();

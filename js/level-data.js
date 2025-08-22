@@ -8,7 +8,7 @@ const levelConfigs = [
   {
     enemies: ['C', 'C', 'CB', 'CB', 'E'],
     coins: 11,
-    bottles: 7,
+     bottles: 7,
     endX: 2200
   },
   {
@@ -89,9 +89,4 @@ const levelConfigs = [
     bottles: 20,
     endX: 2200
   },
-  {
-  open: null,
-  id: "gameFinishedOverlay",
-  close: null,
-}
 ];

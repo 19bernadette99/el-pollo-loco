@@ -253,10 +253,16 @@ function processOverlayClose(overlay) {
 
 /**
  * Adds close button logic to overlays.
+ * For the level-up overlay, trigger the onContinue callback by calling
+ * `continueToNextLevel()` instead of just hiding, so the next level loads.
  */
 function attachCloseButtonListener(overlay, closeId) {
   const btn = document.getElementById(closeId);
   btn?.addEventListener("click", () => {
+    if (overlay.id === "levelUpOverlay") {
+      continueToNextLevel();
+      return; 
+    }
     hideOverlay(overlay);
     if (overlay.id === "gameOverOverlay") {
       hide("canvasWrapper");
@@ -348,7 +354,7 @@ function closeAllOverlays() {
  */
 function showLevelUpOverlay(onContinue) {
   overlayOpen = true;
-  nextLevelCallback = onContinue; // <- merken
+  nextLevelCallback = onContinue; 
   show("levelUpOverlay");
 }
 
