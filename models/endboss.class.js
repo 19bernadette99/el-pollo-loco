@@ -308,13 +308,11 @@ class Endboss extends MoveableObject {
   tryAutoActivate(world) {
     if (this.isDead || this.isActive) return;
     if (!world?.character) return;
-
     const enemies = world.level?.enemies || [];
     const anotherActive = enemies.some(
       (e) => e instanceof Endboss && e !== this && e.isActive && !e.isDead
     );
     if (anotherActive) return;
-
     const dist = Math.abs(this.x - world.character.x);
     if (dist <= (this.activateDistance ?? 1000)) {
       this.world = this.world || world;

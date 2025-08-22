@@ -76,48 +76,51 @@ class ThrowableObject extends MoveableObject {
     return this.y >= groundY;
   }
 
-  /**
-   * Called when the bottle hits the Endboss.
-   * Triggers splash visuals; sound will NOT play (not on ground).
-   */
-  onEndbossHit() {
-    if (this.hasSplashed) return;
-    this.splash();
-  }
+/**
+ * Called when the bottle hits the Endboss.
+ * Triggers splash visuals WITHOUT sound.
+ */
+onEndbossHit() {
+  if (this.hasSplashed) return;
+  this.splash(true); // mute sound on boss hit
+}
 
-  /**
-   * Called when the bottle hits a chicken (or any enemy).
-   * Stops flight and triggers splash animation (no ground sound).
-   */
-  onChickenHit(enemy) {
-    if (this.hasSplashed) return;
-    this.y = Math.min(this.y, enemy.y + enemy.height - this.height / 2);
-    this.splash();
-  }
+/**
+ * Called when the bottle hits a chicken (or any enemy).
+ * Stops flight and triggers splash animation WITHOUT sound.
+ * @param {MoveableObject} enemy - The enemy that was hit.
+ */
+onChickenHit(enemy) {
+  if (this.hasSplashed) return;
+  // keep a nice visual contact point, but silence the sound
+  this.y = Math.min(this.y, enemy.y + enemy.height - this.height / 2);
+  this.splash(true); // mute sound on enemy hit
+}
 
-  /**
-   * Handles bottle splash: stops movement, shows frames,
-   * and plays sound only on real ground contact.
-   */
-  splash() {
-    if (this.hasSplashed) return;
-    this.hasSplashed = true;
-    this.stopThrow();
-    this.prepareSplashAnimation();
-    if (
-      this.isOnGround(350) &&
-      (typeof soundEnabled === "undefined" || soundEnabled)
-    ) {
-      try {
-        const s = this.breakingBottleSound.cloneNode();
-        s.volume = 0.5;
-        s.currentTime = 0;
-        s.play().catch(() => {});
-      } catch {}
-    }
-    this.startSplashAnimation();
-    this.hideAfterSplash();
+/**
+ * Handles bottle splash: stops movement, shows frames,
+ * and optionally plays sound ONLY on real ground contact.
+ */
+splash(mute = false) {
+  if (this.hasSplashed) return;
+  this.hasSplashed = true;
+  this.stopThrow();
+  this.prepareSplashAnimation();
+  if (
+    !mute &&
+    this.isOnGround(350) &&
+    (typeof soundEnabled === "undefined" || soundEnabled)
+  ) {
+    try {
+      const s = this.breakingBottleSound.cloneNode();
+      s.volume = 0.5;
+      s.currentTime = 0;
+      s.play().catch(() => {});
+    } catch {}
   }
+  this.startSplashAnimation();
+  this.hideAfterSplash();
+}
 
   /**
    * Stops bottle movement and animations.

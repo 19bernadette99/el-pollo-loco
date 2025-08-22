@@ -268,23 +268,23 @@ constructor(canvas, keyboard, level, options = {}) {
     return this.camera_x * -1 + this.canvas.width >= endboss.x;
   }
 
-  /**
-   * Detects if a bottle hits the endboss and applies damage.
-   */
-  checkBottleHitsEndboss() {
+/**
+ * Detects collisions between throwable bottles and any alive Endboss.
+ * Routes through Endboss.onBottleCollision to ensure bottle splash is muted.
+ */
+checkBottleHitsEndboss() {
   const bosses = this.level.enemies.filter(
     (e) => e instanceof Endboss && !e.deathComplete
   );
   if (bosses.length === 0) return;
   this.throwableObjects.forEach((bottle, index) => {
     const hitBoss = bosses.find((b) => bottle.isColliding(b));
-    if (hitBoss) {
-      hitBoss.hit(20);
-      this.statusBarEndboss.setPercentage(hitBoss.percentage);
-      this.throwableObjects.splice(index, 1);
-    }
+    if (!hitBoss) return;
+    hitBoss.onBottleCollision?.(bottle, 20);
+    this.statusBarEndboss.setPercentage(hitBoss.percentage);
+    this.throwableObjects.splice(index, 1);
   });
-  }
+}
 
   /**
    * Displays the game-over overlay.
