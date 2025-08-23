@@ -8,12 +8,9 @@ class Cloud extends MoveableObject {
    */
   constructor(existingClouds = []) {
     super().loadImage("img/5_background/layers/4_clouds/1.png");
-
     const cloudHeights = [10, 30, 50];
-
     this.y = this.calculateYPosition(existingClouds, cloudHeights);
     this.x = this.calculateXPosition(existingClouds);
-
     this.animate();
   }
 
@@ -45,12 +42,10 @@ class Cloud extends MoveableObject {
     let minDistance = 500;
     let x;
     let tooClose;
-
     do {
       x = minX + Math.random() * (maxX - minX);
       tooClose = existingClouds.some((c) => Math.abs(c.x - x) < minDistance);
     } while (tooClose && existingClouds.length < 50);
-
     return x;
   }
 
@@ -59,10 +54,8 @@ class Cloud extends MoveableObject {
    */
   animate() {
     const cloudHeights = [10, 30, 50];
-
     setInterval(() => {
       this.moveLeft();
-
       if (this.x + this.width < 0) {
         this.x = 720 + Math.random() * 500;
         this.y = cloudHeights[Math.floor(Math.random() * cloudHeights.length)];

@@ -31,7 +31,6 @@ class ThrowableObject extends MoveableObject {
     this.width = 50;
     this.height = 60;
     this.otherDirection = otherDirection;
-
     this.breakingBottleSound.preload = "auto";
     this.breakingBottleSound.load();
     this.visible = true;
@@ -45,7 +44,6 @@ class ThrowableObject extends MoveableObject {
     this.speedY = 25;
     this.applyGravity();
     this.animateThrow();
-
     this.throwInterval = setInterval(() => {
       if (this.otherDirection) {
         this.x -= 10;

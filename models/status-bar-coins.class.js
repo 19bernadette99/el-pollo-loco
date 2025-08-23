@@ -43,12 +43,9 @@ class StatusBarCoin extends DrawableObject {
    */
   resolveImageIndex(collected) {
     let maxImages = this.IMAGES.length - 1;
-
     if (collected >= this.maxCoins) return maxImages;
-
     let ratio = collected / this.maxCoins;
     let index = Math.ceil(ratio * maxImages);
-
     if (index < 0) index = 0;
     return index;
   }

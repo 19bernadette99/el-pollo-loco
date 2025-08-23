@@ -6,29 +6,28 @@ class MoveableObject extends DrawableObject {
   energy = 100;
   lastHit = 0;
 
-/**
- * Applies gravity effect to the object over time.
- */
-applyGravity() {
-  if (this.gravityInterval) {
-    clearInterval(this.gravityInterval);
-    this.gravityInterval = null;
-  }
-  this.gravityInterval = setInterval(() => {
-    if (gamePaused) return;
-    if (this.isAboveGround() || this.speedY > 0) {
-      this.y -= this.speedY;
-      this.speedY -= this.acceleration;
-    } else {
-      this.y = Math.max(this.y, 210);
-      this.speedY = 0;
+  /**
+   * Applies gravity effect to the object over time.
+   */
+  applyGravity() {
+    if (this.gravityInterval) {
+      clearInterval(this.gravityInterval);
+      this.gravityInterval = null;
     }
-  }, 1000 / 25);
-}
+    this.gravityInterval = setInterval(() => {
+      if (gamePaused) return;
+      if (this.isAboveGround() || this.speedY > 0) {
+        this.y -= this.speedY;
+        this.speedY -= this.acceleration;
+      } else {
+        this.y = Math.max(this.y, 210);
+        this.speedY = 0;
+      }
+    }, 1000 / 25);
+  }
 
   /**
    * Checks if the object is above ground level.
-   * @returns {boolean}
    */
   isAboveGround() {
     if (this instanceof ThrowableObject) {
@@ -40,8 +39,6 @@ applyGravity() {
 
   /**
    * Checks for collision with another moveable object.
-   * @param {MoveableObject} mo - Another object to check against.
-   * @returns {boolean}
    */
   isColliding(mo) {
     return (
@@ -59,7 +56,6 @@ applyGravity() {
   hit() {
     let now = Date.now();
     let timeSinceLastHit = now - (this.lastHit || 0);
-
     if (this.energy > 0 && timeSinceLastHit > 1000 && !this.hasDied) {
       this.energy = Math.max(this.energy - 20, 0);
       this.world.statusBar.setPercentage(this.energy);
@@ -86,12 +82,9 @@ applyGravity() {
 
   /**
    * Plays the next frame in an animation loop.
-   * @param {Array<string>} images - Array of image paths.
    */
   playAnimation(images) {
     let i = this.currentImage % images.length;
-    // let i = 7 % 6; => 1, Rest 1
-    // i = 0, 1, 2, 3, 4, 5, 0, 1, 2, ...
     let path = images[i];
     this.img = this.imageCache[path];
     this.currentImage++;

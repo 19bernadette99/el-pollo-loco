@@ -93,7 +93,7 @@ class Character extends MoveableObject {
   snoreSound = new Audio("audio/snore.mp3");
 
   /**
-   * Creates the character, loads images, applies gravity, and starts animation.
+   * Initializes character assets, physics, audio loops, and a tighter hitbox, then starts animation.
    */
   constructor(keyboard) {
     super();
@@ -109,10 +109,11 @@ class Character extends MoveableObject {
     this.animate();
     this.stopSnore();
     this.playSounds();
+    this.offset = { left: 12, right: 12, top: 40, bottom: 6 };
   }
 
   /**
-   * Starts the main game animation and input handling loops.
+   * Starts the continuous movement loop and the state-driven animation loop.
    */
   animate() {
     this.startMovementLoop();
@@ -120,7 +121,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Handles keyboard inputs and movement at 60 FPS.
+   * Runs input, movement, camera follow, boss/enemy checks, and bottle pickups at ~60 FPS.
    */
   startMovementLoop() {
     if (this._moveLoopId) return;
@@ -135,7 +136,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Triggers animations based on state every 50ms.
+   * Chooses and applies the appropriate sprite animation every 50 ms, handling death when energy is depleted.
    */
   startAnimationLoop() {
     if (this._animLoopId) return;
@@ -152,7 +153,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Processes movement keys and jump input.
+   * Processes left/right movement and jump input, updating facing and last action time.
    */
   handleMovementInput() {
     if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
@@ -171,6 +172,9 @@ class Character extends MoveableObject {
     }
   }
 
+  /**
+   * Immediately stops and rewinds the snore sound if it is playing.
+   */
   stopSnore() {
     if (!this.snoreSound.paused) {
       this.snoreSound.pause();
@@ -178,6 +182,9 @@ class Character extends MoveableObject {
     }
   }
 
+  /**
+   * Forces wake state by stopping snore, resetting timers, and showing the standing frame.
+   */
   wakeUpPepe(reason = "manual") {
     this.stopSnore();
     this.lastActionTime = Date.now();
@@ -185,6 +192,9 @@ class Character extends MoveableObject {
     this.showStandingImage();
   }
 
+  /**
+   * Returns whether the character has been idle long enough to be sleeping.
+   */
   get isSleeping() {
     const idleTime = Date.now() - this.lastActionTime;
     const isWalking = this.world?.keyboard?.RIGHT || this.world?.keyboard?.LEFT;
@@ -198,6 +208,9 @@ class Character extends MoveableObject {
     );
   }
 
+  /**
+   * Starts looping snore audio when sleeping and sound is enabled.
+   */
   playSnoreIfNeeded() {
     if (!soundEnabled || !this.isSleeping) return;
     if (this.snoreSound.paused) {
@@ -208,8 +221,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Chooses and plays the appropriate animation.
-   * @param {number} idleTime - Time since last user action in ms.
+   * Selects the current animation based on hurt state, air/ground, movement, and idle timers.
    */
   handleAnimations(idleTime) {
     if (this.isSleeping) {
@@ -218,7 +230,6 @@ class Character extends MoveableObject {
       return;
     }
     this.stopSnore();
-
     if (this.isHurt()) {
       this.playAnimation(this.IMAGES_HURT);
     } else if (this.isAboveGround()) {
@@ -233,7 +244,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Stops all character-owned loops.
+   * Clears all character-owned intervals (movement, animation, sound) and stops snoring.
    */
   stopMovementLoop() {
     if (this._moveLoopId) {
@@ -252,10 +263,10 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Starts sound loop for walking and jumping (60 FPS).
+   * Starts a ~60 FPS sound loop to handle walking and jump audio cues.
    */
   playSounds() {
-    if (this._soundLoopId) return; // Guard
+    if (this._soundLoopId) return;
     this._soundLoopId = setInterval(() => {
       if (!soundEnabled) return;
       this.handleWalkSound();
@@ -264,12 +275,11 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Plays walking sound when moving on the ground.
+   * Plays or resets the walking sound while moving on the ground.
    */
   handleWalkSound() {
     const right = this.world.keyboard.RIGHT;
     const left = this.world.keyboard.LEFT;
-
     if (!this.isAboveGround() && (right || left)) {
       if (this.walkSound.currentTime > 3.7) {
         this.walkSound.currentTime = 0;
@@ -283,11 +293,10 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Plays jump sound when jumping from the ground.
+   * Plays a short jump sound when the jump key is pressed while grounded.
    */
   handleJumpSound() {
     const jump = this.world.keyboard.SPACE;
-
     if (jump && !this.isAboveGround()) {
       const jumpClone = this.jumpSound.cloneNode();
       jumpClone.volume = 0.5;
@@ -296,7 +305,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Plays hurt sound effect.
+   * Plays the hurt sound effect if global sound is enabled.
    */
   playHurtSound() {
     if (!soundEnabled) return;
@@ -306,7 +315,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Plays the idle animation after short inactivity.
+   * Cycles through idle frames at a fixed delay after short inactivity.
    */
   animateIdle() {
     let now = Date.now();
@@ -321,7 +330,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Plays the sleeping animation after long inactivity.
+   * Cycles through sleeping frames at a fixed delay after long inactivity.
    */
   animateSleeping() {
     let now = Date.now();
@@ -334,7 +343,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Makes the character jump if grounded.
+   * Initiates a jump by setting vertical speed when grounded.
    */
   jump() {
     if (!this.isAboveGround()) {
@@ -344,14 +353,14 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Shows the first standing frame (not moving or jumping).
+   * Displays the first walking frame as a neutral standing pose.
    */
   showStandingImage() {
     this.img = this.imageCache[this.IMAGES_WALKING[0]];
   }
 
   /**
-   * Handles jump animation logic by evaluating vertical speed and state.
+   * Updates jump animation by phase or shows the start frame once.
    */
   animateJump() {
     if (this.startJumpFrame()) return;
@@ -359,8 +368,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Shows initial jump frame and sets jumping state.
-   * @returns {boolean} True if start frame was shown.
+   * Shows the initial jump frame and marks jumping, returning true when triggered.
    */
   startJumpFrame() {
     if (!this.isJumping) {
@@ -372,7 +380,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Updates jump image based on vertical speed and jump phase.
+   * Advances the jump/fall frame based on vertical speed and state.
    */
   updateJumpFrame() {
     if (this.isFallingFast()) {
@@ -390,35 +398,35 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Checks if the character is rising.
+   * Returns true while ascending and not hurt.
    */
   isRising() {
     return this.speedY >= 0.5 && !this.isHurt();
   }
 
   /**
-   * Checks if the character is at the peak of the jump.
+   * Returns true around the apex of the jump.
    */
   isAtJumpPeak() {
     return this.isOnJumpPeak();
   }
 
   /**
-   * Checks if the character is in mid fall.
+   * Returns true for moderate downward speed while not hurt.
    */
   isFallingMid() {
     return this.speedY <= -0.2 && this.speedY >= -0.6 && !this.isHurt();
   }
 
   /**
-   * Checks if the character is falling fast.
+   * Returns true for fast downward movement while airborne and not hurt.
    */
   isFallingFast() {
     return this.speedY < -0.6 && !this.isHurt() && this.isAboveGround();
   }
 
   /**
-   * Checks if the character is at the top of their jump.
+   * Returns true when vertical speed is near zero at peak while airborne.
    */
   isOnJumpPeak() {
     return (
@@ -429,6 +437,9 @@ class Character extends MoveableObject {
     );
   }
 
+  /**
+   * Handles collision with the active Endboss, bouncing on stomp or taking damage otherwise.
+   */
   checkEndbossCollisionSpecial() {
     const enemies = this.world?.level?.enemies || [];
     const boss = enemies.find(
@@ -436,7 +447,6 @@ class Character extends MoveableObject {
     );
     if (!boss) return;
     if (!this.isColliding(boss)) return;
-
     if (this.isJumpingOn(boss)) {
       this.bounce();
     } else if (!this.isBeingHit) {
@@ -444,6 +454,9 @@ class Character extends MoveableObject {
     }
   }
 
+  /**
+   * Resolves collisions with non-boss enemies, stomping to kill or taking damage otherwise.
+   */
   checkEnemyCollisionsExceptBoss() {
     const enemies = (this.world?.level?.enemies || []).filter(
       (e) => !(e instanceof Endboss)
@@ -461,24 +474,22 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Checks if the character is jumping on top of an enemy.
+   * Determines if the character is stomping an enemy from above based on overlap and vertical motion.
    */
   isJumpingOn(enemy) {
     const horizontallyOverlaps =
       this.x + this.width > enemy.x + enemy.width * 0.2 &&
       this.x < enemy.x + enemy.width * 0.8;
-
     const verticallyOverlaps =
       this.speedY < 0 &&
       this.y + this.height > enemy.y &&
       this.y < enemy.y &&
       this.y + this.height - enemy.y < enemy.height / 2;
-
     return horizontallyOverlaps && verticallyOverlaps;
   }
 
   /**
-   * Checks and handles bottle collection.
+   * Collects ground bottles on collision, updates the UI counter, plays SFX, and removes the bottle.
    */
   checkBottleCollisions() {
     if (this.world?.level?.salsaBottles) {
@@ -496,8 +507,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Detects collisions between thrown bottles and the Endboss and
-   * routes the hit through Endboss.onBottleCollision() to mute bottle SFX.
+   * Detects hits from thrown bottles on the active Endboss and delegates damage handling.
    */
   checkBottleHitsEndboss() {
     const enemies = this.world?.level?.enemies || [];
@@ -505,7 +515,6 @@ class Character extends MoveableObject {
       (e) => e instanceof Endboss && e.isActive && !e.isDead
     );
     if (!boss) return;
-
     const bottles = this.world?.throwableObjects || [];
     bottles.forEach((bottle) => {
       if (!bottle || bottle.hasSplashed) return;
@@ -516,30 +525,27 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Throws a collected bottle if available.
+   * Throws a bottle if available, spawning a throwable and decrementing the status bar count.
    */
   throwBottle() {
     const bottlesLeft = this.world.statusBarBottle.collected;
     if (bottlesLeft > 0) {
       let bottle = new ThrowableObject(this.x, this.y, this.otherDirection);
-
       this.world.throwableObjects = this.world.throwableObjects || [];
-
       this.world.throwableObjects.push(bottle);
-
       this.world.statusBarBottle.setCollected(bottlesLeft - 1);
     }
   }
 
   /**
-   * Bounces the character upwards (e.g. after jumping on enemy).
+   * Applies a small upward impulse after a stomp.
    */
   bounce() {
     this.speedY = 15;
   }
 
   /**
-   * Starts death animation and removes character.
+   * Runs the death animation sequence and schedules character removal.
    */
   die() {
     this.stopSnore();
@@ -557,7 +563,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Removes Pepe from the world and shows the game over overlay.
+   * Removes the character from play and shows the game over overlay.
    */
   removeCharacter() {
     this.stopSnore();
@@ -567,6 +573,9 @@ class Character extends MoveableObject {
     showGameOverOverlay();
   }
 
+  /**
+   * Throttles and plays a short walking sound clip if sound is enabled.
+   */
   playWalkSound() {
     if (!soundEnabled) return;
     if (!this.lastWalkSoundTime || Date.now() - this.lastWalkSoundTime > 400) {

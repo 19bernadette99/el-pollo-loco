@@ -12,6 +12,7 @@ class SalsaBottle extends MoveableObject {
     this.width = 40;
     this.height = 60;
     this.setRandomImage();
+    this.offset = { left: 8, right: 8, top: 6, bottom: 6 };
   }
 
   /**

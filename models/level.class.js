@@ -10,7 +10,6 @@ class Level {
 
   /**
    * Creates a new level with given objects and generates random coins and bottles.
-   * @param {Object} options - Level configuration.
    */
   constructor({
     enemies = [],
@@ -24,10 +23,8 @@ class Level {
     this.clouds = clouds;
     this.backgroundObjects = backgroundObjects;
     this.level_end_x = level_end_x;
-
     this.maxCoins = coinCount;
     this.maxBottles = bottleCount;
-
     this.coins = this.createRandomCoins(coinCount);
     this.salsaBottles = this.createRandomBottles(bottleCount);
   }
@@ -41,7 +38,6 @@ class Level {
     if (bosses.length > 0) {
       return bosses.every(b => b.deathComplete === true);
     }
-
     return false;
   }
 
@@ -80,8 +76,6 @@ class Level {
 
   /**
    * Creates a set of salsa bottles at random X positions.
-   * @param {number} amount - Number of bottles to generate.
-   * @returns {SalsaBottle[]} Array of SalsaBottle objects.
    */
   createRandomBottles(amount) {
     let bottles = [];
@@ -94,8 +88,6 @@ class Level {
 
   /**
    * Shuffles an array in-place using Fisher-Yates algorithm.
-   * @param {Array} array - The array to shuffle.
-   * @returns {Array} Shuffled array.
    */
   shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {

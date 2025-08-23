@@ -5,10 +5,6 @@
 window.__AUDIO_POOL__ = window.__AUDIO_POOL__ || new Set();
 
 (function () {
-  /**
-   * Preserve native Audio constructor.
-   * @type {typeof Audio}
-   */
   const NativeAudio = window.Audio;
   /**
    * Override the global Audio constructor.
@@ -90,8 +86,6 @@ const soundEffects = {
 
 /**
  * Toggles background/start screen music and stores the preference.
- * 
- * @param {boolean} enabled - Whether music should be enabled.
  */
 function toggleMusic(enabled) {
   musicEnabled = enabled;

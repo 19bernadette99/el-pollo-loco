@@ -1,4 +1,4 @@
-class World {
+class World extends WorldCore {
   character;
   canvas;
   ctx;
@@ -18,30 +18,31 @@ class World {
   /**
    * Initializes the world with canvas, keyboard input, and selected level.
    */
-constructor(canvas, keyboard, level, options = {}) {
-  this.ctx = canvas.getContext("2d");
-  this.canvas = canvas;
-  this.keyboard = keyboard;
-  this.level = level;
-  this.level.hadBossesAtStart = this.level.enemies.some(e => e instanceof Endboss);
-  this.throwableObjects = [];
-  this.setCharacter();
-  const carried = Math.max(0, Math.min(100, Math.floor(options.initialHealth ?? 100)));
-  this.character.energy = carried;
-  this.statusBar = new StatusBar(this.character.energy);
-  this.statusBarEndboss = new StatusBarEndboss();
-  this.camera_x = 0;
-  this.gameStarted = false;
-  setTimeout(() => { this.gameStarted = true; }, 500);
-  this.setLevel(level);
-  this.spawnClouds();
-  this.endbossIsVisible();
-  const firstEndboss = this.level.enemies.find((e) => e instanceof Endboss);
-  if (firstEndboss) {
-    firstEndboss.world = this;
-    firstEndboss.activate();
+  constructor(canvas, keyboard, level, options = {}) {
+    super(); 
+    this.ctx = canvas.getContext("2d");
+    this.canvas = canvas;
+    this.keyboard = keyboard;
+    this.level = level;
+    this.level.hadBossesAtStart = this.level.enemies.some(e => e instanceof Endboss);
+    this.throwableObjects = [];
+    this.setCharacter();
+    const carried = Math.max(0, Math.min(100, Math.floor(options.initialHealth ?? 100)));
+    this.character.energy = carried;
+    this.statusBar = new StatusBar(this.character.energy);
+    this.statusBarEndboss = new StatusBarEndboss();
+    this.camera_x = 0;
+    this.gameStarted = false;
+    setTimeout(() => { this.gameStarted = true; }, 500);
+    this.setLevel(level);
+    this.spawnClouds();
+    this.endbossIsVisible();
+    const firstEndboss = this.level.enemies.find((e) => e instanceof Endboss);
+    if (firstEndboss) {
+      firstEndboss.world = this;
+      firstEndboss.activate();
+    }
   }
-}
 
   /**
    * Links the character to the current world instance.
@@ -130,161 +131,21 @@ constructor(canvas, keyboard, level, options = {}) {
   }
 
   /**
-   * Draws game world, UI, and characters per frame.
+   * Detects collisions between throwable bottles and any alive Endboss.
    */
-  draw() {
-    if (!this.level) return;
-    this.clearCanvas();
-    this.drawBackgroundLayers();
-    this.drawUI();
-    this.drawGameObjects();
-  }
-
-  /**
-   * Clears the entire canvas before drawing.
-   */
-  clearCanvas() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  }
-
-  /**
-   * Draws background, clouds, coins and bottles with camera offset.
-   */
-  drawBackgroundLayers() {
-    if (!this.level) return;
-    this.ctx.translate(this.camera_x, 0);
-    if (this.level.backgroundObjects) {
-      this.addObjectsToMap(this.level.backgroundObjects);
-    }
-    if (this.level.clouds) {
-      this.addObjectsToMap(this.level.clouds);
-    }
-    if (this.level.coins) {
-      this.addObjectsToMap(this.level.coins);
-    }
-    if (this.level.salsaBottles) {
-      this.addObjectsToMap(this.level.salsaBottles);
-    }
-    this.ctx.translate(-this.camera_x, 0);
-  }
-
-  /**
-   * Draws status bars like health, bottles and coins.
-   */
-  drawUI() {
-    this.addToMap(this.statusBar);
-    this.addToMap(this.statusBarBottle);
-    this.addToMap(this.statusBarCoin);
-    if (this.endbossIsVisible()) {
-      this.addToMap(this.statusBarEndboss);
-    }
-  }
-
-  /**
-   * Draws player, enemies and throwable bottles.
-   * Also checks for throw and collisions.
-   */
-  drawGameObjects() {
-    this.ctx.translate(this.camera_x, 0);
-    this.checkThrowObjects();
-    this.addToMap(this.character);
-    this.addObjectsToMap(this.level.enemies);
-    this.addObjectsToMap(this.throwableObjects);
-    this.checkBottleHitsEndboss();
-    this.ctx.translate(-this.camera_x, 0);
-  }
-
-  /**
-   * Requests the next animation frame for drawing.
-   */
-  scheduleNextFrame() {
-    requestAnimationFrame(() => this.draw());
-  }
-
-  /**
-   * Adds an array of objects to the canvas.
-   */
-  addObjectsToMap(objects) {
-    objects.forEach((o) => {
-      if (o) this.addToMap(o);
+  checkBottleHitsEndboss() {
+    const bosses = this.level.enemies.filter(
+      (e) => e instanceof Endboss && !e.deathComplete
+    );
+    if (bosses.length === 0) return;
+    this.throwableObjects.forEach((bottle, index) => {
+      const hitBoss = bosses.find((b) => bottle.isColliding(b));
+      if (!hitBoss) return;
+      hitBoss.onBottleCollision?.(bottle, 20);
+      this.statusBarEndboss.setPercentage(hitBoss.percentage);
+      this.throwableObjects.splice(index, 1);
     });
   }
-
-  /**
-   * Adds a single object to the canvas, handling flipping if needed.
-   */
-  addToMap(mo) {
-    if (!mo) return;
-    if (mo.otherDirection) {
-      this.flipImage(mo);
-    } else {
-      mo.draw(this.ctx);
-    }
-    if (mo.otherDirection) {
-      this.flipImageBack(mo);
-    }
-  }
-
-  /**
-   * Mirrors the drawing context horizontally.
-   */
-  flipImage(mo) {
-    this.ctx.save();
-    this.ctx.translate(mo.x + mo.width, 0);
-    this.ctx.scale(-1, 1);
-    this.ctx.drawImage(mo.img, 0, mo.y, mo.width, mo.height);
-    this.ctx.restore();
-  }
-
-  /**
-   * Restores flipped image position after drawing.
-   */
-  flipImageBack(mo) {
-    mo.x = -mo.x * -1;
-    this.ctx.restore();
-  }
-
-  /**
-   * Spawns clouds periodically if fewer than the max allowed.
-   */
-  spawnClouds() {
-    this.cloudSpawnInterval = setInterval(() => {
-      if (!this.level || !this.level.clouds) return;
-      const maxClouds = 2;
-      if (this.level.clouds.length < maxClouds) {
-        let newCloud = new Cloud(this.level.clouds);
-        this.level.clouds.push(newCloud);
-      }
-    }, 5000);
-  }
-
-  /**
-   * Checks if the endboss is currently visible on screen.
-   * @returns {boolean}
-   */
-  endbossIsVisible() {
-    let endboss = this.level.enemies.find((e) => e instanceof Endboss);
-    if (!endboss) return false;
-    return this.camera_x * -1 + this.canvas.width >= endboss.x;
-  }
-
-/**
- * Detects collisions between throwable bottles and any alive Endboss.
- * Routes through Endboss.onBottleCollision to ensure bottle splash is muted.
- */
-checkBottleHitsEndboss() {
-  const bosses = this.level.enemies.filter(
-    (e) => e instanceof Endboss && !e.deathComplete
-  );
-  if (bosses.length === 0) return;
-  this.throwableObjects.forEach((bottle, index) => {
-    const hitBoss = bosses.find((b) => bottle.isColliding(b));
-    if (!hitBoss) return;
-    hitBoss.onBottleCollision?.(bottle, 20);
-    this.statusBarEndboss.setPercentage(hitBoss.percentage);
-    this.throwableObjects.splice(index, 1);
-  });
-}
 
   /**
    * Displays the game-over overlay.
@@ -297,26 +158,24 @@ checkBottleHitsEndboss() {
   /**
    * Checks if the level is finished and triggers level-up.
    */
-checkLevelProgress() {
-  if (!this.level || this.levelUpTriggered) return;
-  const hadBosses = !!this.level.hadBossesAtStart;
-  if (!hadBosses) return; 
-  const anyBossNotDone = this.level.enemies.some(
-    e => e instanceof Endboss && !e.deathComplete
-  );
-
-  if (anyBossNotDone) return;
-
-  this.levelUpTriggered = true;
-  setTimeout(() => this.triggerLevelUp(), 50);
-}
+  checkLevelProgress() {
+    if (!this.level || this.levelUpTriggered) return;
+    const hadBosses = !!this.level.hadBossesAtStart;
+    if (!hadBosses) return;
+    const anyBossNotDone = this.level.enemies.some(
+      e => e instanceof Endboss && !e.deathComplete
+    );
+    if (anyBossNotDone) return;
+    this.levelUpTriggered = true;
+    setTimeout(() => this.triggerLevelUp(), 50);
+  }
 
   /**
    * Opens the level-up screen and prepares the next level.
    */
   triggerLevelUp() {
     showLevelUpOverlay(() => {
-   if (currentLevelIndex + 1 < levelConfigs.length) {
+      if (currentLevelIndex + 1 < levelConfigs.length) {
         this.loadNextLevel();
       } else {
         showGameFinishedOverlay();
@@ -327,81 +186,21 @@ checkLevelProgress() {
   /**
    * Loads the next level from the level list.
    */
-loadNextLevel() {
-  if (currentLevelIndex + 1 < levelConfigs.length) {
-    currentLevelIndex++;
-   if (typeof window !== 'undefined') {
-     window.overlayOpen = false;
-     window.gamePaused = false;
-   }
-   this.gamePaused = false;
-    this.setLevel(generateLevel(levelConfigs[currentLevelIndex]));
-    this.levelUpTriggered = false;
-   if (typeof window !== 'undefined' && !window.loopActive) {
-     startGameLoop();
-   }
-  } else {
-    showGameFinishedOverlay();
-  }
-}
-
-  /**
-   * Sets up the current level, enemies, status bars and character.
-   */
-  setLevel(level) {
-    this.level = level;
-    this.level.hadBossesAtStart = this.level.enemies.some(e => e instanceof Endboss);
-    this.initializeEnemies();
-    this.initializeStatusBars();
-    this.initializeCharacter();
-    this.initializeEndboss();
-    this.statusBarEndboss = new StatusBarEndboss();
-  }
-
-  /**
-   * Assigns the world reference to all enemies.
-   */
-  initializeEnemies() {
-    this.level.enemies.forEach((enemy) => {
-      enemy.world = this;
-      enemy.animate?.();
-    });
-  }
-
-  /**
-   * Sets up coin and bottle status bars and resets counters.
-   */
-  initializeStatusBars() {
-    this.statusBarCoin = new StatusBarCoin(this.level.maxCoins);
-    this.statusBarBottle = new StatusBarBottle(this.level.maxBottles);
-    this.collectedCoins = 0;
-    this.throwableObjects = [];
-  }
-
-  /**
-   * Sets character position and resets relevant states.
-   */
-  initializeCharacter() {
-    if (!this.character) return;
-    this.character.world = this;
-    this.character.keyboard = this.keyboard;
-    this.character.x = 120;
-    this.character.y = 210;
-    this.character.speed = 10;
-    this.character.isDead = false;
-    this.character.isJumping = false;
-    this.character.lastActionTime = Date.now();
-    this.camera_x = 0;
-  }
-
-  /**
-   * Finds and activates the first Endboss in the level.
-   */
-  initializeEndboss() {
-    const firstEndboss = this.level.enemies.find((e) => e instanceof Endboss);
-    if (firstEndboss) {
-      firstEndboss.world = this;
-      firstEndboss.activate();
+  loadNextLevel() {
+    if (currentLevelIndex + 1 < levelConfigs.length) {
+      currentLevelIndex++;
+      if (typeof window !== 'undefined') {
+        window.overlayOpen = false;
+        window.gamePaused = false;
+      }
+      this.gamePaused = false;
+      this.setLevel(generateLevel(levelConfigs[currentLevelIndex]));
+      this.levelUpTriggered = false;
+      if (typeof window !== 'undefined' && !window.loopActive) {
+        startGameLoop();
+      }
+    } else {
+      showGameFinishedOverlay();
     }
   }
 
@@ -422,14 +221,8 @@ loadNextLevel() {
     this.updateThrowableObjects?.();
   }
 
-  scheduleNextFrame() {
-    if (!this.level) return;
-    this.animationFrameId = requestAnimationFrame(() => this.draw());
-  }
-
   /**
    * Kills chickens that are hit by a flying salsa bottle.
-   * Bottles splash on impact (no ground sound).
    */
   checkBottleChickenCollisions() {
     const bottles = (this.throwableObjects || []).filter((b) => !b.hasSplashed);
@@ -448,7 +241,6 @@ loadNextLevel() {
 
   /**
    * Checks whether two axis-aligned bounding boxes (AABB) overlap.
-   * This function compares the x/y positions and widths/heights of two objects
    */
   aabb(a, b) {
     return (

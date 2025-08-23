@@ -12,16 +12,13 @@ class Chicken extends MoveableObject {
   ];
 
   /**
-   * Creates a big or small chicken, sets position and speed, starts animation.
-   * @param {boolean} isLittle - Whether the chicken is small.
+   * Creates a big or small chicken, sets position and speed, and starts animation.
    */
   constructor(isLittle = false) {
     super();
     this.isLittle = isLittle;
-
     if (this.isLittle) this.littleChicken();
     else this.bigChicken();
-
     this.otherDirection = false;
     this.x = Math.max(this.x, 450);
     this.speed = 0.15 + Math.random() * 0.5;
@@ -30,9 +27,7 @@ class Chicken extends MoveableObject {
     }
   }
 
-  /**
-   * Sets up a small chicken with image, size, and position.
-   */
+  /** Sets up a small chicken with images, size, and ground position. */
   littleChicken() {
     this.loadImage(this.IMAGES_WALKING_LITTLE[0]);
     this.loadImages(this.IMAGES_WALKING_LITTLE);
@@ -43,9 +38,7 @@ class Chicken extends MoveableObject {
     this.x = 500;
   }
 
-  /**
-   * Sets up a big chicken with image, size, and position.
-   */
+  /** Sets up a big chicken with images, size, and ground position. */
   bigChicken() {
     this.loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
@@ -56,31 +49,28 @@ class Chicken extends MoveableObject {
     this.x = 500;
   }
 
+  /** Moves the chicken left and sets facing to left. */
   moveLeft() {
     this.x -= this.speed;
     this.otherDirection = false;
   }
 
+  /** Moves the chicken right and sets facing to right. */
   moveRight() {
     this.x += this.speed;
     this.otherDirection = true;
   }
 
-  /**
-   * Starts movement and walk animation.
-   */
+  /** Starts the movement and walking animation loops. */
   animate() {
     this.moveLoop();
     this.walkLoop();
   }
 
-  /**
-   * Handles left/right movement.
-   */
+  /** Runs horizontal patrol logic at ~60 FPS, respecting world bounds. */
   moveLoop() {
     this.walkInterval = setInterval(() => {
       if (window.gamePaused || this.hasDied) return;
-
       if (this.otherDirection || this.x <= 10) this.moveRight();
       else if (this.x + this.width >= this.world.level.level_end_x - 10)
         this.moveLeft();
@@ -88,9 +78,7 @@ class Chicken extends MoveableObject {
     }, 1000 / 60);
   }
 
-  /**
-   * Plays walk animation if chicken is alive and moving.
-   */
+  /** Plays the walking animation while alive at a fixed cadence. */
   walkLoop() {
     this.animationInterval = setInterval(() => {
       if (window.gamePaused || this.hasDied) return;
@@ -99,9 +87,7 @@ class Chicken extends MoveableObject {
     }, 250);
   }
 
-  /**
-   * Stops movement/animation and triggers death image + removal.
-   */
+  /** Stops loops, shows death frame, and removes the sprite after a delay. */
   die() {
     this.hasDied = true;
     this.speed = 0;
@@ -110,17 +96,13 @@ class Chicken extends MoveableObject {
     setTimeout(() => (this.y = 9999), 500);
   }
 
-  /**
-   * Clears walking and animation intervals if active.
-   */
+  /** Clears movement and animation intervals if set. */
   stopAllIntervals() {
     clearInterval(this.walkInterval);
     clearInterval(this.animationInterval);
   }
 
-  /**
-   * Loads correct death image based on enemy type.
-   */
+  /** Loads the correct dead sprite depending on chicken size. */
   showDeadImage() {
     const basePath = "img/3_enemies_chicken/";
     const type = this.isLittle ? "chicken_small" : "chicken_normal";
@@ -128,7 +110,7 @@ class Chicken extends MoveableObject {
   }
 
   /**
-   * Draws the object, flipped horizontally if facing left.
+   * Draws the chicken, horizontally flipped when facing left.
    */
   draw(ctx) {
     if (this.otherDirection) {
