@@ -305,8 +305,73 @@ function createCountdownElementIfNeeded() {
 }
 
 /**
+ * Adds close button logic to overlays.
+ * For the level-up overlay, trigger the onContinue callback by calling
+ * `continueToNextLevel()` instead of just hiding, so the next level loads.
+ */
+function attachCloseButtonListener(overlay, closeId) {
+  const btn = document.getElementById(closeId);
+  btn?.addEventListener("click", () => {
+    if (overlay.id === "levelUpOverlay") {
+      continueToNextLevel();
+      return; 
+    }
+    hideOverlay(overlay);
+    if (overlay.id === "gameOverOverlay") {
+      hide("canvasWrapper");
+      show("startScreenWrapper");
+      gameStarted = false;
+    }
+  });
+}
+
+/**
  * Hides countdown DOM element.
  */
 function hideCountdownElement() {
   if (countdownElement) countdownElement.style.display = "none";
+}
+
+/**
+ * Displays the start screen.
+ */
+function showStartScreen() {
+  window.world?.character?.wakeUpPepe?.();
+  hide("canvas");
+  show("startScreenWrapper");
+  gameStarted = false;
+  setPlayButtonVisible(true);  
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+  startScreenMusic.currentTime = 0;
+  if (musicEnabled) {
+    startScreenMusic.play().catch(() => {});
+  }
+}
+
+/**
+ * Shows the final overlay after all levels are completed.
+ * Automatically returns to start screen after 10 seconds.
+ */
+function showGameFinishedOverlay() {
+  document.getElementById("backToStartBtn")?.classList.add("hidden");
+  document.querySelector("#mobile-controls")?.classList.add("hidden");
+  show("gameFinishedOverlay");
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+  if (soundEnabled) {
+    playSound("applause");
+  }
+  setTimeout(() => {
+    hide("gameFinishedOverlay");
+    stopGameAndReturnToStart();
+  }, 10000);
+}
+
+/**
+ * Shows the mobile play btn
+ */
+function setPlayButtonVisible(showIt) {
+  const btn = document.getElementById('mobileStartBtn');
+  btn?.classList.toggle('hidden', !showIt);
 }

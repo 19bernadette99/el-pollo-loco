@@ -59,6 +59,7 @@ function startGameSequence() {
   if (gameStarted) return;
   gameStarted = true;
   hide("startScreenWrapper");
+  setPlayButtonVisible(false);    
   startGame();
   showMobileUI();
 }
@@ -252,27 +253,6 @@ function processOverlayClose(overlay) {
 }
 
 /**
- * Adds close button logic to overlays.
- * For the level-up overlay, trigger the onContinue callback by calling
- * `continueToNextLevel()` instead of just hiding, so the next level loads.
- */
-function attachCloseButtonListener(overlay, closeId) {
-  const btn = document.getElementById(closeId);
-  btn?.addEventListener("click", () => {
-    if (overlay.id === "levelUpOverlay") {
-      continueToNextLevel();
-      return; 
-    }
-    hideOverlay(overlay);
-    if (overlay.id === "gameOverOverlay") {
-      hide("canvasWrapper");
-      show("startScreenWrapper");
-      gameStarted = false;
-    }
-  });
-}
-
-/**
  * Wires overlay pause/resume behavior by delegating to helper binders.
  */
 function setupPauseResumeOnOverlay(openIds, id, closeId, overlay) {
@@ -410,37 +390,3 @@ function stopGameOverUIAndMusic() {
   }
 }
 
-/**
- * Displays the start screen.
- */
-function showStartScreen() {
-  window.world?.character?.wakeUpPepe?.();
-  hide("canvas");
-  show("startScreenWrapper");
-  gameStarted = false;
-  backgroundMusic.pause();
-  backgroundMusic.currentTime = 0;
-  startScreenMusic.currentTime = 0;
-  if (musicEnabled) {
-    startScreenMusic.play().catch(() => {});
-  }
-}
-
-/**
- * Shows the final overlay after all levels are completed.
- * Automatically returns to start screen after 10 seconds.
- */
-function showGameFinishedOverlay() {
-  document.getElementById("backToStartBtn")?.classList.add("hidden");
-  document.querySelector("#mobile-controls")?.classList.add("hidden");
-  show("gameFinishedOverlay");
-  backgroundMusic.pause();
-  backgroundMusic.currentTime = 0;
-  if (soundEnabled) {
-    playSound("applause");
-  }
-  setTimeout(() => {
-    hide("gameFinishedOverlay");
-    stopGameAndReturnToStart();
-  }, 10000);
-}

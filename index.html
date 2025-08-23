@@ -64,16 +64,17 @@
     <canvas id="canvas" width="720" height="480" class="hidden"></canvas>
   <button id="backToStartBtn" class="canvas-btn hidden" title="Zurück zum Startscreen">🔙</button>
 
-    <div class="mobile-action-bar">
-      <button title="Menü öffnen" id="mobileMenuToggle">🧰</button>
-      <div id="mobileMenu" class="mobile-menu">
-        <button title="Play" id="mobileStartBtn">▶️</button>
-        <button title="Story" id="mobileStoryBtn">📖</button>
-        <button title="Controls" id="mobileControlsBtn">🎮</button>
-        <button title="Sound" id="mobileSoundBtn">🔊</button>
-        <button title="Impressum" id="mobileImpressumBtn">ℹ️</button>
-      </div>
-    </div>
+<div class="mobile-action-bar">
+  <button title="Menü öffnen" id="mobileMenuToggle">🧰</button>
+  <div id="mobileMenu" class="mobile-menu">
+    <button title="Story" id="mobileStoryBtn">📖</button>
+    <button title="Controls" id="mobileControlsBtn">🎮</button>
+    <button title="Sound" id="mobileSoundBtn">🔊</button>
+    <button title="Impressum" id="mobileImpressumBtn">ℹ️</button>
+  </div>
+    <button title="Play" id="mobileStartBtn">▶️</button>
+</div>
+
 
     <div id="mobile-controls" class="mobile-controls">
       <div class="right-controls">
@@ -188,14 +189,14 @@
           <button id="closeControlsBtn" class="close-btn">&times;</button>
           <h2>Controls</h2>
           <div class="controls-list">
-            <div class="control-line">
-              <span class="keycap">⯇</span>
-              <span class="label">Run left</span>
-            </div>
-            <div class="control-line">
-              <span class="keycap">⯈</span>
-              <span class="label">Run right</span>
-            </div>
+          <div class="control-line">
+            <span class="keycap"><span class="emoji">⬅️</span></span>
+            <span class="label">Run left</span>
+          </div>
+          <div class="control-line">
+            <span class="keycap"><span class="emoji">➡️</span></span>
+            <span class="label">Run right</span>
+          </div>
             <div class="control-line">
               <span style="font-size: 12px" class="keycap">Space</span>
               <span class="label">Jump</span>
@@ -262,8 +263,6 @@
             <p>You're a true hero of the Fiery Jalapeño Desert! </p>
           </div>
         </div>
-
-
       </div>
     </div>
 </div> 

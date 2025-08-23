@@ -113,6 +113,13 @@ canvas {
   bottom: 8px;
 }
 
+.keycap .emoji {
+  display: inline-block;
+  filter: sepia(1) saturate(7) hue-rotate(-10deg) brightness(1.05);
+}
+
+.keycap { -webkit-user-select: none; user-select: none; }
+
 .mobile-menu {
   position: absolute;
   bottom: calc(56px + 8px);
@@ -154,6 +161,33 @@ canvas {
   padding: 0 20px;
   box-sizing: border-box;
   pointer-events: none;
+}
+
+.control-btn {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mobile-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-action-bar > button {
+  width: 48px;
+  height: 48px;
+  font-size: 20px;
+  background-color: #ffd500;
+  border: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .left-controls,

@@ -14,12 +14,40 @@ function init() {
 }
 
 /**
- * Sets up all mobile control buttons.
+ * Resets all virtual key flags to false.
+ * Use as a safety net (e.g., on blur/hidden) to avoid "stuck" inputs.
+ */
+const resetKeys = () =>
+  Object.assign(keyboard, { LEFT:false, RIGHT:false, UP:false, DOWN:false, SPACE:false, D:false });
+
+/**
+ * Binds pointer-safe press/release handlers to a control element.
+ * Uses pointer capture and multiple end/cancel events to prevent "stuck" buttons.
+ */
+function bind(el, onDown, onUp) {
+  if (!el) return;
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    el.setPointerCapture?.(e.pointerId);
+    onDown();
+  });
+  ['pointerup','pointercancel','lostpointercapture','pointerleave','pointerout']
+    .forEach(t => el.addEventListener(t, onUp, { passive:false }));
+}
+
+/**
+ * Wires up mobile control buttons and global safety nets.
  */
 function setupMobileControls() {
-  setupDirectionalControls();
-  setupJumpControl();
-  setupThrowControl();
+  bind(document.getElementById('btn-left'),  () => (keyboard.LEFT  = true), () => (keyboard.LEFT  = false));
+  bind(document.getElementById('btn-right'), () => (keyboard.RIGHT = true), () => (keyboard.RIGHT = false));
+  bind(document.getElementById('btn-jump'),
+       () => { keyboard.UP = true; keyboard.SPACE = true; },
+       () => { keyboard.UP = false; keyboard.SPACE = false; });
+
+  bind(document.getElementById('btn-throw'), () => (keyboard.D = true), () => (keyboard.D = false));
+  window.addEventListener('blur', resetKeys, true);
+  document.addEventListener('visibilitychange', () => document.hidden && resetKeys(), true);
 }
 
 /**
@@ -149,3 +177,5 @@ function initOverlayKeyBlocker() {
 }
 
 window.addEventListener('DOMContentLoaded', initOverlayKeyBlocker);
+
+
