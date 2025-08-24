@@ -38,15 +38,12 @@ class MoveableObject extends DrawableObject {
   }
 
   /**
-   * Checks for collision with another moveable object.
+   * Checks for collision with another moveable object using
+   * effective hitboxes (hitbox or offset) and type-specific thresholds.
    */
   isColliding(mo) {
-    return (
-      this.x + this.width > mo.x &&
-      this.y + this.height > mo.y &&
-      this.x < mo.x + mo.width &&
-      this.y < mo.y + mo.height
-    );
+    const t = selectThreshold(this, mo);
+    return overlapsWithThreshold(this, mo, t);
   }
 
   /**

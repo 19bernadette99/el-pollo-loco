@@ -4,6 +4,9 @@
 window.addEventListener("DOMContentLoaded", () => {
   setupFullscreenButton();
   setupFullscreenEvents();
+  initOrientationOverlay();
+  showMobileUI();
+  setupResizeListeners();
 });
 
 /**
@@ -12,7 +15,6 @@ window.addEventListener("DOMContentLoaded", () => {
  */
 function setupFullscreenButton() {
   const desktopBtn = document.getElementById("fullscreenBtn");
-
   if (desktopBtn) {
     desktopBtn.addEventListener("click", toggleFullscreen);
   }
@@ -35,8 +37,7 @@ function toggleFullscreen() {
 
 /**
  * Checks if the browser is currently in fullscreen mode.
- *
- * @returns {boolean} True if fullscreen is active; otherwise, false.
+ * True if fullscreen is active; otherwise, false.
  */
 function isFullscreen() {
   return !!document.fullscreenElement;
@@ -89,85 +90,79 @@ function setupFullscreenEvents() {
  */
 function updateFullscreenButton() {
   const desktopBtn = document.getElementById("fullscreenBtn");
-
   if (desktopBtn) {
     desktopBtn.textContent = isFullscreen() ? "Exit Fullscreen" : "Fullscreen";
   }
 }
 
-/** 
- * Toggles rotate overlay for portrait mobile mode. 
- */ 
-function checkOrientationAndToggleOverlay() {
-  const overlay = document.getElementById("rotateOverlay");
-  const portrait = window.matchMedia("(orientation: portrait)").matches;
-  const mobile = window.innerWidth <= 1060;
-  overlay.classList.toggle("hidden", !(mobile && portrait));
-}
-
 /**
  * Builds a device profile using touch, hover, iPadOS fixes and viewport width.
- * @returns {Object} Profile flags and screen dimensions.
  */
 function getDeviceProfile() {
   const w = innerWidth, h = innerHeight, mt = navigator.maxTouchPoints || 0;
-  const hasTouch = mt > 0 || "ontouchstart" in window, hasHover = matchMedia("(hover: hover)").matches;
+  const hasTouch = mt > 0 || "ontouchstart" in window;
+  const hasHover = matchMedia("(hover: hover)").matches;
   const isIPadLike = (navigator.platform === "MacIntel" && mt > 1) || /iPad/.test(navigator.userAgent);
-  const isPhoneWidth = w < 768, isTabletWidth = w >= 768 && w <= 1366;
+  const isPhoneWidth = w < 768;
+  const isTabletWidth = w >= 768 && w <= 1366;
   const isPhone = hasTouch && !hasHover && isPhoneWidth && !isIPadLike;
   const isTablet = hasTouch && (!hasHover || isIPadLike) && (isTabletWidth || isIPadLike);
   const isDesktop = !isPhone && !isTablet;
   return { width: w, height: h, hasTouch, hasHover, isPhone, isTablet, isDesktop, isIPadLike };
 }
 
-
 /**
- * Shows or hides mobile UI elements depending on device profile.
- * Applies the "visible" class to mobile action bar and controls.
+ * Shows or hides general mobile UI (but not the mobile controls).
  */
 function showMobileUI() {
   const p = getDeviceProfile();
   const useMobile = p.isPhone || p.isTablet;
-  const bar = document.querySelector(".mobile-action-bar");
-  const ctr = document.querySelector("#mobile-controls");
-  bar?.classList.toggle("visible", useMobile);
-  ctr?.classList.toggle("visible", useMobile);
+  const bar = document.querySelector('.mobile-action-bar');
+  bar?.classList.toggle('visible', useMobile);
 }
 
-/** Timer handle for rotate overlay auto-hide. */
-let rotateOverlayTimer = null;
-
+/**
+ * Returns true when we should consider "mobile-like" UI (phone or tablet).
+ */
+function isMobileLike() {
+  const p = getDeviceProfile();
+  return p.isPhone || p.isTablet;
+}
 
 /**
- * On phone/tablet in portrait: show overlay for 3s, then hide.
- * Otherwise keep it hidden.
+ * Shows overlay only on mobile-like devices while in portrait orientation.
  */
-function checkOrientationAndToggleOverlay() {
-  const p = getDeviceProfile();
+function updateRotateOverlay() {
   const overlay = document.getElementById("rotateOverlay");
   if (!overlay) return;
 
-  const portrait = matchMedia("(orientation: portrait)").matches;
-  const mobileLike = p.isPhone || p.isTablet;
-
-  if (mobileLike && portrait) {
-    overlay.classList.remove("hidden");
-    clearTimeout(rotateOverlayTimer);
-    rotateOverlayTimer = setTimeout(() => overlay.classList.add("hidden"), 3000);
-  } else {
-    overlay.classList.add("hidden");
-  }
+  const portrait = window.matchMedia("(orientation: portrait)").matches;
+  const show = isMobileLike() && portrait;
+  overlay.classList.toggle("hidden", !show);
 }
 
 /**
- * Registers resize and orientationchange listeners.
- * Re-evaluates orientation and UI on every change.
+ * Sets up listeners to keep rotate overlay in sync with orientation and layout.
+ */
+function initOrientationOverlay() {
+  updateRotateOverlay();
+  const mqPortrait = window.matchMedia("(orientation: portrait)");
+  mqPortrait.addEventListener("change", updateRotateOverlay);
+  window.addEventListener("resize", updateRotateOverlay, { passive: true });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") updateRotateOverlay();
+  });
+}
+
+/**
+ * Re-evaluates mobile UI on viewport/layout changes.
+ * Orientation overlay is handled by initOrientationOverlay().
  */
 function setupResizeListeners() {
   const handler = () => {
-    checkOrientationAndToggleOverlay();
     showMobileUI();
   };
-  addEventListener("resize", handler, { passive: true });
-  addEventListener("orientationchange", handler, { passive: true });
+  window.addEventListener("resize", handler, { passive: true });
+  window.addEventListener("orientationchange", handler, { passive: true });
 }

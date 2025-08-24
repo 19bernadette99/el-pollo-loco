@@ -16,7 +16,6 @@ window.addEventListener("DOMContentLoaded", () => {
   setupFullscreenConfirm();
   setupMobileMenu();
   setupMobileControls();
-  checkOrientationAndToggleOverlay();
 });
 
 /**

@@ -118,7 +118,10 @@ canvas {
   filter: sepia(1) saturate(7) hue-rotate(-10deg) brightness(1.05);
 }
 
-.keycap { -webkit-user-select: none; user-select: none; }
+.keycap {
+  -webkit-user-select: none;
+  user-select: none;
+}
 
 .mobile-menu {
   position: absolute;
@@ -167,6 +170,14 @@ canvas {
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
+}
+
+#mobile-controls {
+  display: none;
+}
+
+.is-touch.game-started #mobile-controls { 
+  display: flex; 
 }
 
 .mobile-action-bar {

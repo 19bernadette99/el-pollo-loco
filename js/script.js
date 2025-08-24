@@ -17,6 +17,20 @@ function startGameLoop() {
 }
 
 /**
+ * Marks the document as game-started (enables mobile controls).
+ */
+function enableMobileControls() {
+  document.documentElement.classList.add('game-started');
+}
+
+/**
+ * Disables mobile controls by removing the game-started flag.
+ */
+function disableMobileControls() {
+  document.documentElement.classList.remove('game-started');
+}
+
+/**
  * Starts the game by initializing the world and showing the canvas.
  */
 function startGame() {
@@ -26,8 +40,11 @@ function startGame() {
     const canvas = getCanvas();
     ensureKeyboardReady();
     createWorldWithFreshLevel(canvas);
+    applyDefaultHitboxes(world);
+    hookCollisionChecksIntoWorldUpdate(world);
     applySpawnProtection(world?.character, 2000);
     revealGameUI();
+    enableMobileControls();
     finalizeStateAndLoop();
   });
 }
@@ -145,6 +162,7 @@ function stopGameAndReturnToStart() {
   clearInputState();
   clearAllIntervals();
   clearAllTimeouts();
+  disableMobileControls();
   showStartScreen();
   hide("canvas");
   hide("backToStartBtn");
