@@ -212,6 +212,13 @@ canvas {
   padding-left: 52px;
 }
 
+#mobile-controls, #mobile-controls .control-btn {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
 .control-btn {
   width: 48px;
   height: 48px;

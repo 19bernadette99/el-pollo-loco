@@ -194,19 +194,13 @@ const resetKeys = () =>
  */
 function bind(el, onDown, onUp) {
   if (!el) return;
-  el.addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    el.setPointerCapture?.(e.pointerId);
-    onDown();
-  });
-  [
-    "pointerup",
-    "pointercancel",
-    "lostpointercapture",
-    "pointerleave",
-    "pointerout",
-  ].forEach((t) => el.addEventListener(t, onUp, { passive: false }));
+  const block = e => { e.preventDefault(); e.stopPropagation(); };
+  el.addEventListener('contextmenu', block, { passive:false });
+  el.addEventListener('pointerdown', e => { block(e); el.setPointerCapture?.(e.pointerId); onDown(); });
+  ['pointerup','pointercancel','lostpointercapture','pointerleave','pointerout']
+    .forEach(t => el.addEventListener(t, onUp, { passive:false }));
 }
+
 
 /** 
  * Wires up mobile control buttons and global safety nets. 
@@ -218,6 +212,18 @@ function setupMobileControls() {
   bind(document.getElementById("btn-throw"), ()=>keyboard.D=true, ()=>keyboard.D=false);
   window.addEventListener("blur", resetKeys, true);
   document.addEventListener("visibilitychange", ()=>document.hidden&&resetKeys(), true);
+}
+
+/** Hardens mobile controls against OS gestures/menus. */
+function hardenMobileControls() {
+  const root = document.getElementById('mobile-controls'); if (!root) return;
+  const block = e => { e.preventDefault(); e.stopPropagation(); };
+  ['contextmenu','selectstart','dragstart','gesturestart']
+    .forEach(t => root.addEventListener(t, block, { passive:false }));
+  root.querySelectorAll('button').forEach(b => {
+    b.setAttribute('type','button'); b.setAttribute('tabindex','-1');
+    b.addEventListener('dblclick', block, { passive:false });
+  });
 }
 
 /**

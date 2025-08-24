@@ -45,6 +45,7 @@ function startGame() {
     applySpawnProtection(world?.character, 2000);
     revealGameUI();
     enableMobileControls();
+    hardenMobileControls();
     finalizeStateAndLoop();
   });
 }
